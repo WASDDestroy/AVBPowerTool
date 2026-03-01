@@ -1,6 +1,5 @@
 /Core/__pycache__/
 /Core/Frontend/__pycache__/
-/Images/
 /Logs/
-/Configs/
-/Core/currentConfigs/
+/Core/currentConfigs
+/Images/*.img
