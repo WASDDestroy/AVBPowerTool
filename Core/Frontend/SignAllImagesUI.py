@@ -22,6 +22,7 @@ class SignAllImagesUI(BaseUI.BaseUI):
             myObject = self._createInstance(self.SignImages, "SignImages", self.myLogger)
             if os.name == "nt":
                 print("WARNING: YOU CANNOT ADD HASHTREE FOOTER WITH FEC ROOTS WHEN RUNNING ON WINDOWS")
+                print("AUTOMATICALLY SKIPPING FEC GENERATION")
                 self._pressEnterToContinue()
             elif self.__isWSL()[1] and "/mnt" in os.getcwd():
                 print("NOT RECOMMENDED TO RUN THIS PROGRAM IN WSL WITH SCRIPTS STORED IN NTFS WORLD")
