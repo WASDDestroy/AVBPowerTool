@@ -109,8 +109,9 @@ class SignImages:
                 if "vbmeta" in i.lower():
                     try:
                         os.remove(os.path.join(self.__IMAGE_DIR, i))
-                    except:
-                        pass
+                        self.myLogger.log("I", "Removed vbmeta image: " + i, self.TAG)
+                    except Exception as e:
+                        self.myLogger.log("W", "Exception happened when removing vbmeta images: " + repr(e), self.TAG)
         configDic = self.myConfigParser.json2Dic(imageConfigFileDir)
         self.myLogger.log("D", str(configDic), self.TAG)
         vbmetaList = []
