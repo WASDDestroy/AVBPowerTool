@@ -1,5 +1,4 @@
 import BaseUI
-import importlib
 
 class HomePageUI(BaseUI.BaseUI):
 
@@ -7,10 +6,7 @@ class HomePageUI(BaseUI.BaseUI):
         self.customizedFunction = {
             "V" : "View current config info"
         }
-        try:
-            self.DisplayAVBInfo = importlib.import_module("DisplayAVBInfo")
-        except:
-            pass
+        self.DisplayAVBInfo = self._importModule("DisplayAVBInfo")
         self.TAG = "HomePageUI"
     
     def callBackEnd(self, functionName: str):
