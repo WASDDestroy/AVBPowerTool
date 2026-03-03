@@ -27,13 +27,23 @@ class ConfigManager:
         self.myLogger.log("I", "Instance of ConfigManager successfully created.", "ConfigManager")
 
     def saveAsPersistentConfig(self, configName) -> bool:
+        if not self.__isConfigAvailable(configName):
+            configName = self.__getNewConfigName()
         try:
-            for i in os.listdir(os.path.join(os.getcwd(), "Core", "currentConfigs", configName)):
-                shutil.copy(os.path.join(os.getcwd(), "Core", "currentConfigs"),
+            self.myLogger.log("I", "Creating config directory in Configs dir.", self.TAG)
+            os.mkdir(os.path.join(os.getcwd(), "Configs", configName))
+            self.myLogger.log("I", "Saving image info.", self.TAG)
+            for i in os.listdir(os.path.join(os.getcwd(), "Core", "currentConfigs")):
+                self.myLogger.log("I", "Filename: " + i, self.TAG)
+                shutil.copy(os.path.join(os.getcwd(), "Core", "currentConfigs", i),
                             os.path.join(os.getcwd(), "Configs", configName, i))
-            for i in os.listdir(os.path.join(os.getcwd(), "Core", "Keys", "currentKeySet", configName)):
-                shutil.copy(os.path.join(os.getcwd(), "Core", "Keys", "currentKeySet"),
-                            os.path.join(os.getcwd(), "Core", "Keys", configName, i))
+            self.myLogger.log("I", "Creating key file directory in Keys dir.", self.TAG)
+            os.mkdir(os.path.join(os.getcwd(), "Keys", configName))
+            self.myLogger.log("I", "Saving public key file.", self.TAG)
+            for i in os.listdir(os.path.join(os.getcwd(), "Core", "currentKeySet")):
+                self.myLogger.log("I", "Filename: " + i, self.TAG)
+                shutil.copy(os.path.join(os.getcwd(), "Core", "currentKeySet", i),
+                            os.path.join(os.getcwd(), "Keys", configName, i))
             self.myLogger.log("I", "Config saved.", self.TAG)
             return True
         except Exception as e:
@@ -47,9 +57,9 @@ class ConfigManager:
             for i in os.listdir(os.path.join(os.getcwd(), "Configs", configName)):
                 shutil.copy(os.path.join(os.getcwd(), "Configs", configName, i),
                             os.path.join(os.getcwd(), "Core", "currentConfigs"))
-            for i in os.listdir(os.path.join(os.getcwd(), "Core", "Keys", configName)):
-                shutil.copy(os.path.join(os.getcwd(), "Core", "Keys", configName, i),
-                            os.path.join(os.getcwd(), "Core", "Keys", "currentKeySet"))
+            for i in os.listdir(os.path.join(os.getcwd(), "Keys", configName)):
+                shutil.copy(os.path.join(os.getcwd(), "Keys", configName, i),
+                            os.path.join(os.getcwd(), "Core", "currentKeySet"))
             return True
         except Exception as e:
             self.myLogger.log("W", "Failed to switch config " + configName + " active: ", self.TAG)
@@ -60,8 +70,8 @@ class ConfigManager:
         try:
             for i in os.listdir(os.path.join(os.getcwd(), "Core", "currentConfigs")):
                 os.remove(os.path.join(os.getcwd(), "currentConfigs", i))
-            for i in os.listdir(os.path.join(os.getcwd(), "Core", "Keys", "currentKeySet")):
-                os.remove(os.path.join(os.getcwd(), "Core", "Keys", "currentKeySet", i))
+            for i in os.listdir(os.path.join(os.getcwd(), "Core", "currentKeySet")):
+                os.remove(os.path.join(os.getcwd(), "Core", "currentKeySet", i))
             return True
         except Exception as e:
             self.myLogger.log("W", "Failed to deactivate current config: ", self.TAG)
@@ -72,7 +82,7 @@ class ConfigManager:
     def removeSingleConfig(self, configName) -> bool:
         try:
             shutil.rmtree(os.path.join(os.getcwd(), "Configs", configName))
-            shutil.rmtree(os.path.join(os.getcwd(), "Core", "Keys", configName))
+            shutil.rmtree(os.path.join(os.getcwd(), "Keys", configName))
             return True
         except Exception as e:
             self.myLogger.log("W", "Failed to remove config: " + configName, self.TAG)
@@ -221,8 +231,8 @@ class ConfigManager:
                     os.rename(os.path.join(EXTRACT_TO, "Keys", tmpFileName),
                             os.path.join(EXTRACT_TO, "Keys", configName))
                     shutil.copytree(os.path.join(EXTRACT_TO, "Keys", configName),
-                                    os.path.join(os.getcwd(), "Core", "Keys", configName))
-                    shutil.rmtree(os.path.join(EXTRACT_TO, "Core", "Keys", configName))
+                                    os.path.join(os.getcwd(), "Keys", configName))
+                    shutil.rmtree(os.path.join(EXTRACT_TO, "Keys", configName))
                 else:
                     # if available, copy them directly.
                     # we should keep this control flow only in the final version.
@@ -230,7 +240,7 @@ class ConfigManager:
                                     os.path.join(os.getcwd(), "Configs", configName))
                     shutil.rmtree(os.path.join(EXTRACT_TO, "Configs", configName))
                     shutil.copytree(os.path.join(EXTRACT_TO, "Keys", configName),
-                                    os.path.join(os.getcwd(), "Core", "Keys", configName))
+                                    os.path.join(os.getcwd(), "Keys", configName))
                     shutil.rmtree(os.path.join(EXTRACT_TO, "Keys", configName))
             self.myLogger.log("V", "Successfully copied config to target folder.", self.TAG)
         shutil.rmtree(EXTRACT_TO)
@@ -290,11 +300,11 @@ class ConfigManager:
         """
         
         if exportConfigFolderName == "current":
-            foldersRequired = (os.path.join(os.getcwd(), "currentConfigs"),
-                               os.path.join(os.getcwd(), "Core", "Keys", "currentKeySet"))
+            foldersRequired = (os.path.join(os.getcwd(), "Core", "currentConfigs"),
+                               os.path.join(os.getcwd(), "Core", "currentKeySet"))
         else:
             foldersRequired = (os.path.join(os.getcwd(), "Configs", exportConfigFolderName),
-                               os.path.join(os.getcwd(), "Core", "Keys", exportConfigFolderName))
+                               os.path.join(os.getcwd(), "Keys", exportConfigFolderName))
         
         if not exportToFileName.endswith(".zip"):
             self.myLogger.log("W", "Attempting to use other file extension name while exporting config.", self.TAG)
@@ -320,6 +330,12 @@ class ConfigManager:
                     myTempFile.write("Please rename this config before import.")
                 myZip.write("RENAME_REQUIRED")
                 os.remove("RENAME_REQUIRED")
+    
+    def getAllConfigs(self, configDir = os.path.join(os.getcwd(), "Configs")):
+        configList = []
+        for i in os.listdir(configDir):
+            configList.append(i)
+        return configList
 
 if __name__ == "__main__":
     myConfigManager = ConfigManager()
