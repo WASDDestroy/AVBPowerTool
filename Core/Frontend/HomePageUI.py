@@ -3,11 +3,11 @@ import Core.Frontend.BaseUI as BaseUI
 class HomePageUI(BaseUI.BaseUI):
 
     def customizedInit(self):
+        self.TAG = "HomePageUI"
         self.customizedFunction = {
             "V" : "View current config info"
         }
         self.DisplayAVBInfo = self._importModule("DisplayAVBInfo")
-        self.TAG = "HomePageUI"
     
     def callBackEnd(self, functionName: str):
         self.handleBackAndExit(functionName)

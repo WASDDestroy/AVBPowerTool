@@ -2,6 +2,7 @@ import BaseUI
 class ReadImageInfoUI(BaseUI.BaseUI):
 
     def customizedInit(self):
+        self.TAG = "ReadImageInfoUI"
         self.customizedFunction = {
             "A" : "Read info of all images",
             "S" : "Read info of selected image(s) (NOT RECOMMENDED)",

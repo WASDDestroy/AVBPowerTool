@@ -4,6 +4,7 @@ import os, time, json
 class SignAllImagesUI(BaseUI.BaseUI):
 
     def customizedInit(self):
+        self.TAG = "SignAllImagesUI"
         self.customizedFunction = {
             "Y" : "Sign all images with current config file",
             "I" : "Sign selected image file"
@@ -14,7 +15,6 @@ class SignAllImagesUI(BaseUI.BaseUI):
         # print(self.nodeFunction)
         # print(self.myNavigationEngine.getNextNodeNames())
         self.SignImages = self._importModule("SignImages.py")
-        self.TAG = "SignAllImagesUI"
     
     def callBackEnd(self, functionName : str):
         self.handleBackAndExit(functionName)

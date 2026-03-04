@@ -4,6 +4,7 @@ import os
 class ConfigManagerUI(BaseUI.BaseUI):
 
     def customizedInit(self):
+        self.TAG = "ConfigManagerUI"
         self.configManagerModule = self._importModule("ConfigManager.py")
         self.customizedFunction = {"S" : "Set a config active",
                                    "P" : "Save current config as a persistent one"}
