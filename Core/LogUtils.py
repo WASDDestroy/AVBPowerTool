@@ -23,21 +23,39 @@ class LogUtils:
     def __init__(self,
                  output = "file",
                  shouldAttachTime = False,
-                 logDir = os.path.join(os.getcwd(), "Logs")) -> None:
+                 logDir = None,
+                 instantMode = False) -> None:
+        self.instantMode = instantMode
         self.isLogToFile = True
         self.__shouldAttachTime = shouldAttachTime
+        if logDir is None:
+            logDir = os.path.join(os.getcwd(), "Logs")
         if output.lower() != "console":
-            if not os.path.exists(logDir):
-                os.mkdir(logDir)
-            fileName = os.path.join(logDir,
-                                    "log_" + time.strftime("%Y%m%d_%H%M%S", time.localtime()) + ".log")
-            self.logFile = open(fileName, "w+", encoding = "UTF-8")
-            self.isLogToFile = True
-        self.log("I", "Logger instance created.", "LogUtils")
+            try:
+                if not os.path.exists(logDir):
+                    os.makedirs(logDir, exist_ok=True)
+                fileName = os.path.join(logDir,
+                                        "log_" + time.strftime("%Y%m%d_%H%M%S", time.localtime()) + ".log")
+                self.logFile = open(fileName, "w+", encoding = "UTF-8")
+                self.isLogToFile = True
+                print(f"Log file created at: {fileName}")
+            except PermissionError:
+                print(f"Warning: Cannot create log directory at {logDir}, falling back to console output")
+                self.isLogToFile = False
+            except Exception as e:
+                print(f"Warning: Error creating log file: {e}, falling back to console output")
+                self.isLogToFile = False
+        try:
+            self.log("I", "Logger instance created.", "LogUtils")
+        except:
+            print("[INFO] [LogUtils] Logger instance created.")
     
     def __del__(self) -> None:
-        if self.isLogToFile:
-            self.logFile.close()
+        if hasattr(self, 'logFile') and self.logFile:
+            try:
+                self.logFile.close()
+            except:
+                pass
 
     # Construct log strings
     def __constructVerbose(self, verboseStr):
@@ -103,22 +121,27 @@ class LogUtils:
         :type logStr: str
         :param logObject: Where the log from.
         '''
-        if self.__LOG_LEVEL_DIC[logLevel] < self.__LOG_LEVEL_DIC[self.__log_level]:
-            return
-        logStr = str(logStr)
-        if not logObject.startswith("["):
-            logObject = "[" + logObject
-        if not logObject.endswith("]"):
-            logObject = logObject + "]"
-        if logStr != "" and logStr != "\n":
-            if self.isLogToFile:
-                self.logFile.write(self.__processLogString(logLevel, logObject + " " + logStr)
-                    + "\n")
-            else:
-                sys.stdout.write(
-                    self.__processLogString(logLevel, logObject + " " + logStr)
-                    + "\n"
-                    )
+        try:
+            if self.__LOG_LEVEL_DIC[logLevel] < self.__LOG_LEVEL_DIC[self.__log_level]:
+                return
+            logStr = str(logStr)
+            if not logObject.startswith("["):
+                logObject = "[" + logObject
+            if not logObject.endswith("]"):
+                logObject = logObject + "]"
+            if logStr != "" and logStr != "\n":
+                if self.isLogToFile and self.logFile:
+                    self.logFile.write(self.__processLogString(logLevel, logObject + " " + logStr)
+                        + "\n")
+                    if self.instantMode:
+                        self.logFile.flush()
+                else:
+                    print(
+                        self.__processLogString(logLevel, logObject + " " + logStr)
+                        )
+        except Exception as e:
+            print(f"Logging error: {e}")
+            print(f"Original message: [{logLevel}] [{logObject}] {logStr}")
     
     def setLogLevel(self, targetLevel : str):
         self.__log_level = targetLevel
