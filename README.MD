@@ -14,7 +14,7 @@ This tool is designed to make using avbtool.py easier by providing automatical c
 
 ## Quick Start
 
-Run these commands in your terminal:
+Install Python 3.9 or above and run these commands in your terminal:
 
 ```
 git clone https://github.com/WASDDestroy/AVBPowerTool.git
@@ -26,7 +26,7 @@ Then start using it.
 
 ## WIPs
 
-- [ ] main.py as entry point under project's root directory
+- [x] main.py as entry point under project's root directory
 - [ ] Select one or multiple images to read config or sign
 - [ ] Interface for importing, exporting and manage configs
 - [ ] Transplant FEC to Windows
