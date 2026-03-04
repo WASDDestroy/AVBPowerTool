@@ -29,7 +29,7 @@ if __name__ == "__main__":
         mainLogger.log("I", "OS name: " + os.name, TAG)
     except Exception as e:
         print("Exception happened during early init: " + str(e))
-        mainLogger.log("E", "Exception happened during early init: " + str(e), TAG)
+        mainLogger.log("F", "Exception happened during early init: " + str(e), TAG)
         exit()
     try:
         EnvironmentChecker.EnvironmentChecker.check_necessary_folders(mainLogger)
@@ -37,7 +37,7 @@ if __name__ == "__main__":
         mainLogger.log("I", "Folder check passed.", TAG)
     except Exception as e:
         print("Exception happened when checking necessary folders: " + str(e))
-        mainLogger.log("E", "Exception happened when checking necessary folders: " + str(e), TAG)
+        mainLogger.log("F", "Exception happened when checking necessary folders: " + str(e), TAG)
         exit()
     try:
         print("Starting interface.")
@@ -47,11 +47,11 @@ if __name__ == "__main__":
         mainLogger.log("I", "Successfully created UI instance.", TAG)
     except Exception as e:
         print("Exception happened while creating main UI: " + str(e))
-        mainLogger.log("E", "Exception happened while creating main UI: " + str(e), TAG)
+        mainLogger.log("F", "Exception happened while creating main UI: " + str(e), TAG)
         exit()
     try:
         while 1:
             mainUIInstance.entry()
     except Exception as e:
         print("Exception happened in main UI:", e)
-        mainLogger.log("E", "Exception happened in main UI: " + str(e), TAG)
+        mainLogger.log("F", "Exception happened in main UI: " + str(e), TAG)
