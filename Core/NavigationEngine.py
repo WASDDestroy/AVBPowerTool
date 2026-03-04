@@ -8,7 +8,7 @@ class NavigationEngine:
         self.TAG = "NavigationEngine"
         self.myLogger.log("I", "Navigation engine started.", self.TAG)
         self.navigatorDir = os.path.join(os.getcwd(), "Core", "Navigator")
-        self.myLogger.log("I", "Navigation map root dir: " + self.navigatorDir)
+        self.myLogger.log("I", "Navigation map root dir: " + self.navigatorDir, self.TAG)
         self.currentFileDir = os.path.join(self.navigatorDir, self.ROOT_NODE)
         self.currentDic = self.__parseNavigationJSON(self.currentFileDir)
         self.getCurrentNodeInfo()
