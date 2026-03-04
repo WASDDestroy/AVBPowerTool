@@ -11,12 +11,15 @@ import sys, time, os
 
 class LogUtils:
 
-    __log_level = "V"
-    __LOG_LEVEL_DIC = {"V" : 1,
+    __log_level = "T"
+    __LOG_LEVEL_DIC = {"A" : 0,
+                       "T" : 1,
                        "D" : 2,
                        "I" : 3,
                        "W" : 4,
-                       "E" : 5}
+                       "E" : 5,
+                       "F" : 6,
+                       "O" : 7}
 
 
     # Determine log destination, console is the default option.
@@ -58,11 +61,11 @@ class LogUtils:
                 pass
 
     # Construct log strings
-    def __constructVerbose(self, verboseStr):
+    def __constructTrace(self, verboseStr):
         tmpStr = ""
         if self.__shouldAttachTime:
             tmpStr = "[" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + "] "
-        return "[VERBOSE] " + tmpStr + verboseStr
+        return "[TRACE] " + tmpStr + verboseStr
 
     def __constructDebug(self, debugStr):
         tmpStr = ""
@@ -88,11 +91,17 @@ class LogUtils:
             tmpStr = "[" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + "] "
         return "[ERROR] " + tmpStr + errorStr
     
+    def __constructFatal(self, errorStr):
+        tmpStr = ""
+        if self.__shouldAttachTime:
+            tmpStr = "[" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + "] "
+        return "[FATAL] " + tmpStr + errorStr
+    
     def __processLogString(self, logLevel : str, logStr : str) -> str:
         logLevel = logLevel.upper()[0]
         logInfo = ""
-        if logLevel == "V":
-            logInfo = self.__constructVerbose(logStr)
+        if logLevel == "T" or logLevel == "V": # Back-compatible
+            logInfo = self.__constructTrace(logStr)
         elif logLevel == "D":
             logInfo = self.__constructDebug(logStr)
         elif logLevel == "I":
@@ -101,6 +110,8 @@ class LogUtils:
             logInfo = self.__constructWarn(logStr)
         elif logLevel == "E":
             logInfo = self.__constructError(logStr)
+        elif logLevel == "F":
+            logInfo = self.__constructFatal(logStr)
         else:
             logInfo = self.__constructWarn(logStr) \
                 + " (Log level not specified or typo mistake)"
