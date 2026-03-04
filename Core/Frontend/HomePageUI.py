@@ -10,7 +10,8 @@ class HomePageUI(BaseUI.BaseUI):
         self.DisplayAVBInfo = self._importModule("DisplayAVBInfo")
     
     def callBackEnd(self, functionName: str):
-        self.handleBackAndExit(functionName)
+        if self.handleBackAndExit(functionName):
+            return
         if functionName == "View current config info":
             self.DisplayAVBInfo.entry(self.myLogger) # type: ignore
 

@@ -10,6 +10,8 @@ class ConfigManagerUI(BaseUI.BaseUI):
                                    "P" : "Save current config as a persistent one"}
 
     def callBackEnd(self, functionName: str):
+        if self.handleBackAndExit(functionName):
+            return
         functionNameTuple = ("Import Config",
                              "Export Config",
                              "Config Library Manager",
@@ -18,7 +20,6 @@ class ConfigManagerUI(BaseUI.BaseUI):
         self.myConfigManager = self._createInstance(self.configManagerModule,
                                                     "ConfigManager",
                                                     self.myLogger)
-        self.handleBackAndExit(functionName)
         if functionName == functionNameTuple[0]:
             importFileName = self.__importConfigFromFileUI()
             if importFileName is None:

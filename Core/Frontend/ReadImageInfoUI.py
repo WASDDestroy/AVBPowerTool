@@ -15,7 +15,8 @@ class ReadImageInfoUI(BaseUI.BaseUI):
                                                   self.myLogger)
     
     def callBackEnd(self, functionName: str):
-        self.handleBackAndExit(functionName)
+        if self.handleBackAndExit(functionName):
+            return
         if functionName == "Read info of all images":
             if self.confirmOperation():
                 checkResult = self.mImageInfoUtils.checkImageExists(imageInfoList = self.mConfigParser.getImageList())
