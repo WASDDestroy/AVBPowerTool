@@ -10,6 +10,7 @@ class NavigationEngine:
         self.navigatorDir = os.path.join(os.getcwd(), "Core", "Navigator")
         self.myLogger.log("I", "Navigation map root dir: " + self.navigatorDir, self.TAG)
         self.currentFileDir = os.path.join(self.navigatorDir, self.ROOT_NODE)
+        self.currentFileName = os.path.basename(self.currentFileDir)
         self.currentDic = self.__parseNavigationJSON(self.currentFileDir)
         self.getCurrentNodeInfo()
         self.previousNodes = []
@@ -62,10 +63,12 @@ class NavigationEngine:
         if nodeName in self.currentDic["Next"]:
             self.previousNodes.append(self.currentFileDir)
             self.currentFileDir = os.path.join(self.navigatorDir, nodeName)
+            self.currentFileName = os.path.basename(self.currentFileDir)
             self.refreshNodeInfo()
         elif nodeName == self.currentDic["Previous"]:
             self.previousNodes.append(self.currentFileDir)
             self.currentFileDir = os.path.join(self.navigatorDir, nodeName)
+            self.currentFileName = os.path.basename(self.currentFileDir)
             self.refreshNodeInfo()
         else:
             raise FileNotFoundError("Unknown navigation destination when attempting to go to node \"" + nodeName + "\"")
@@ -81,6 +84,7 @@ class NavigationEngine:
         self.myLogger.log("D", "Go to upper level, nodename: " + nodeName, self.TAG)
         self.previousNodes.append(self.currentFileDir)
         self.currentFileDir = os.path.join(self.navigatorDir, nodeName)
+        self.currentFileName = os.path.basename(self.currentFileDir)
         self.myLogger.log("D", "Using file from " + self.currentFileDir, self.TAG)
         self.refreshNodeInfo()
 
@@ -89,6 +93,7 @@ class NavigationEngine:
         if self.previousNodes:
             self.nextNodes.append(self.currentFileDir)
             self.currentFileDir = os.path.join(self.navigatorDir, self.previousNodes.pop(-1))
+            self.currentFileName = os.path.basename(self.currentFileDir)
             self.refreshNodeInfo()
         else:
             raise RuntimeError("Attempting to navigate to an unexisting previous node.")
@@ -97,6 +102,7 @@ class NavigationEngine:
         if self.nextNodes:
             self.previousNodes.append(self.currentFileDir)
             self.currentFileDir = os.path.join(self.navigatorDir, self.nextNodes.pop(-1))
+            self.currentFileName = os.path.basename(self.currentFileDir)
             self.refreshNodeInfo()
         else:
             raise RuntimeError("Attempting to navigate to an unexisting next node.")
@@ -125,6 +131,7 @@ class NavigationEngine:
                 result.extend(child_results)
                 
                 self.currentFileDir = prev_file_dir
+                self.currentFileName = os.path.basename(self.currentFileDir)
                 self.currentDic = prev_dic
                 self.getCurrentNodeInfo()
         
@@ -136,9 +143,11 @@ class NavigationEngine:
         start_dic = self.currentDic
         self.currentNodeName = self.ROOT_NODE
         self.currentFileDir = os.path.join(self.navigatorDir, self.currentNodeName)
+        self.currentFileName = os.path.basename(self.currentFileDir)
         self.refreshNodeInfo()
         traverse_result = self.__traverseNodesRecursively()
         self.currentFileDir = start_file_dir
+        self.currentFileName = os.path.basename(self.currentFileDir)
         self.currentDic = start_dic
         self.getCurrentNodeInfo()
         
