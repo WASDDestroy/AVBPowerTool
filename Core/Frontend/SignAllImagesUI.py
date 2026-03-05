@@ -17,8 +17,6 @@ class SignAllImagesUI(BaseUI.BaseUI):
         self.SignImages = self._importModule("SignImages.py")
     
     def callBackEnd(self, functionName : str):
-        if self.handleBackAndExit(functionName):
-            return
         if functionName == "Sign all images with current config file":
             myObject = self._createInstance(self.SignImages, "SignImages", self.myLogger)
             if os.name == "nt":

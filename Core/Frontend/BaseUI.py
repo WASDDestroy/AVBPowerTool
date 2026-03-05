@@ -168,6 +168,8 @@ class BaseUI:
         else:
             functionName = self.nodeFunction[mySelection]
             self.myLogger.log("T", "Function name: " + functionName, self.TAG)
+            if self.handleBackAndExit(functionName):
+                return
             # Check whether function is in next node
             if self.myNavigationEngine.currentDic["Next"][0] != "END":
                 self.myLogger.log("T", "Current node has subnodes, traverse them.", self.TAG)
