@@ -14,8 +14,7 @@ class ImportConfigUI(BaseUI.BaseUI):
         if functionName == self.customizedFunction["A"]:
             self.__handleImportLogic()
         elif functionName == self.customizedFunction["S"]:
-            print("Function in development.")
-            self._pressEnterToContinue()
+            self._inDevelopmentPlaceHolder()
     
     def __handleImportLogic(self):
         importFileName = self.__selectFileUI()
@@ -43,7 +42,7 @@ class ImportConfigUI(BaseUI.BaseUI):
             print("Invalid archive file.")
             self._pressEnterToContinue()
 
-    def __selectFileUI(self):
+    def __selectFileUI(self, extensionName = ".zip"):
         """
         Provide filename of zip archive selected. Will return None if user cancels.
         """
@@ -52,7 +51,7 @@ class ImportConfigUI(BaseUI.BaseUI):
         rootDir = os.getcwd()
         fileCanBeSelected = []
         for i in os.listdir(rootDir):
-            if i.endswith(".zip"):
+            if i.endswith(extensionName):
                 fileCanBeSelected.append(i)
         for i in range(len(fileCanBeSelected)):
             print(i + 1, fileCanBeSelected[i])
