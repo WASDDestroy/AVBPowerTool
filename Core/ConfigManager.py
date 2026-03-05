@@ -341,7 +341,7 @@ class ConfigManager:
     
     def getAllConfigs(self, configDir = None):
         if configDir is None:
-            os.path.join(os.getcwd(), "Configs")
+            configDir = os.path.join(os.getcwd(), "Configs")
         configList = []
         for i in os.listdir(configDir):
             configList.append(i)
