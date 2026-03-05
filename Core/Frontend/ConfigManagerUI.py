@@ -17,27 +17,23 @@ class ConfigManagerUI(BaseUI.BaseUI):
                                                     "ConfigManager",
                                                     self.myLogger)
         if functionName == functionNameTuple[0]: # Manage
-            print("Function is in development.")
-            self._pressEnterToContinue()
+            self._inDevelopmentPlaceHolder()
         elif functionName == functionNameTuple[1]:
-            configToActive = self.__setConfigActiveUI()
+            configToActive = self.__selectConfigUI()
             if configToActive:
                 self.myConfigManager.setConfigActive(configToActive)
             else:
                 print("User cancelled operation.")
         elif functionName == functionNameTuple[2]:
-            configName = input("Enter the name of your new config.")
+            configName = input("Enter the name of your new config: ")
             result = self.myConfigManager.saveAsPersistentConfig(configName)
             if result:
                 print("Success.")
             else:
                 print("Failed.")
             self._pressEnterToContinue()
-        else:
-            print("Invalid choice.")
-            self._pressEnterToContinue()
 
-    def __setConfigActiveUI(self):
+    def __selectConfigUI(self):
         configNames = self.myConfigManager.getAllConfigs()
         for i in range(len(configNames)):
             print(i + 1, configNames[i])
