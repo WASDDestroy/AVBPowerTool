@@ -2,6 +2,7 @@
 /Core/Frontend/__pycache__/
 /Logs/
 /Core/currentConfigs
+/Core/currentKeySet
 /Images/*.img
 /Configs/*
 /.vscode/
