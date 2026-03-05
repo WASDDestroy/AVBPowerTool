@@ -5,7 +5,7 @@ import sys
 class BaseUI:
 
     def __init__(self, logger = None, gotoNode = "", navigationEngine = None) -> None:
-        self.TAG = "BaseUI"
+        self.TAG = self.__class__.__name__
         self.nodeFunction = {}
         self.customizedFunction = {} # "Press Key" : "Function Name"
         currentDir = os.path.join(os.getcwd(), "Core")
