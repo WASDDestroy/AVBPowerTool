@@ -33,7 +33,9 @@ class BaseUI:
             print(e)
         self.myLogger = logger or LogUtils.LogUtils() # type: ignore
         self.myNavigationEngine = navigationEngine or NavigationEngine.NavigationEngine(self.myLogger) # type: ignore
-        if gotoNode:
+        self.myLogger.log("D", "Currently at: " + self.myNavigationEngine.currentNodeName, self.TAG)
+        self.myLogger.log("D", "Desired node: " + gotoNode, self.TAG)
+        if gotoNode and gotoNode != self.myNavigationEngine.currentFileName:
             self.myNavigationEngine.gotoNode(gotoNode)
         self.customizedInit()
         self.getNodeFunctions()
@@ -97,7 +99,7 @@ class BaseUI:
             self.myLogger.log("E", "Failed when creating instance for module with class name %s, no such attribution!"%(className), self.TAG)
             raise RuntimeError("Unable to create instance.")
         self.myLogger.log("I", "Successfully created instance for module with classname " + className, self.TAG)
-        return ClassName(logger = logger, gotoNode = gotoNode)
+        return ClassName(logger = logger, gotoNode = gotoNode, navigationEngine = self.myNavigationEngine)
 
     def getNodeFunctions(self):
         # Node function = Next nodes + Customized actions
@@ -126,6 +128,10 @@ class BaseUI:
     def callBackEnd(self, functionName : str):
         self.handleBackAndExit(functionName)
         raise NotImplementedError("Unimplemented method callBackEnd." + self.TAG)
+
+    def _inDevelopmentPlaceHolder(self):
+        print("Function in development.")
+        self._pressEnterToContinue()
 
     def confirmOperation(self, prompt = "Confirm operation?") -> bool:
         try:
