@@ -15,7 +15,8 @@ if __name__ == "__main__":
         print("Exception happened when handling working directory:", e)
         exit()
     try:
-        mainLogger = LogUtils.LogUtils()
+        mainLogger = LogUtils.LogUtils(shouldAttachTime = True)
+        mainLogger.setLogLevel("T")
         if os.path.join(os.getcwd(), "Core", "Frontend") not in sys.path:
             print("Adding frontend dir to system path.")
             mainLogger.log("I", "Adding frontend dir to system path.", TAG)
