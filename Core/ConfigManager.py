@@ -201,8 +201,9 @@ class ConfigManager:
             try:
                 os.remove(os.path.join(EXTRACT_TO, "RENAME_REQUIRED"))
                 os.remove(os.path.join(EXTRACT_TO, "this_is_a_config_file_of_avbpowertool"))
-            except:
-                pass
+            except Exception as e:
+                self.myLogger.log("W", "Exception happened when deleting flag files: " + str(e), self.TAG)
+                
             self.myLogger.log("T", "Successfully extracted config to temporary folder.", self.TAG)
             # default configs will be extracted to ./temp/unZippedConfig/currentConfigs
             # and ./temp/unZippedConfig/currentKeySet
@@ -225,12 +226,12 @@ class ConfigManager:
                 if not self.__isConfigAvailable(configName):
                     # if not available, request a new config name.
                     # call to self.__getNewConfigName() should be avoided at frontend to avoid troubles when switching to GUI.
-                    tmpFileName = os.listdir(os.path.join(os.getcwd(), "temp", "unZippedConfig", "Configs"))[0]
+                    tmpFileName = os.listdir(os.path.join(EXTRACT_TO, "Configs"))[0]
                     configName = self.__getNewConfigName()
                     # rename one, copy one at once, and then remove.
                     # config folder goes first.
                     os.rename(os.path.join(EXTRACT_TO, "Configs", tmpFileName),
-                            os.path.join(EXTRACT_TO, "Configs" + configName))
+                            os.path.join(EXTRACT_TO, "Configs", configName))
                     shutil.copytree(os.path.join(EXTRACT_TO, "Configs", configName),
                                     os.path.join(os.getcwd(), "Configs", configName))
                     shutil.rmtree(os.path.join(EXTRACT_TO, "Configs", configName))
@@ -290,7 +291,7 @@ class ConfigManager:
     def exportSingleConfig(self,
                            exportConfigFolderName = "current",
                            exportToDir = None,
-                           exportToFileName = "myConfig.zip") -> None:
+                           exportToFileName = None) -> bool:
         """
         Export a single config as a zip file (with *valid* flag) to the directory you assigned.
         
@@ -302,7 +303,7 @@ class ConfigManager:
         :param exportConfigFolderName: Determine which config folder you want to export. Set to `current` (case-sensitive) or ignore it will use folder `currentConfigs`.
         :param exportToDir: Determine where you want to save the exported zip file, keep it empty if you want to save it to the project's **root** folder.
         :param exportToFileName: Determine the filename of zip file, default value is `myConfig.zip`
-        :return: None
+        :return: bool
         :raise FileNotFoundError: Config folder assigned not exist.
         """
         if exportToDir is None:
@@ -313,22 +314,32 @@ class ConfigManager:
         else:
             foldersRequired = (os.path.join(os.getcwd(), "Configs", exportConfigFolderName),
                                os.path.join(os.getcwd(), "Keys", exportConfigFolderName))
+        folderNameInArchive = ("Configs", "Keys")
+        if exportToFileName == None:
+            exportToFileName = exportConfigFolderName + ".zip"
+            self.myLogger.log("W", "Use default file name " + exportToFileName, self.TAG)
         
         if not exportToFileName.endswith(".zip"):
             self.myLogger.log("W", "Attempting to use other file extension name while exporting config.", self.TAG)
-
-        if (not os.path.exists(foldersRequired[0])) or (not os.path.exists(foldersRequired[1])):
+        if not os.path.exists(foldersRequired[0]):
+            self.myLogger.log("W", "Unable to find folder " + foldersRequired[0], self.TAG)
+            raise FileNotFoundError("Assigning a config folder that does not exist.")
+        if not os.path.exists(foldersRequired[1]):
+            self.myLogger.log("W", "Unable to find folder " + foldersRequired[1], self.TAG)
             raise FileNotFoundError("Assigning a config folder that does not exist.")
         
 
         with zipfile.ZipFile(os.path.join(exportToDir, exportToFileName), 'w') as myZip:
-            for i in foldersRequired:
-                for root, dirs, fileNames in os.walk(i):
-                    for fileName in fileNames:
-                        filePath = os.path.join(root, fileName)
-                        arcName = os.path.relpath(filePath, os.path.dirname(i))
+            try:
+                for i in range(len(foldersRequired)):
+                    for fileName in os.listdir(foldersRequired[i]):
+                        filePath = os.path.join(foldersRequired[i], fileName)
+                        arcName = os.path.join(folderNameInArchive[i], exportConfigFolderName, fileName)
                         myZip.write(filePath, arcName)
-                        self.myLogger.log("T", filePath, self.TAG)
+                        self.myLogger.log("T", "File path: " + filePath, self.TAG)
+                        self.myLogger.log("T", "Arcname: " + arcName, self.TAG)
+            except Exception as e:
+                self.myLogger.log("E", "Exception happened when exporting config: " + str(e), self.TAG)
             with open("this_is_a_config_file_of_avbpowertool", "w") as myTempFile:
                 myTempFile.write("This is a file that indicates the zip archive is a valid config file of AVBPowerTool.")
             myZip.write("this_is_a_config_file_of_avbpowertool")
@@ -338,6 +349,7 @@ class ConfigManager:
                     myTempFile.write("Please rename this config before import.")
                 myZip.write("RENAME_REQUIRED")
                 os.remove("RENAME_REQUIRED")
+        return True
     
     def getAllConfigs(self, configDir = None):
         if configDir is None:
