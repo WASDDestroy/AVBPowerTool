@@ -1,25 +1,27 @@
 import BaseUI
 import os
 
+
 class ConfigManagerUI(BaseUI.BaseUI):
 
     def customizedInit(self):
         self.TAG = "ConfigManagerUI"
-        self.configManagerModule = self._importModule("ConfigManager.py")
-        self.customizedFunction = {"S" : "Set a config active",
-                                   "P" : "Save current config as a persistent one"}
+        self.configManagerModule = self.myImporter.importModule(
+            "ConfigManager.py")
+        self.customizedFunction = {"S": "Set a config active",
+                                   "P": "Save current config as a persistent one"}
 
     def callBackEnd(self, functionName: str):
         functionNameTuple = ("Config Library Manager",
                              "Set a config active",
                              "Save current config as a persistent one")
-        self.myConfigManager = self._createInstance(self.configManagerModule,
-                                                    "ConfigManager",
-                                                    self.myLogger)
-        if functionName == functionNameTuple[0]: # Manage
+        self.myConfigManager = self.myImporter.createInstance(self.configManagerModule,
+                                                              "ConfigManager",
+                                                              self.myLogger)
+        if functionName == functionNameTuple[0]:  # Manage
             self._inDevelopmentPlaceHolder()
         elif functionName == functionNameTuple[1]:
-            configToActive = self.__selectConfigUI()
+            configToActive = self. myUIUtils.selectConfigUI()
             if configToActive:
                 self.myConfigManager.setConfigActive(configToActive)
             else:
@@ -31,29 +33,4 @@ class ConfigManagerUI(BaseUI.BaseUI):
                 print("Success.")
             else:
                 print("Failed.")
-            self._pressEnterToContinue()
-
-    def __selectConfigUI(self):
-        configNames = self.myConfigManager.getAllConfigs()
-        for i in range(len(configNames)):
-            print(i + 1, configNames[i])
-        print("Select a config with number. Enter -1 to cancel.")
-        while 1:
-            myInput = input("Your choice: ")
-            try:
-                inputNumber = int(myInput)
-                if 0 < inputNumber <= len(configNames):
-                    print("Import file: %s"%(configNames[inputNumber - 1]))
-                    break
-                elif inputNumber == -1:
-                    return None
-                else:
-                    raise IndexError
-            except Exception as e:
-                print("Invalid input, try again.")
-                self.myLogger.log("W", "Invalid input when determining config to active: " + repr(e), self.TAG)
-        print("Set this config active? [y/N]", end = " ")
-        if input().upper() == "Y":
-            return configNames[inputNumber - 1]
-        else:
-            return None
+            self.myUIUtils.pressEnterToContinue()
