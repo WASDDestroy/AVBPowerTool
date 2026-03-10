@@ -5,7 +5,5 @@
     "Next": [
         "END"
     ],
-    "Previous": [
-        "export_config.json"
-    ]
+    "Previous": "export_config.json"
 }
