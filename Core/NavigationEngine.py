@@ -248,7 +248,7 @@ class NavigationMapGenerator:
         if not targetProp in self.LEGAL_PROPS:
             return False
         if mode == "add":
-            if targetProp == "Next" or "Selection":
+            if targetProp in ["Next", "Selection"]:
                 try:
                     tmpList : list = self.currentDic[targetProp]
                     tmpList.append(value)
