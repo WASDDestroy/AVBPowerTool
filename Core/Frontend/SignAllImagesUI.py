@@ -48,7 +48,7 @@ class SignAllImagesUI(BaseUI.BaseUI):
 
     def __choose_images_to_sign(self):
         image_to_display: set = self.__get_available_image_files()
-        self.clear_screen()
+        self.my_ui_utils.clear_screen()
         print("=" * 80)
         for i in image_to_display:
             print("%40s [ ]" % i)
