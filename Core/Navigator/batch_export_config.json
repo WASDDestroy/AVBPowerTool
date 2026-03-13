@@ -1,9 +1,0 @@
-{
-    "Description": "Export configs as a single archive or many sparsed archives",
-    "Frontend": "BatchExportConfigUI.py",
-    "Name": "Batch Export Config",
-    "Next": [
-        "END"
-    ],
-    "Previous": "export_config.json"
-}
