@@ -82,7 +82,7 @@ class EnhancedFileSelectorUI:
         else:
             self.my_logger = logger
 
-    def show(self) -> Optional[List[str]]:
+    def show(self, show_instructions = True, allow_long_item = False) -> Optional[List[str]]:
         """
         显示选择器并返回选择结果
         Returns:
@@ -101,7 +101,7 @@ class EnhancedFileSelectorUI:
 
         # 主循环
         while not self.finished:
-            self._draw_ui()
+            self._draw_ui(show_instructions, allow_long_item)
             self._process_input()
 
         # 返回结果
@@ -116,7 +116,7 @@ class EnhancedFileSelectorUI:
 
         return selected_items
 
-    def _draw_ui(self) -> None:
+    def _draw_ui(self, show_instructions = True, allow_long_item = False) -> None:
         """
         绘制UI界面
         """
@@ -130,16 +130,17 @@ class EnhancedFileSelectorUI:
         print("=" * 80)
 
         # 绘制说明
-        print("  Instructions:")
-        print("    ↑/↓ : Navigate items")
-        if self.multi_select:
-            print("    Space : Select/Deselect current item")
-            print("    A     : Select All / Deselect All")
-        else:
-            print("    Space/Enter : Select current item")
-        print("    Enter : Confirm selection")
-        print("    ESC   : Cancel")
-        print("=" * 80)
+        if show_instructions:
+            print("  Instructions:")
+            print("    ↑/↓ : Navigate items")
+            if self.multi_select:
+                print("    Space : Select/Deselect current item")
+                print("    A     : Select All / Deselect All")
+            else:
+                print("    Space/Enter : Select current item")
+            print("    Enter : Confirm selection")
+            print("    ESC   : Cancel")
+            print("=" * 80)
 
         # 绘制项目列表
         if not self.items:
@@ -148,7 +149,7 @@ class EnhancedFileSelectorUI:
             for i, item in enumerate(self.items):
                 # 处理长文件名
                 display_item = item
-                if len(display_item) > 35:
+                if len(display_item) > 35 and not allow_long_item:
                     display_item = display_item[:32] + "..."
 
                 # 构建前缀
