@@ -53,27 +53,33 @@ class ConfigManager:
 
     def set_config_active(self, config_name) -> bool:
         try:
-            self.set_config_deactivate()
-            for i in os.listdir(os.path.join(os.getcwd(), "Configs", config_name)):
-                shutil.copy(os.path.join(os.getcwd(), "Configs", config_name, i),
-                            os.path.join(os.getcwd(), "Core", "currentConfigs"))
-            for i in os.listdir(os.path.join(os.getcwd(), "Keys", config_name)):
-                shutil.copy(os.path.join(os.getcwd(), "Keys", config_name, i),
-                            os.path.join(os.getcwd(), "Core", "currentKeySet"))
+            if not self.deactivate_config():
+                self.myLogger.log("W", "Failed to remove current config, aborting.", self.TAG)
+                return False
+            folder_map = {"Configs" : "currentConfigs", "Keys" : "currentKeySet"}
+            for i in folder_map:
+                current_working_folder = os.path.join(os.getcwd(), i, config_name)
+                self.myLogger.log("D", "Handling folder: " + current_working_folder, self.TAG)
+                for j in os.listdir(current_working_folder):
+                    shutil.copy(os.path.join(current_working_folder, j),
+                                os.path.join(os.getcwd(), "Core", folder_map[i], j))
             return True
         except Exception as e:
             self.myLogger.log("W", "Failed to switch config " + config_name + " active: ", self.TAG)
             self.myLogger.log("W", str(e), self.TAG)
             return False
     
-    def set_config_deactivate(self) -> bool:
+    def deactivate_config(self) -> bool:
         try:
-            for i in os.listdir(os.path.join(os.getcwd(), "Core", "currentConfigs")):
-                os.remove(os.path.join(os.getcwd(), "currentConfigs", i))
-            for i in os.listdir(os.path.join(os.getcwd(), "Core", "currentKeySet")):
-                os.remove(os.path.join(os.getcwd(), "Core", "currentKeySet", i))
+            folder_to_operate = ("currentConfigs", "currentKeySet")
+            base_path = os.path.join(os.getcwd(), "Core")
+            for i in folder_to_operate:
+                current_folder = os.path.join(base_path, i)
+                for j in os.listdir(current_folder):
+                    self.myLogger.log("D", "Removing file: " + j, self.TAG)
+                    os.remove(os.path.join(current_folder, j))
             return True
-        except Exception as e:
+        except FileNotFoundError as e:
             self.myLogger.log("W", "Failed to deactivate current config: ", self.TAG)
             self.myLogger.log("W", str(e), self.TAG)
             return False
