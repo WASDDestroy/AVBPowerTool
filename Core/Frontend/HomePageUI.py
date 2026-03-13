@@ -1,18 +1,18 @@
 import Core.Frontend.BaseUI as BaseUI
-
+import Core.Frontend.DisplayAVBInfo as DisplayAVBInfo
 
 class HomePageUI(BaseUI.BaseUI):
 
-    def customizedInit(self):
+    def customized_init(self):
         self.TAG = "HomePageUI"
-        self.customizedFunction = {
+        self.customized_function = {
             "V": "View current config info"
         }
-        self.DisplayAVBInfo = self.myImporter.importModule("DisplayAVBInfo")
+        # noinspection PyAttributeOutsideInit
 
-    def callBackEnd(self, functionName: str):
-        if functionName == "View current config info":
-            self.DisplayAVBInfo.entry(self.myLogger)  # type: ignore
+    def call_backend(self, function_name: str):
+        if function_name == "View current config info":
+            DisplayAVBInfo.entry(self.my_logger)  # type: ignore
 
 
 if __name__ == "__main__":

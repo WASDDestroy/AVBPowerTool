@@ -1,9 +1,0 @@
-{
-    "Description": "Import configs from a single archive or many sparsed archives.",
-    "Frontend": "BatchImportConfigUI.py",
-    "Name": "Batch Import Config",
-    "Next": [
-        "END"
-    ],
-    "Previous": "import_config.json"
-}

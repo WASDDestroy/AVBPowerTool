@@ -57,17 +57,16 @@ class EnvironmentChecker:
     
     @staticmethod
     def check_necessary_folders(logger):
-        TAG = "FolderChecker"
-        folderTuple = ("Images",
+        tag = "FolderChecker"
+        folder_tuple = ("Images",
                        "Configs",
                        os.path.join("Core", "currentConfigs"),
                        os.path.join("Core", "currentKeySet"))
-        workDir = os.getcwd()
-        currentDir = ""
-        for i in folderTuple:
-            currentDir = os.path.join(workDir, i)
-            if not os.path.exists(currentDir):
-                os.mkdir(currentDir)
-                logger.log("I", "Folder %s does not exist, automatically created it."%(i), TAG)
+        work_dir = os.getcwd()
+        for i in folder_tuple:
+            current_dir = os.path.join(work_dir, i)
+            if not os.path.exists(current_dir):
+                os.mkdir(current_dir)
+                logger.log("I", "Folder %s does not exist, automatically created it." % i, tag)
             else:
-                logger.log("I", "Folder %s exists."%(i), TAG)
+                logger.log("I", "Folder %s exists." % i, tag)

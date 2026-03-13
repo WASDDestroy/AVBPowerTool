@@ -1,187 +1,167 @@
-import importlib.util
-import os
-import sys
+import Core.DynamicImportUtils as DynamicImportUtils
+import Core.Frontend.UIUtils as UIUtils
+import Core.LogUtils as LogUtils
+import Core.NavigationEngine as NavigationEngine
 
 
 class BaseUI:
 
-    def __init__(self, logger=None, gotoNode="", navigationEngine=None) -> None:
+    def __init__(self, logger=None, goto_node="", navigation_engine=None) -> None:
         self.TAG = self.__class__.__name__
-        self.nodeFunction = {}
-        self.customizedFunction = {}  # "Press Key" : "Function Name"
-        currentDir = os.path.join(os.getcwd(), "Core")
-        # Import LogUtils dynamically
-        try:
-            spec: importlib.util.__spec__ = importlib.util.spec_from_file_location(name="LogUtils",
-                                                                                   location=os.path.join(currentDir, "LogUtils.py"))
-            LogUtils = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(LogUtils)
+        self.node_function = {}
+        self.customized_function = {}  # "Press Key" : "Function Name"
+        self.my_logger = logger or LogUtils.LogUtils(should_attach_time=True)
+        self.my_importer = DynamicImportUtils.DynamicImportUtils(logger=self.my_logger)
+        self.my_navigation_engine = navigation_engine or NavigationEngine.NavigationEngine(
+            self.my_logger)  # type: ignore
+        self.my_ui_utils = UIUtils.UIUtils(logger)
+        self.my_logger.log("D", "Currently at: " +
+                          self.my_navigation_engine.currentNodeName, self.TAG)
+        self.my_logger.log("D", "Desired node: " + goto_node, self.TAG)
+        if goto_node and goto_node != self.my_navigation_engine.currentFileName:
+            self.my_navigation_engine.goto_node(goto_node)
+        self.customized_init()
+        self.get_node_functions()
+        self.my_logger.log("I", "UI instance %s created." %
+                           self.TAG, self.TAG)
 
-            sys.modules["LogUtils"] = LogUtils
-        except ImportError as e:
-            print(e)
-
-        self.myLogger = logger or LogUtils.LogUtils()  # type: ignore
-
-        # Import DynamicImportUtils dynamically
-        try:
-            spec: importlib.util.__spec__ = importlib.util.spec_from_file_location(name="DynamicImportUtils",
-                                                                                   location=os.path.join(currentDir, "DynamicImportUtils.py"))
-            DynamicImportUtils = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(DynamicImportUtils)
-
-            sys.modules["DynamicImportUtils"] = DynamicImportUtils
-        except ImportError as e:
-            print(e)
-        self.myImporter = DynamicImportUtils.DynamicImportUtils(
-            logger=self.myLogger)
-        UIUtils = self.myImporter.importModule(moduleName="UIUtils")
-        NavigationEngine = self.myImporter.importModule(
-            moduleName="NavigationEngine")
-        self.myNavigationEngine = navigationEngine or NavigationEngine.NavigationEngine(
-            self.myLogger)  # type: ignore
-        self.myUIUtils = UIUtils.UIUtils(logger)
-        self.myLogger.log("D", "Currently at: " +
-                          self.myNavigationEngine.currentNodeName, self.TAG)
-        self.myLogger.log("D", "Desired node: " + gotoNode, self.TAG)
-        if gotoNode and gotoNode != self.myNavigationEngine.currentFileName:
-            self.myNavigationEngine.gotoNode(gotoNode)
-        self.customizedInit()
-        self.getNodeFunctions()
-        self.myLogger.log("I", "UI instance %s created." %
-                          (self.TAG), self.TAG)
-
-    def customizedInit(self):
-        '''
+    def customized_init(self):
+        """
         Store customized initialization process of your UI class.
-        '''
+        """
         pass
 
-    def getNodeFunctions(self):
+    def get_node_functions(self):
         # Node function = Next nodes + Customized actions
-        self.nodeFunction = {}
-        for i in self.customizedFunction:
-            self.nodeFunction[i] = self.customizedFunction[i]
-        nextNodesDict = self.myNavigationEngine.getNextNodeNames()
-        for i in nextNodesDict:
-            self.nodeFunction[i] = nextNodesDict[i]
-        if self.myNavigationEngine.currentDic["Previous"] == "END":
-            self.nodeFunction["E"] = "Exit"
+        self.node_function = {}
+        for i in self.customized_function:
+            self.node_function[i] = self.customized_function[i]
+        next_nodes_dict = self.my_navigation_engine.get_next_node_names()
+        for i in next_nodes_dict:
+            self.node_function[i] = next_nodes_dict[i]
+        if self.my_navigation_engine.currentDic["Previous"] == "END":
+            self.node_function["E"] = "Exit"
         else:
-            self.nodeFunction["B"] = "Back to upper level"
+            self.node_function["B"] = "Back to upper level"
 
-    def handleBackAndExit(self, functionName):
-        if "back" in functionName.lower():
-            self.myLogger.log("I", "Back to upper level.", self.TAG)
-            self.myNavigationEngine.goToUpperLevel()
+    def handle_back_and_exit(self, function_name):
+        if "back" in function_name.lower():
+            self.my_logger.log("I", "Back to upper level.", self.TAG)
+            self.my_navigation_engine.go_to_upper_level()
             return True
-        if functionName == "Exit":
+        if function_name == "Exit":
             print("Exiting.")
-            self.myLogger.log("I", "Exit on UI request.", self.TAG)
+            self.my_logger.log("I", "Exit on UI request.", self.TAG)
             exit()
         return False
 
-    def callBackEnd(self, functionName: str):
-        self.handleBackAndExit(functionName)
+    def call_backend(self, function_name: str):
+        self.handle_back_and_exit(function_name)
         raise NotImplementedError(
             "Unimplemented method callBackEnd." + self.TAG)
 
-    def _inDevelopmentPlaceHolder(self):
+    def _in_development_placeholder(self):
         print("Function in development.")
-        self.myUIUtils.pressEnterToContinue()
+        self.my_ui_utils.press_enter_to_continue()
 
-    def confirmOperation(self, prompt="Confirm operation?") -> bool:
-        return self.myUIUtils.confirmOperation(prompt)
+    def confirm_operation(self, prompt="Confirm operation?") -> bool:
+        return self.my_ui_utils.confirm_operation(prompt)
 
-    def showTitle(self):
-        tmpLen = (80 - len(self.myNavigationEngine.currentNodeName)) // 2
-        if tmpLen >= 0:
-            print("=" * tmpLen
-                  + self.myNavigationEngine.currentNodeName
-                  + "=" * tmpLen)
+    def show_title(self):
+        tmp_len = (80 - len(self.my_navigation_engine.currentNodeName)) // 2
+        if tmp_len >= 0:
+            print("=" * tmp_len
+                  + self.my_navigation_engine.currentNodeName
+                  + "=" * tmp_len)
         else:
-            print(self.myNavigationEngine.currentNodeName)
+            print(self.my_navigation_engine.currentNodeName)
             print("=" * 80)
 
-    def showUI(self):
-        self.clearScreen()
-        self.showTitle()
-        for i in self.nodeFunction:
-            print("[%s] %s" % (i, self.nodeFunction[i]))
+    def show_ui(self):
+        self.clear_screen()
+        self.show_title()
+        for i in self.node_function:
+            print("[%s] %s" % (i, self.node_function[i]))
         print("=" * 80)
 
-    def clearScreen(self):
-        os.system("cls") if os.name == "nt" else os.system("clear")
+    def clear_screen(self):
+        self.my_ui_utils.clear_screen()
 
-    def handleInteractionLogic(self):
-        mySelection = input("Your choice: ").upper()
-        self.myLogger.log("T", "User input: " + mySelection, self.TAG)
-        if not mySelection in self.nodeFunction.keys():
+    def handle_interaction_logic(self):
+        my_selection = input("Your choice: ").upper()
+        self.my_logger.log("T", "User input: " + my_selection, self.TAG)
+        if not my_selection in self.node_function.keys():
             print("No such choice.")
-            self.myLogger.log("W", "Illegal choice: " + mySelection, self.TAG)
-            self.myUIUtils.pressEnterToContinue()
+            self.my_logger.log("W", "Illegal choice: " + my_selection, self.TAG)
+            self.my_ui_utils.press_enter_to_continue()
+            return None
         else:
-            functionName = self.nodeFunction[mySelection]
-            self.myLogger.log("T", "Function name: " + functionName, self.TAG)
-            if self.handleBackAndExit(functionName):
-                self.myLogger.log
+            function_name = self.node_function[my_selection]
+            self.my_logger.log("T", "Function name: " + function_name, self.TAG)
+            if self.handle_back_and_exit(function_name):
+                self.my_logger.log("T", "Back to upper level.", self.TAG)
                 return True
             # Check whether function is in next node
-            if self.myNavigationEngine.currentDic["Next"][0] != "END":
-                self.myLogger.log(
+            if self.my_navigation_engine.currentDic["Next"][0] != "END":
+                self.my_logger.log(
                     "T", "Current node has subnodes, traverse them.", self.TAG)
-                for i in self.myNavigationEngine.currentDic["Next"]:
-                    self.myLogger.log(
+                for i in self.my_navigation_engine.currentDic["Next"]:
+                    self.my_logger.log(
                         "T", "Traversing, current: " + i, self.TAG)
-                    self.myNavigationEngine.gotoNode(i)
-                    self.myNavigationEngine.refreshNodeInfo()
-                    self.myLogger.log(
+                    self.my_navigation_engine.goto_node(i)
+                    self.my_navigation_engine.refresh_node_info()
+                    self.my_logger.log(
                         "T", "Switched node and refreshed info.", self.TAG)
-                    if self.myNavigationEngine.currentDic["Name"] == functionName:
+                    if self.my_navigation_engine.currentDic["Name"] == function_name:
                         # Found function in one of the next node, dynamically import it and execute entry
-                        moduleName = self.myNavigationEngine.currentDic["Frontend"].rstrip(
+                        module_name = self.my_navigation_engine.currentDic["Frontend"].rstrip(
                             ".py")
-                        self.myLogger.log(
-                            "T", "Found function! Corresponding module name: " + moduleName, self.TAG)
-                        self.myLogger.log(
-                            "I", "Navigate to: " + moduleName, self.TAG)
-                        myObject = self.myImporter.createFrontendInstance(self.myImporter.importFrontEndModule(moduleName),
-                                                                          moduleName,
-                                                                          self.myLogger,
-                                                                          i,
-                                                                          self.myNavigationEngine)
-                        myObject.entry(
-                            navigationEngine=self.myNavigationEngine)
+                        self.my_logger.log(
+                            "T", "Found function! Corresponding module name: " + module_name, self.TAG)
+                        self.my_logger.log(
+                            "I", "Navigate to: " + module_name, self.TAG)
+                        my_object = self.my_importer.create_frontend_instance(self.my_importer.import_front_end_module(module_name),
+                                                                              module_name,
+                                                                              self.my_logger,
+                                                                              i,
+                                                                              self.my_navigation_engine)
+                        self.my_logger.log("I", "Successfully created new UI instance from module %s" % module_name, self.TAG)
+                        my_object.entry(
+                            navigation_engine=self.my_navigation_engine)
                         break
                     else:
-                        self.myLogger.log(
+                        self.my_logger.log(
                             "T", "Function name mismatch, go to upper level.", self.TAG)
-                        self.myNavigationEngine.goToUpperLevel()
+                        self.my_navigation_engine.go_to_upper_level()
                 else:
                     # If the loop ends normally, call functions in current node.
-                    self.myLogger.log(
+                    self.my_logger.log(
                         "T", "Traverse end! Target function not found!", self.TAG)
-                    self.myLogger.log(
-                        "T", "Call current node's function by name: " + functionName, self.TAG)
-                    self.callBackEnd(functionName)
+                    self.my_logger.log(
+                        "T", "Call current node's function by name: " + function_name, self.TAG)
+                    self.call_backend(function_name)
+                    return None
             else:
-                self.myLogger.log(
-                    "T", "Current node does not contain subnodes, directly call function: " + functionName, self.TAG)
-                self.callBackEnd(functionName)
+                self.my_logger.log(
+                    "T", "Current node does not contain subnodes, directly call function: " + function_name, self.TAG)
+                self.call_backend(function_name)
+                return None
 
-    def entry(self, navigationEngine=None):
-        if navigationEngine is not None:
-            self.myLogger.log("D", "Use provided navigation engine.", self.TAG)
-            self.myNavigationEngine = navigationEngine
+    def entry(self, navigation_engine=None):
+        if navigation_engine is not None:
+            self.my_logger.log("D", "Use provided navigation engine.", self.TAG)
+            self.my_navigation_engine = navigation_engine
+        else:
+            self.my_logger.log("D", "Use navigation engine created by the instance.", self.TAG)
         while 1:
-            self.myLogger.log("D", "Currently at: " +
-                              self.myNavigationEngine.currentNodeName, self.TAG)
-            self.myLogger.log(
-                "D", "Subnodes: " + str(self.myNavigationEngine.currentNodeNext), self.TAG)
-            self.myLogger.log(
-                "D", "Previous node: " + str(self.myNavigationEngine.currentNodePrev), self.TAG)
-            self.showUI()
-            if self.handleInteractionLogic():
+            self.my_logger.log("D", "Currently at: " +
+                              self.my_navigation_engine.currentNodeName, self.TAG)
+            self.my_logger.log(
+                "D", "Subnodes: " + str(self.my_navigation_engine.currentNodeNext), self.TAG)
+            self.my_logger.log(
+                "D", "Previous node: " + str(self.my_navigation_engine.currentNodePrev), self.TAG)
+            self.show_ui()
+            if self.handle_interaction_logic():
                 break
 
 

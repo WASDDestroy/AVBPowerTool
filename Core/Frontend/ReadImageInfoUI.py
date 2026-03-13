@@ -3,59 +3,61 @@ import BaseUI
 
 class ReadImageInfoUI(BaseUI.BaseUI):
 
-    def customizedInit(self):
+    def customized_init(self):
         self.TAG = "ReadImageInfoUI"
-        self.customizedFunction = {
+        self.customized_function = {
             "A": "Read info of all images",
             "S": "Read info of selected image(s) (NOT RECOMMENDED)",
         }
-        self.mImageInfoUtils = self.myImporter.createInstance(self.myImporter.importModule("ImageInfoUtils"),
+        # noinspection PyAttributeOutsideInit
+        self.mImageInfoUtils = self.my_importer.create_instance(self.my_importer.import_module("ImageInfoUtils"),
                                                               "ImageInfoUtils",
-                                                              self.myLogger)
-        self.mConfigParser = self.myImporter.createInstance(self.myImporter.importModule("ConfigParser"),
+                                                                self.my_logger)
+        # noinspection PyAttributeOutsideInit
+        self.mConfigParser = self.my_importer.create_instance(self.my_importer.import_module("ConfigParser"),
                                                             "ConfigParser",
-                                                            self.myLogger)
+                                                              self.my_logger)
 
-    def callBackEnd(self, functionName: str):
-        if functionName == "Read info of all images":
-            self.__handleReadAllImagesInfo()
+    def call_backend(self, function_name: str):
+        if function_name == "Read info of all images":
+            self.__handle_read_all_images_info()
         # elif functionName == "Read info of selected image(s) (NOT RECOMMENDED)":
 
-    def __handleReadSelectedImagesInfo(self):
+    def __handle_read_selected_images_info(self):
         pass
 
-    def __handleReadAllImagesInfo(self):
-        if self.confirmOperation():
-            checkResult = self.mImageInfoUtils.checkImageExists(
-                imageInfoList=self.mConfigParser.getImageList())
-            if not checkResult[0]:
+    def __handle_read_all_images_info(self):
+        if self.confirm_operation():
+            check_result = self.mImageInfoUtils.check_image_exists(
+                image_info_list=self.mConfigParser.get_image_list())
+            if not check_result[0]:
                 print("WARNING: Image mismatch!")
-                if checkResult[1] == "MORE":
+                if check_result[1] == "MORE":
                     print("These images are unnecessary, consider remove them:")
-                    for i in checkResult[2]:
+                    for i in check_result[2]:
                         print(i)
-                elif checkResult[1] == "LESS":
+                elif check_result[1] == "LESS":
                     print(
                         "These images are missing, you must have them to continue process:")
-                    for i in checkResult[2]:
+                    for i in check_result[2]:
                         print(i)
-                elif checkResult[1] == "DIFF":
+                elif check_result[1] == "DIFF":
                     print("Necessary image(s) not found!")
                     print("Config list:")
-                    for i in self.mConfigParser.getImageList():
+                    for i in self.mConfigParser.get_image_list():
                         print(i)
                     print("You have these images:")
-                    for i in checkResult[3]:
+                    for i in check_result[3]:
                         print(i)
-                self.myUIUtils.pressEnterToContinue()
+                self.my_ui_utils.press_enter_to_continue()
                 return
             else:
                 try:
-                    self.mImageInfoUtils.readImageInfoBatch(
-                        self.mConfigParser.getImageList())
+                    self.mImageInfoUtils.read_image_info_batch(
+                        self.mConfigParser.get_image_list())
                     print("Successfully read info of all images.")
                 except:
                     print("Operation failed.")
         else:
             print("Operation cancelled.")
-        self.myUIUtils.pressEnterToContinue()
+        self.my_ui_utils.press_enter_to_continue()

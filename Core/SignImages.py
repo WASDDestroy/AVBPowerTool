@@ -1,10 +1,8 @@
-import LogUtils
 import os
 import subprocess
-import json
-import importlib.util
-import sys
+
 import DynamicImportUtils
+import LogUtils
 
 
 class SignImages:
@@ -18,38 +16,20 @@ class SignImages:
             self.myLogger = logger
         self.myImporter = DynamicImportUtils.DynamicImportUtils(
             logger=self.myLogger)
-        self.myConfigParser = self.myImporter.createInstance(self.myImporter.importModule("ConfigParser"),
+        self.myConfigParser = self.myImporter.create_instance(self.myImporter.import_module("ConfigParser"),
                                                              "ConfigParser",
-                                                             self.myLogger)
+                                                              self.myLogger)
         self.TAG = "ImageSigner"
         self.__IMAGE_DIR = os.path.join(os.getcwd(), "Images")
         self.myLogger.log(
             "I", "Instance of SignImages successfully created.", "SignImages")
 
-    def _importModule(self, moduleName: str, moduleDir=None):
-        if moduleDir is None:
-            moduleDir = os.path.join(os.getcwd(), "Core")
-        moduleName = moduleName.rstrip(".py")
-        try:
-            spec: importlib.util.__spec__ = importlib.util.spec_from_file_location(moduleName,
-                                                                                   location=os.path.join(moduleDir, moduleName + ".py"))
-            ImportedModule = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(ImportedModule)
-            sys.modules[moduleName] = ImportedModule
-            return ImportedModule
-        except Exception as e:
-            self.myLogger.log(
-                "W", "Exception happened when importing module: " + repr(e), self.TAG)
-
-    def _createInstance(self, module, className, logger):
-        ClassName = getattr(module, className)
-        return ClassName(logger=logger)
-
-    def signSingleImage(self, signingCommand: list) -> tuple:
+    @staticmethod
+    def sign_single_image(signing_command: list) -> tuple:
         """
         Receive a command list and run it via subcommand.
 
-        :param signingCommand: The list of signing command.
+        :param signing_command: The list of signing command.
         :return: A tuple contains three items:
         1. bool, indicates whether the signing process successes
         2. string, standard error of avbtool.py
@@ -57,76 +37,76 @@ class SignImages:
 
         :rtype: tuple(bool, str, str)
         """
-        result = subprocess.run(signingCommand, capture_output=True, text=True)
-        signResult = (result.returncode == 0,
+        result = subprocess.run(signing_command, capture_output=True, text=True)
+        sign_result = (result.returncode == 0,
                       result.stderr if result.stderr else "Empty",
                       result.stdout if result.stdout else "Empty")
-        return signResult
+        return sign_result
 
-    def signImagesWithOutput(self, singleConfigArg, imageName):
+    def sign_images_with_output(self, single_config_arg, image_name):
         """
         Logic extracted from signImagesBatch
         """
         self.myLogger.log("I", "=" * 80, self.TAG)
-        if "vbmeta" in imageName.lower():
-            print("Generating vbmeta image, name: " + imageName)
+        if "vbmeta" in image_name.lower():
+            print("Generating vbmeta image, name: " + image_name)
         else:
-            print("Signing image: " + imageName)
-        self.myLogger.log("I", "Processing image: " + imageName, self.TAG)
-        singleCommand: list = self.myConfigParser.buildSingleAvbtoolCommand(
-            singleConfigArg)
+            print("Signing image: " + image_name)
+        self.myLogger.log("I", "Processing image: " + image_name, self.TAG)
+        single_command: list = self.myConfigParser.build_single_avb_tool_command(
+            single_config_arg)
         self.myLogger.log(
             "D", "================================AVB COMMAND================================", "signImagesBatch")
-        commandForOutput: str = ""
-        for j in singleCommand:
-            commandForOutput += j + " "
-        self.myLogger.log("D", commandForOutput, "signImagesBatch")
+        command_for_output: str = ""
+        for j in single_command:
+            command_for_output += j + " "
+        self.myLogger.log("D", command_for_output, "signImagesBatch")
         self.myLogger.log(
             "D", "===========================================================================", "signImagesBatch")
-        avbToolResult: tuple = self.signSingleImage(singleCommand)
-        if avbToolResult[0]:
-            if "vbmeta" in imageName.lower():
-                print("Successfully generated vbmeta image: " + imageName)
+        avb_tool_result: tuple = self.sign_single_image(single_command)
+        if avb_tool_result[0]:
+            if "vbmeta" in image_name.lower():
+                print("Successfully generated vbmeta image: " + image_name)
             else:
-                print("Successfully signed " + imageName)
+                print("Successfully signed " + image_name)
             self.myLogger.log(
-                "D", "Successfully processed image: " + imageName)
+                "D", "Successfully processed image: " + image_name)
         else:
-            if "vbmeta" in imageName.lower():
-                print("Failed to generate vbmeta image: " + imageName)
+            if "vbmeta" in image_name.lower():
+                print("Failed to generate vbmeta image: " + image_name)
                 print(
                     "Check your images manually, make sure that all images are signed properly.")
             else:
-                print("Failed to sign " + imageName)
+                print("Failed to sign " + image_name)
             self.myLogger.log(
-                "W", "Failed to process image: " + imageName, self.TAG)
+                "W", "Failed to process image: " + image_name, self.TAG)
         self.myLogger.log("D", "stderr from avbtool.py: " +
-                          avbToolResult[1], self.TAG)
+                          avb_tool_result[1], self.TAG)
         self.myLogger.log("D", "stdout from avbtool.py: " +
-                          avbToolResult[2], self.TAG)
+                          avb_tool_result[2], self.TAG)
         print()
 
-    def signImagesBatch(self,
-                        imageConfigFileDir=None,
-                        removeFootersFirst=False,
-                        removeVB=True):
+    def sign_images_batch(self,
+                          image_config_file_dir=None,
+                          remove_footers_first=False,
+                          remove_vb=True):
         """
         Sign images in <ProjectDir>/images dir.
 
-        :param imageConfigFileDir: The directory of config file. Config file name is optional.
-        :param removeFootersFirst: Choose whether the program removes footers before signing process.
-        :param removeVB: Whether the program removes vbmeta images before signing. (Will generate new vbmeta images.)
+        :param image_config_file_dir: The directory of config file. Config file name is optional.
+        :param remove_footers_first: Choose whether the program removes footers before signing process.
+        :param remove_vb: Whether the program removes vbmeta images before signing. (Will generate new vbmeta images.)
         """
-        if imageConfigFileDir is None:
-            imageConfigFileDir = os.path.join(os.getcwd(),
+        if image_config_file_dir is None:
+            image_config_file_dir = os.path.join(os.getcwd(),
                                               "Core",
                                               "currentConfigs",
                                               "imageInfo.json")
-        if not imageConfigFileDir.endswith(".json"):
-            imageConfigFileDir += "imageInfo.json"
-        if removeFootersFirst:
-            self.removeAllFooters()
-        if removeVB:
+        if not image_config_file_dir.endswith(".json"):
+            image_config_file_dir += "imageInfo.json"
+        if remove_footers_first:
+            self.remove_all_footers()
+        if remove_vb:
             for i in os.listdir(self.__IMAGE_DIR):
                 if "vbmeta" in i.lower():
                     try:
@@ -136,21 +116,21 @@ class SignImages:
                     except Exception as e:
                         self.myLogger.log(
                             "W", "Exception happened when removing vbmeta images: " + repr(e), self.TAG)
-        configDic = self.myConfigParser.json2Dic(imageConfigFileDir)
-        self.myLogger.log("D", str(configDic), self.TAG)
-        vbmetaList = []
+        config_dic = self.myConfigParser.json2_dic(image_config_file_dir)
+        self.myLogger.log("D", str(config_dic), self.TAG)
+        vbmeta_list = []
         self.myLogger.log("I", "First, sign non-vbmeta images.")
-        for i in configDic:
+        for i in config_dic:
             if "vbmeta" in i.lower():
-                vbmetaList.append(i)
+                vbmeta_list.append(i)
                 continue
-            self.signImagesWithOutput(configDic[i], i)
+            self.sign_images_with_output(config_dic[i], i)
 
         self.myLogger.log("I", "Then generate vbmeta images.")
-        for i in vbmetaList:
-            self.signImagesWithOutput(configDic[i], i)
+        for i in vbmeta_list:
+            self.sign_images_with_output(config_dic[i], i)
 
-    def removeAllFooters(self):
+    def remove_all_footers(self):
         command_list = ["python3",
                         os.path.join(os.getcwd(), "Core", "avbtool.py"),
                         "erase_footer",
@@ -158,8 +138,8 @@ class SignImages:
                         "<image_file>"]
         if os.name == "nt":
             command_list[0] = "py"
-        imageList = self.myConfigParser.getImageList()
-        for i in imageList:
+        image_list = self.myConfigParser.get_image_list()
+        for i in image_list:
             command_list[-1] = os.path.join(self.__IMAGE_DIR, i + ".img")
             result = subprocess.run(
                 command_list, capture_output=True, text=True)
@@ -169,4 +149,4 @@ class SignImages:
 
 if __name__ == "__main__":
     myImageSigner = SignImages()
-    myImageSigner.signImagesBatch()
+    myImageSigner.sign_images_batch()

@@ -6,9 +6,9 @@ import json
 
 class SignAllImagesUI(BaseUI.BaseUI):
 
-    def customizedInit(self):
+    def customized_init(self):
         self.TAG = "SignAllImagesUI"
-        self.customizedFunction = {
+        self.customized_function = {
             "Y": "Sign all images with current config file",
             "I": "Sign selected image file"
         }
@@ -17,22 +17,23 @@ class SignAllImagesUI(BaseUI.BaseUI):
         # print(self.customizedFunction)
         # print(self.nodeFunction)
         # print(self.myNavigationEngine.getNextNodeNames())
-        self.SignImages = self.myImporter.importModule("SignImages.py")
+        # noinspection PyAttributeOutsideInit
+        self.SignImages = self.my_importer.import_module("SignImages.py")
 
-    def callBackEnd(self, functionName: str):
-        if functionName == "Sign all images with current config file":
-            myObject = self.myImporter.createInstance(
-                self.SignImages, "SignImages", self.myLogger)
+    def call_backend(self, function_name: str):
+        if function_name == "Sign all images with current config file":
+            my_object = self.my_importer.create_instance(
+                self.SignImages, "SignImages", self.my_logger)
             if os.name == "nt":
                 print(
                     "WARNING: YOU CANNOT ADD HASHTREE FOOTER WITH FEC ROOTS WHEN RUNNING ON WINDOWS")
                 print("AUTOMATICALLY SKIPPING FEC GENERATION")
-                self.myUIUtils.pressEnterToContinue()
-            elif self.__isWSL()[1] and "/mnt" in os.getcwd():
+                self.my_ui_utils.press_enter_to_continue()
+            elif self.__is_wsl()[1] and "/mnt" in os.getcwd():
                 print(
                     "NOT RECOMMENDED TO RUN THIS PROGRAM IN WSL WITH SCRIPTS STORED IN NTFS WORLD")
                 print("MAY RESULT IN EACCES OF PEM FILES")
-                self.myUIUtils.pressEnterToContinue()
+                self.my_ui_utils.press_enter_to_continue()
             print()
             print("It may take up to minutes depending on your hardware config.")
             print("The program is still running normally, DO NOT KILL IT!")
@@ -40,37 +41,39 @@ class SignAllImagesUI(BaseUI.BaseUI):
                 print("Start signing after %d secs." % (5 - i))
                 time.sleep(1)
             print()
-            myObject.signImagesBatch()
-            self.myUIUtils.pressEnterToContinue()
-        # elif functionName == "Sign selected image file":
+            my_object.sign_images_batch()
+            self.my_ui_utils.press_enter_to_continue()
+        elif function_name == "Sign selected image file":
+            self._in_development_placeholder()
 
-    def __chooseImagesToSign(self):
-        imageToDisplay: set = self.__getAvailableImageFiles()
-        self.clearScreen()
+    def __choose_images_to_sign(self):
+        image_to_display: set = self.__get_available_image_files()
+        self.clear_screen()
         print("=" * 80)
-        selectedImages = [False for i in range(len(imageToDisplay))]
-        for i in imageToDisplay:
+        for i in image_to_display:
             print("%40s [ ]" % i)
         print("0 Selected.")
 
-    def __getAvailableImageFiles(self):
+    @staticmethod
+    def __get_available_image_files():
         with open(
             os.path.join(os.getcwd(), "Core",
                          "currentConfigs", "imageInfo.json"),
             "r",
                 encoding="UTF-8") as myFile:
-            imageConfigDict: dict = json.load(myFile)
-            imageAvailableInConfig: list = list(imageConfigDict.keys())
-        imageDir = os.path.join(os.getcwd(), "Images")
-        imageAvailableInWorkDir = []
-        for i in os.listdir(imageDir):
+            image_config_dict: dict = json.load(myFile)
+            image_available_in_config: list = list(image_config_dict.keys())
+        image_dir = os.path.join(os.getcwd(), "Images")
+        image_available_in_work_dir = []
+        for i in os.listdir(image_dir):
             if "vbmeta" not in i:
-                imageAvailableInWorkDir.append(i)
-        set1 = set(imageAvailableInConfig)
-        set2 = set(imageAvailableInWorkDir)
+                image_available_in_work_dir.append(i)
+        set1 = set(image_available_in_config)
+        set2 = set(image_available_in_work_dir)
         return set1 & set2
 
-    def __isWSL(self):
+    @staticmethod
+    def __is_wsl():
         wsl_env_vars = [
             'WSLENV',
             'WSL_DISTRO_NAME',

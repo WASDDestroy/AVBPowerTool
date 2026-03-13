@@ -1,48 +1,54 @@
-import BaseUI
-import ConfigManager
 import os
+
+import BaseUI
+import Core.ConfigManager as ConfigManager
+from Core.Frontend.UIUtils import EnhancedFileSelectorUI as EnhancedFileSelectorUI
 
 
 class ImportConfigUI(BaseUI.BaseUI):
 
-    def customizedInit(self):
+    def customized_init(self):
         self.TAG = "ImportConfigUI"
-        self.customizedFunction = {"A": "Import all configs under root folder",
-                                   "S": "Import selected config(s) under specified folder", }
+        self.customized_function = {"I" : "Import single config archive",
+                                    "T" : "Batch import",}
+        # noinspection PyAttributeOutsideInit
         self.myConfigManager = ConfigManager.ConfigManager(
-            logger=self.myLogger)
+            logger=self.my_logger)
 
-    def callBackEnd(self, functionName: str):
-        if functionName == self.customizedFunction["A"]:
-            self.__handleImportLogic()
-        elif functionName == self.customizedFunction["S"]:
-            self._inDevelopmentPlaceHolder()
+    def call_backend(self, function_name: str):
+        if function_name == self.customized_function["I"]:
+            self.__handle_single_import_logic()
 
-    def __handleImportLogic(self):
-        importFileName = self.myUIUtils.selectFileUI()
-        if importFileName is None:
+    def __handle_single_import_logic(self):
+        file_can_be_selected = []
+        for i in os.listdir(os.getcwd()):
+            if i.endswith(".zip"):
+                file_can_be_selected.append(i)
+        my_file_selector = EnhancedFileSelectorUI(title="Select a Config", items=file_can_be_selected, multi_select=False, logger=self.my_logger)
+        import_filename = my_file_selector.show()[0]
+        if import_filename is None:
             print("Cancelled.")
             return
-        archiveType = self.myConfigManager.checkConfigType(
-            fileName=importFileName)
-        if archiveType == "SINGLE":
+        archive_type = self.myConfigManager.check_config_type(
+            file_name=import_filename)
+        if archive_type == "SINGLE":
             try:
-                self.myConfigManager.importSingleConfig(
-                    importFromFileName=importFileName)
+                self.myConfigManager.import_single_config(
+                    import_from_file_name=import_filename)
                 print("Successfully imported config.")
             except Exception as e:
-                self.myLogger.log("W", e, self.TAG)
+                self.my_logger.log("W", e, self.TAG)
                 print("Import failed!")
-            self.myUIUtils.pressEnterToContinue()
-        elif archiveType == "BATCH":
+            self.my_ui_utils.press_enter_to_continue()
+        elif archive_type == "BATCH":
             try:
-                self.myConfigManager.batchImportConfig(
-                    importFromFileName=importFileName)
+                self.myConfigManager.batch_import_config(
+                    import_from_file_name=import_filename)
                 print("Successfully imported config.")
             except Exception as e:
-                self.myLogger.log("W", e, self.TAG)
+                self.my_logger.log("W", e, self.TAG)
                 print("Import failed!")
-            self.myUIUtils.pressEnterToContinue()
+            self.my_ui_utils.press_enter_to_continue()
         else:
             print("Invalid archive file.")
-            self.myUIUtils.pressEnterToContinue()
+            self.my_ui_utils.press_enter_to_continue()

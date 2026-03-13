@@ -3,7 +3,7 @@ AVB (Android Verified Boot) 信息解析器
 """
 from typing import Any, Dict
 import os
-import ConfigParser
+import Core.ConfigParser as ConfigParser
 
 def load_avb_data(logger) -> Dict[str, Any]:
     """
@@ -11,8 +11,8 @@ def load_avb_data(logger) -> Dict[str, Any]:
     实际使用时，可以从文件读取或直接使用给定的字典
     """
 
-    myConfigParser = ConfigParser.ConfigParser(logger=logger)
-    return myConfigParser.json2Dic()
+    my_config_parser = ConfigParser.ConfigParser(logger=logger)
+    return my_config_parser.json2_dic()
     
 def get_chinese_key_name(key: str) -> str:
     """将英文键名转换为中文"""
@@ -29,12 +29,21 @@ def get_chinese_key_name(key: str) -> str:
         "Public key file": "对应的公钥文件",
         "Rollback Index": "回滚索引",
         "Salt": "盐值",
+        "Data Block Size" : "验证数据块的大小",
         
         # 特殊列表类型
         "Chain": "链式验证分区",
         "Chain partition key": "链分区公钥",
         "Hash": "哈希验证分区",
         "Hashtree": "哈希树验证分区",
+        "FEC num roots" : "前向纠错数根",
+        "FEC offset" : "前向纠错数据偏移量",
+        "FEC size" : "前向纠错数据大小",
+        "Hash Block Size" : "哈希数据块大小",
+        "Root Digest" : "根摘要",
+        "Tree Offset" : "哈希树偏移量",
+        "Tree Size" : "哈希树大小",
+        "Version of dm-verity" : "dm-verity 版本",
         
         # 属性内的键名会被特殊处理，这里不单独定义
     }
