@@ -28,7 +28,7 @@ Then start using it.
 
 - [x] main.py as entry point under project's root directory
 - [ ] Select one or multiple images to read config or sign
-- [ ] Interface for importing, exporting and manage configs
+- [x] Interface for importing, exporting and manage configs
 - [ ] Transplant FEC to Windows
 - [ ] Check whether current images have satisfied requirements of making vbmeta images
 - [ ] Allow using arrow keys to navigate options instead of entering choice
