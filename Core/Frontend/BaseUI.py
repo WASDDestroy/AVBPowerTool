@@ -2,6 +2,7 @@ import Core.DynamicImportUtils as DynamicImportUtils
 import Core.Frontend.UIUtils as UIUtils
 import Core.LogUtils as LogUtils
 import Core.NavigationEngine as NavigationEngine
+from Core.Frontend.UIUtils import EnhancedFileSelectorUI
 
 
 class BaseUI:
@@ -78,74 +79,57 @@ class BaseUI:
             print("=" * 80)
 
     def show_ui(self):
-        self.clear_screen()
-        self.show_title()
-        for i in self.node_function:
-            print("[%s] %s" % (i, self.node_function[i]))
-        print("=" * 80)
-
-    def clear_screen(self):
         self.my_ui_utils.clear_screen()
+        available_functions = []
+        for i in self.node_function:
+            available_functions.append(self.node_function[i])
+        my_selector = EnhancedFileSelectorUI(self.my_navigation_engine.currentNodeName,
+                                             available_functions,
+                                             False,
+                                             self.my_logger)
+        return my_selector.show(True if self.my_navigation_engine.currentNodeName == "AVBPowerTool Home Page" else False,
+                                True)[0]
 
-    def handle_interaction_logic(self):
-        my_selection = input("Your choice: ").upper()
-        self.my_logger.log("T", "User input: " + my_selection, self.TAG)
-        if not my_selection in self.node_function.keys():
-            print("No such choice.")
-            self.my_logger.log("W", "Illegal choice: " + my_selection, self.TAG)
-            self.my_ui_utils.press_enter_to_continue()
-            return None
-        else:
-            function_name = self.node_function[my_selection]
-            self.my_logger.log("T", "Function name: " + function_name, self.TAG)
-            if self.handle_back_and_exit(function_name):
-                self.my_logger.log("T", "Back to upper level.", self.TAG)
-                return True
-            # Check whether function is in next node
-            if self.my_navigation_engine.currentDic["Next"][0] != "END":
+    def handle_interaction_logic(self, function_name):
+        self.my_logger.log("T", "Function name: " + function_name, self.TAG)
+        if self.handle_back_and_exit(function_name):
+            self.my_logger.log("T", "Back to upper level.", self.TAG)
+            return True
+        # Check whether function is in next node
+        if self.my_navigation_engine.currentDic["Next"][0] != "END":
+            self.my_logger.log(
+                "T", "Current node has subnodes, traverse them.", self.TAG)
+            for i in self.my_navigation_engine.currentDic["Next"]:
                 self.my_logger.log(
-                    "T", "Current node has subnodes, traverse them.", self.TAG)
-                for i in self.my_navigation_engine.currentDic["Next"]:
+                    "T", "Traversing, current: " + i, self.TAG)
+                self.my_navigation_engine.goto_node(i)
+                self.my_navigation_engine.refresh_node_info()
+                if self.my_navigation_engine.currentDic["Name"] == function_name:
+                    # Found function in one of the next node, dynamically import it and execute entry
+                    module_name = self.my_navigation_engine.currentDic["Frontend"].rstrip(
+                        ".py")
                     self.my_logger.log(
-                        "T", "Traversing, current: " + i, self.TAG)
-                    self.my_navigation_engine.goto_node(i)
-                    self.my_navigation_engine.refresh_node_info()
-                    self.my_logger.log(
-                        "T", "Switched node and refreshed info.", self.TAG)
-                    if self.my_navigation_engine.currentDic["Name"] == function_name:
-                        # Found function in one of the next node, dynamically import it and execute entry
-                        module_name = self.my_navigation_engine.currentDic["Frontend"].rstrip(
-                            ".py")
-                        self.my_logger.log(
-                            "T", "Found function! Corresponding module name: " + module_name, self.TAG)
-                        self.my_logger.log(
-                            "I", "Navigate to: " + module_name, self.TAG)
-                        my_object = self.my_importer.create_frontend_instance(self.my_importer.import_front_end_module(module_name),
-                                                                              module_name,
-                                                                              self.my_logger,
-                                                                              i,
-                                                                              self.my_navigation_engine)
-                        self.my_logger.log("I", "Successfully created new UI instance from module %s" % module_name, self.TAG)
-                        my_object.entry(
-                            navigation_engine=self.my_navigation_engine)
-                        break
-                    else:
-                        self.my_logger.log(
-                            "T", "Function name mismatch, go to upper level.", self.TAG)
-                        self.my_navigation_engine.go_to_upper_level()
+                        "I", "Navigate to: " + module_name, self.TAG)
+                    my_object = self.my_importer.create_frontend_instance(self.my_importer.import_front_end_module(module_name),
+                                                                          module_name,
+                                                                          self.my_logger,
+                                                                          i,
+                                                                          self.my_navigation_engine)
+                    self.my_logger.log("I", "Successfully created new UI instance from module %s" % module_name, self.TAG)
+                    my_object.entry(
+                        navigation_engine=self.my_navigation_engine)
+                    break
                 else:
-                    # If the loop ends normally, call functions in current node.
-                    self.my_logger.log(
-                        "T", "Traverse end! Target function not found!", self.TAG)
-                    self.my_logger.log(
-                        "T", "Call current node's function by name: " + function_name, self.TAG)
-                    self.call_backend(function_name)
-                    return None
+                    self.my_navigation_engine.go_to_upper_level()
             else:
-                self.my_logger.log(
-                    "T", "Current node does not contain subnodes, directly call function: " + function_name, self.TAG)
+                # If the loop ends normally, call functions in current node.
                 self.call_backend(function_name)
                 return None
+        else:
+            self.my_logger.log(
+                "T", "Current node does not contain subnodes, directly call function: " + function_name, self.TAG)
+            self.call_backend(function_name)
+            return None
 
     def entry(self, navigation_engine=None):
         if navigation_engine is not None:
@@ -156,12 +140,12 @@ class BaseUI:
         while 1:
             self.my_logger.log("D", "Currently at: " +
                               self.my_navigation_engine.currentNodeName, self.TAG)
-            self.my_logger.log(
-                "D", "Subnodes: " + str(self.my_navigation_engine.currentNodeNext), self.TAG)
-            self.my_logger.log(
-                "D", "Previous node: " + str(self.my_navigation_engine.currentNodePrev), self.TAG)
-            self.show_ui()
-            if self.handle_interaction_logic():
+            # self.my_logger.log(
+            #     "D", "Subnodes: " + str(self.my_navigation_engine.currentNodeNext), self.TAG)
+            # self.my_logger.log(
+            #     "D", "Previous node: " + str(self.my_navigation_engine.currentNodePrev), self.TAG)
+            function_name = self.show_ui()
+            if self.handle_interaction_logic(function_name):
                 break
 
 
