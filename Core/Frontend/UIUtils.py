@@ -48,9 +48,9 @@ class UIUtils:
     def press_enter_to_continue():
         input("Press Enter to continue.")
 
-    def confirm_operation(self, prompt="Confirm operation?") -> bool:
-        my_selector = EnhancedFileSelectorUI(prompt, ["Yes", "No"], False, self.my_logger, True, True)
-        if my_selector.show(show_instructions=False)[0] == "Yes":
+    def confirm_operation(self, prompt="Confirm operation?", selection = ("Yes", "No")) -> bool:
+        my_selector = EnhancedFileSelectorUI(prompt, selection, False, self.my_logger, True, True)
+        if my_selector.show(show_instructions=False)[0] == selection[0]:
             return True
         else:
             return False
