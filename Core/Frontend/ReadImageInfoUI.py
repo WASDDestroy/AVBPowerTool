@@ -1,4 +1,9 @@
+import os
+
 import BaseUI
+from Core.Frontend.UIUtils import EnhancedFileSelectorUI
+import Core.ImageInfoUtils as ImageInfoUtils
+import Core.ConfigParser as ConfigParser
 
 
 class ReadImageInfoUI(BaseUI.BaseUI):
@@ -10,26 +15,42 @@ class ReadImageInfoUI(BaseUI.BaseUI):
             "S": "Read info of selected image(s) (NOT RECOMMENDED)",
         }
         # noinspection PyAttributeOutsideInit
-        self.mImageInfoUtils = self.my_importer.create_instance(self.my_importer.import_module("ImageInfoUtils"),
-                                                              "ImageInfoUtils",
-                                                                self.my_logger)
+        self.my_image_info_utils = ImageInfoUtils.ImageInfoUtils(self.my_logger)
         # noinspection PyAttributeOutsideInit
-        self.mConfigParser = self.my_importer.create_instance(self.my_importer.import_module("ConfigParser"),
-                                                            "ConfigParser",
-                                                              self.my_logger)
+        self.m_config_parser = ConfigParser.ConfigParser(self.my_logger)
 
     def call_backend(self, function_name: str):
         if function_name == "Read info of all images":
             self.__handle_read_all_images_info()
-        # elif functionName == "Read info of selected image(s) (NOT RECOMMENDED)":
+        elif function_name == "Read info of selected image(s) (NOT RECOMMENDED)":
+            self.__handle_read_selected_images_info()
+        self.my_ui_utils.press_enter_to_continue()
 
     def __handle_read_selected_images_info(self):
-        pass
+        if self.my_ui_utils.confirm_operation("If you are going to create a signing config, this operation is strongly NOT recommended!",
+                                              ("I understand, continue operation", "No, cancel operation")):
+            available_images = os.listdir(os.path.join(os.getcwd(), "Images"))
+            my_selector = EnhancedFileSelectorUI("Select Image(s) to Read", available_images, True, self.my_logger, True,
+                                                 True)
+            images_to_read = my_selector.show()
+            if images_to_read:
+                print("Reading selected images.")
+                self.my_logger.log("I", "Read selected image(s).", self.TAG)
+                for i in range(len(images_to_read)):
+                    images_to_read[i] = images_to_read[i].rstrip(".img")
+                self.my_image_info_utils.read_image_info_batch(images_to_read)
+                print("Successfully read info of selected images.")
+            else:
+                self.my_logger.log("I", "No image selected.", self.TAG)
+                print("No image selected! Tip: Use space to select file in multi-select mode and Enter to confirm your choice.")
+                print("User cancelled operation.")
+        else:
+            print("Operation cancelled.")
 
     def __handle_read_all_images_info(self):
         if self.confirm_operation():
-            check_result = self.mImageInfoUtils.check_image_exists(
-                image_info_list=self.mConfigParser.get_image_list())
+            check_result = self.my_image_info_utils.check_image_exists(
+                image_info_list=self.m_config_parser.get_image_list())
             if not check_result[0]:
                 print("WARNING: Image mismatch!")
                 if check_result[1] == "MORE":
@@ -44,7 +65,7 @@ class ReadImageInfoUI(BaseUI.BaseUI):
                 elif check_result[1] == "DIFF":
                     print("Necessary image(s) not found!")
                     print("Config list:")
-                    for i in self.mConfigParser.get_image_list():
+                    for i in self.m_config_parser.get_image_list():
                         print(i)
                     print("You have these images:")
                     for i in check_result[3]:
@@ -54,8 +75,8 @@ class ReadImageInfoUI(BaseUI.BaseUI):
             else:
                 try:
                     print("Reading AVB information of all images.")
-                    self.mImageInfoUtils.read_image_info_batch(
-                        self.mConfigParser.get_image_list())
+                    self.my_image_info_utils.read_image_info_batch(
+                        self.m_config_parser.get_image_list())
                     print("Successfully read info of all images.")
                 except:
                     print("Operation failed.")
