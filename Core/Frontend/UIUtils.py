@@ -61,18 +61,22 @@ class UIUtils:
 
 class EnhancedFileSelectorUI:
     """
-    独立的增强文件选择器组件
-    支持键盘导航、多选、确认取消按钮
+    An enhanced "file" selector.
+
+    Supports keyboard navigation, multi-select and infinite roll.
     """
 
     def __init__(self, title: str = "Select Files", items: List[str] = None,
-                 multi_select: bool = False, logger = None, infinite_roll = True):  # type: ignore
+                 multi_select: bool = False, logger = None, infinite_roll = True, cancelable = True):  # type: ignore
         """
-        初始化文件选择器
-        Args:
-            title: 选择器标题
-            items: 可选项目列表
-            multi_select: 是否支持多选
+        Initialize a selector.
+
+        :param title: Title of your selector interface
+        :param items: Items shown in selector interface
+        :param multi_select: Is multi-select supported
+        :param logger: logger instance
+        :param infinite_roll: Is infinite roll supported
+        :param cancelable: Is cancelable (Use ESC to cancel)
         """
         self.title = title
         self.items = items or []
@@ -82,6 +86,7 @@ class EnhancedFileSelectorUI:
         self.finished = False
         self.cancelled = False
         self.infinite_roll = infinite_roll
+        self.cancelable = cancelable
         if logger is None:
             self.my_logger = LogUtils.LogUtils()
         else:
@@ -89,33 +94,33 @@ class EnhancedFileSelectorUI:
 
     def show(self, show_instructions = True, allow_long_item = False) -> Optional[List[str]]:
         """
-        显示选择器并返回选择结果
-        Returns:
-            list: 选择的项目列表
-            None: 用户取消
+        Display selector and return selected item(s).
+        :param show_instructions: Display instructions
+        :param allow_long_item: Allow long item(more than 35 letters)
+        :return: list: item(s) selected; None: On user cancellation
         """
         if not self.items:
             print("No items to select.")
             return None if not self.multi_select else []
 
-        # 重置状态
+        # Reset state
         self.selected_indices.clear()
         self.current_index = 0
         self.finished = False
         self.cancelled = False
 
-        # 主循环
+        # Main loop
         while not self.finished:
             self._draw_ui(show_instructions, allow_long_item)
             self._process_input()
 
-        # 返回结果
+        # Return result when user cancels
         if self.cancelled:
             return None
 
         selected_items = [self.items[i] for i in sorted(self.selected_indices)]
 
-        # 单选模式下，确保只返回一个项目
+        # Return only one item when in single-selection mode
         if not self.multi_select and selected_items:
             return [selected_items[0]]
 
@@ -123,80 +128,81 @@ class EnhancedFileSelectorUI:
 
     def _draw_ui(self, show_instructions = True, allow_long_item = False) -> None:
         """
-        绘制UI界面
+        Draw UI interface
         """
         my_ui_utils = UIUtils(logger=self.my_logger)
         my_ui_utils.clear_screen()
 
-        # 绘制标题和边框
+        # Show title
         print("=" * 80)
         title_line = f"  {self.title:^80}  "
         print(title_line)
         print("=" * 80)
 
-        # 绘制说明
+        # Show instructions
         if show_instructions:
             print("  Instructions:")
             print("    ↑/↓ : Navigate items")
             if self.multi_select:
                 print("    Space : Select/Deselect current item")
                 print("    A     : Select All / Deselect All")
-            else:
-                print("    Space/Enter : Select current item")
             print("    Enter : Confirm selection")
-            print("    ESC   : Cancel")
+            if self.cancelable:
+                print("    ESC   : Cancel")
             print("=" * 80)
 
-        # 绘制项目列表
+        # Show selectable items
         if not self.items:
             print("  No items available.                          ")
         else:
             for i, item in enumerate(self.items):
-                # 处理长文件名
+                # Handle long names
                 display_item = item
                 if len(display_item) > 35 and not allow_long_item:
                     display_item = display_item[:32] + "..."
 
-                # 构建前缀
+                # Prefix
                 if i == self.current_index:
                     prefix = "→ "
                 else:
                     prefix = "  "
 
-                # 构建复选框
+                # Show checkbox
                 if self.multi_select:
                     checkbox = "[✓]" if i in self.selected_indices else "[ ]"
                 else:
                     checkbox = "[●]" if i in self.selected_indices else "[○]"
 
-                # 构建显示行
+                # Finally construct the whole line
                 line = f"{prefix}{checkbox} {display_item}"
                 line = line.ljust(80)
                 print(f"  {line}  ")
 
         print("=" * 80)
 
-        # 绘制状态信息
+        # Show current state
         if self.multi_select:
             selected_count = len(self.selected_indices)
             status = f"Selected: {selected_count}/{len(self.items)}"
             print(f"  {status:^80}  ")
             print("=" * 80)
 
-        # 绘制按钮
-        print("  [Enter: Confirm]        [ESC: Cancel]       ")
+        # Show buttons
+        if self.cancelable:
+            print("  [Enter: Confirm]        [ESC: Cancel]")
+        else:
+            print("  [Enter: Confirm]")
         print("=" * 80)
 
     def _process_input(self) -> None:
         """
-        处理用户输入
+        Process user input
         """
         try:
-            # 获取单个字符输入（跨平台）
-            if os.name == 'nt':  # Windows
+            if os.name == 'nt':
                 import msvcrt
                 key = msvcrt.getch().decode('utf-8', errors='ignore')
-            else:  # Unix/Linux/Mac
+            else:
                 import tty
                 import termios
                 fd = sys.stdin.fileno()
@@ -207,21 +213,21 @@ class EnhancedFileSelectorUI:
                 finally:
                     termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         except (ImportError, Exception):
-            # 回退到标准输入
+            # Fall back to standard input
             key = input("").lower()
             if len(key) > 0:
                 key = key[0]
             else:
                 key = ''
 
-        # 处理特殊键
-        if key == '\x1b':  # ESC
+        # Handle special keys
+        if key == '\x1b' and self.cancelable:  # ESC
             self.cancelled = True
             self.finished = True
             return
 
         elif key == '\r' or key == '\n':  # Enter
-            # 在单选模式下，如果没有选择任何项目，选择当前项目
+            # Select current item when in single-select mode
             if not self.multi_select and not self.selected_indices:
                 self.selected_indices.add(self.current_index)
             self.finished = True
@@ -241,32 +247,29 @@ class EnhancedFileSelectorUI:
 
         elif key == ' ':  # Space
             if self.multi_select:
-                # 多选模式：切换选择状态
+                # Multi-select mode
                 if self.current_index in self.selected_indices:
                     self.selected_indices.remove(self.current_index)
                 else:
                     self.selected_indices.add(self.current_index)
             else:
-                # 单选模式：选择当前项目，取消其他选择
+                # Single-select mode
                 self.selected_indices.clear()
                 self.selected_indices.add(self.current_index)
 
-        elif key in ['a', 'A'] and self.multi_select:  # A (全选/取消全选)
+        elif key in ['a', 'A'] and self.multi_select:  # Select all
             if len(self.selected_indices) == len(self.items):
-                # 如果已经全选，则取消全选
+                # Cancel "select all"
                 self.selected_indices.clear()
             else:
-                # 否则全选
+                # Select all
                 self.selected_indices = set(range(len(self.items)))
 
     @staticmethod
     def _get_key() -> str:
         """
-        获取键盘输入（兼容性方法）
-        Returns:
-            str: 按键字符
+        Get keyboard input when arrow key navigation is unavailable.
         """
-        # 简化版本，用于测试
         try:
             import msvcrt
             return msvcrt.getch().decode('utf-8', errors='ignore')
