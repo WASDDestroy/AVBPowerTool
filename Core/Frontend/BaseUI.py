@@ -86,7 +86,9 @@ class BaseUI:
         my_selector = EnhancedFileSelectorUI(self.my_navigation_engine.currentNodeName,
                                              available_functions,
                                              False,
-                                             self.my_logger)
+                                             self.my_logger,
+                                             True,
+                                             False)
         return my_selector.show(True if self.my_navigation_engine.currentNodeName == "AVBPowerTool Home Page" else False,
                                 True)[0]
 
