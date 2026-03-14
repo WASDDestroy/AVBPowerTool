@@ -3,7 +3,7 @@ import sys
 import time
 import Core.Frontend.HomePageUI as HomePageUI
 import Core.EnvironmentChecker as EnvironmentChecker
-from Core import LogUtils
+import Core.LogUtils as LogUtils
 
 def print_logo():
     try:
