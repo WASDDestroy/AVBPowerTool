@@ -142,10 +142,6 @@ class BaseUI:
         while 1:
             self.my_logger.log("D", "Currently at: " +
                               self.my_navigation_engine.currentNodeName, self.TAG)
-            # self.my_logger.log(
-            #     "D", "Subnodes: " + str(self.my_navigation_engine.currentNodeNext), self.TAG)
-            # self.my_logger.log(
-            #     "D", "Previous node: " + str(self.my_navigation_engine.currentNodePrev), self.TAG)
             function_name = self.show_ui()
             if self.handle_interaction_logic(function_name):
                 break
