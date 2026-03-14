@@ -32,7 +32,13 @@ class SignAllImagesUI(BaseUI.BaseUI):
                 print("Start signing after %d secs." % (3 - i))
                 time.sleep(1)
             print()
-            my_signer.sign_images_batch()
+            batch_sign_result = my_signer.sign_images_batch()
+            if batch_sign_result[0]:
+                print("Successfully signed all images!")
+            else:
+                print("Failed to sign images:")
+                print("Reason:", batch_sign_result[1])
+                self.my_ui_utils.message_on_fail()
             self.my_ui_utils.press_enter_to_continue()
         elif function_name == "Sign selected image file":
             self._in_development_placeholder()
