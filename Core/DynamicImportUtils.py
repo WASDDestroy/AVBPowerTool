@@ -40,7 +40,7 @@ class DynamicImportUtils:
             self.my_logger.log("W", "Exception happened when importing module " + module_name + ": " + repr(e), self.TAG)
             return None
     
-    def create_instance(self, module, class_name, logger, goto_node = None, navigation_engine = None):
+    def create_instance(self, module, class_name, logger, goto_node = None, navigation_engine = None, ui_utils = None):
         try:
             class_name = getattr(module, class_name)
             self.my_logger.log("I", "Successfully get attribute in module %s with class name %s"%(module, class_name), self.TAG)
@@ -48,10 +48,10 @@ class DynamicImportUtils:
             self.my_logger.log("E", "Failed when creating instance for module with class name %s, no such attribution!" % class_name, self.TAG)
             raise RuntimeError("Unable to create instance.")
         self.my_logger.log("I", "Successfully created instance for module with classname " + str(class_name), self.TAG)
-        if goto_node and navigation_engine:
-            return class_name(logger=logger, goto_node=goto_node, navigation_engine=navigation_engine)
+        if goto_node and navigation_engine and ui_utils:
+            return class_name(logger=logger, goto_node=goto_node, navigation_engine=navigation_engine, ui_utils=ui_utils)
         else:
             return class_name(logger = logger)
     
-    def create_frontend_instance(self, module, class_name, logger, goto_node, navigation_engine):
-        return self.create_instance(module, class_name, logger, goto_node, navigation_engine)
+    def create_frontend_instance(self, module, class_name, logger, goto_node, navigation_engine, ui_utils):
+        return self.create_instance(module, class_name, logger, goto_node, navigation_engine, ui_utils)
