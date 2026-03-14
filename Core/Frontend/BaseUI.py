@@ -4,7 +4,6 @@ import Core.LogUtils as LogUtils
 import Core.NavigationEngine as NavigationEngine
 from Core.Frontend.UIUtils import EnhancedFileSelectorUI
 
-
 class BaseUI:
 
     def __init__(self, logger=None, goto_node="", navigation_engine=None) -> None:

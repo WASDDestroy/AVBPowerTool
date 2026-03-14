@@ -28,7 +28,7 @@ class ConfigParser:
         getImageList reads config file from assigned directory and returns a list contains image file's **NAME**.
 
         :param file_dir: The directory of config file.
-        :return: A list contains partition file's **NAME**.
+        :return: A list contains partition file's **NAME**, extension name is excluded.
         :rtype: list[str]
         """
         if file_dir is None:
