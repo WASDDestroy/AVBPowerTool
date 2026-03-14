@@ -12,12 +12,12 @@ class UIUtils:
     def __init__(self, logger=None) -> None:
         self.TAG = "UIUtils"
         if logger is None:
-            self.myLogger = LogUtils.LogUtils(should_attach_time=True)
+            self.my_logger = LogUtils.LogUtils(should_attach_time=True)
         else:
-            self.myLogger = logger
+            self.my_logger = logger
         self.myConfigManager = ConfigManager.ConfigManager(
-            logger=self.myLogger)
-        self.myLogger.log(
+            logger=self.my_logger)
+        self.my_logger.log(
             "I", "Successfully created UIUtils instance.", self.TAG)
 
     def clear_screen(self):
@@ -30,27 +30,27 @@ class UIUtils:
             return False
 
         try:
-            self.myLogger.log("D", "Clear screen.", self.TAG)
+            self.my_logger.log("D", "Clear screen.", self.TAG)
             result = subprocess.run(["cls"], shell=True) if os.name == "nt" else subprocess.run(["clear"], shell=True)
             if result.returncode != 0 or is_in_ide():
-                self.myLogger.log("W", "Unable to run command %s on platform %s, try alternate method to clear screen."%("cls" if os.name == "nt" else "clear", os.name), self.TAG)
+                self.my_logger.log("W", "Unable to run command %s on platform %s, try alternate method to clear screen." % ("cls" if os.name == "nt" else "clear", os.name), self.TAG)
                 supports_ansi = sys.stdout.isatty() and not (os.name == 'nt' and not os.getenv('ANSICON'))
-                self.myLogger.log("D", "ANSI sequence support: %d" % supports_ansi, self.TAG)
+                self.my_logger.log("D", "ANSI sequence support: %d" % supports_ansi, self.TAG)
                 if supports_ansi:
                     sys.stdout.write("\033[2J\033[H")
                     sys.stdout.flush()
                 else:
                     print("\n" * 100)
         except FileNotFoundError:
-            self.myLogger.log("W", "Unable to run clear screen command on platform %s due to FileNotFoundError"%os.name, self.TAG)
+            self.my_logger.log("W", "Unable to run clear screen command on platform %s due to FileNotFoundError" % os.name, self.TAG)
 
     @staticmethod
     def press_enter_to_continue():
         input("Press Enter to continue.")
 
-    @staticmethod
-    def confirm_operation(prompt="Confirm operation?") -> bool:
-        if input(prompt + " [y/N]: ").lower() == "y":
+    def confirm_operation(self, prompt="Confirm operation?") -> bool:
+        my_selector = EnhancedFileSelectorUI(prompt, ["Yes", "No"], False, self.my_logger, True, True)
+        if my_selector.show(show_instructions=False)[0] == "Yes":
             return True
         else:
             return False
