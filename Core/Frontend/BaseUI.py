@@ -6,7 +6,7 @@ from Core.Frontend.UIUtils import EnhancedFileSelectorUI
 
 class BaseUI:
 
-    def __init__(self, logger=None, goto_node="", navigation_engine=None) -> None:
+    def __init__(self, logger=None, goto_node="", navigation_engine=None, ui_utils = None) -> None:
         self.TAG = self.__class__.__name__
         self.node_function = {}
         self.customized_function = {}  # "Press Key" : "Function Name"
@@ -14,7 +14,7 @@ class BaseUI:
         self.my_importer = DynamicImportUtils.DynamicImportUtils(logger=self.my_logger)
         self.my_navigation_engine = navigation_engine or NavigationEngine.NavigationEngine(
             self.my_logger)  # type: ignore
-        self.my_ui_utils = UIUtils.UIUtils(logger)
+        self.my_ui_utils = ui_utils or UIUtils.UIUtils(logger)
         self.my_logger.log("D", "Currently at: " +
                           self.my_navigation_engine.currentNodeName, self.TAG)
         self.my_logger.log("D", "Desired node: " + goto_node, self.TAG)
@@ -67,16 +67,6 @@ class BaseUI:
     def confirm_operation(self, prompt="Confirm operation?") -> bool:
         return self.my_ui_utils.confirm_operation(prompt)
 
-    def show_title(self):
-        tmp_len = (80 - len(self.my_navigation_engine.currentNodeName)) // 2
-        if tmp_len >= 0:
-            print("=" * tmp_len
-                  + self.my_navigation_engine.currentNodeName
-                  + "=" * tmp_len)
-        else:
-            print(self.my_navigation_engine.currentNodeName)
-            print("=" * 80)
-
     def show_ui(self):
         self.my_ui_utils.clear_screen()
         available_functions = []
@@ -86,6 +76,7 @@ class BaseUI:
                                              available_functions,
                                              False,
                                              self.my_logger,
+                                             self.my_ui_utils,
                                              True,
                                              False)
         return my_selector.show(True if self.my_navigation_engine.currentNodeName == "AVBPowerTool Home Page" else False,
@@ -115,7 +106,8 @@ class BaseUI:
                                                                           module_name,
                                                                           self.my_logger,
                                                                           i,
-                                                                          self.my_navigation_engine)
+                                                                          self.my_navigation_engine,
+                                                                          self.my_ui_utils)
                     self.my_logger.log("I", "Successfully created new UI instance from module %s" % module_name, self.TAG)
                     my_object.entry(
                         navigation_engine=self.my_navigation_engine)
