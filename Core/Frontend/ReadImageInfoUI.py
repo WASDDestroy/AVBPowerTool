@@ -53,6 +53,7 @@ class ReadImageInfoUI(BaseUI.BaseUI):
                 return
             else:
                 try:
+                    print("Reading AVB information of all images.")
                     self.mImageInfoUtils.read_image_info_batch(
                         self.mConfigParser.get_image_list())
                     print("Successfully read info of all images.")
