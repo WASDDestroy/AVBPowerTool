@@ -61,7 +61,7 @@ class ConfigParser:
         
         :param single_config_dict: Config directory. Contains image name, rollback index, etc.
         :return: A dictionary contains command args accepted by subprocess.run()
-        :rtype: dict
+        :rtype: list
         :see: Core/ImageInfoUtils.py
         """
         is_vbmeta = False
