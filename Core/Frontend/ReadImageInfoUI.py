@@ -30,7 +30,7 @@ class ReadImageInfoUI(BaseUI.BaseUI):
         if self.my_ui_utils.confirm_operation("If you are going to create a signing config, this operation is strongly NOT recommended!",
                                               ("I understand, continue operation", "No, cancel operation")):
             available_images = os.listdir(os.path.join(os.getcwd(), "Images"))
-            my_selector = EnhancedFileSelectorUI("Select Image(s) to Read", available_images, True, self.my_logger, True,
+            my_selector = EnhancedFileSelectorUI("Select Image(s) to Read", available_images, True, self.my_logger, self.my_ui_utils, True,
                                                  True)
             images_to_read = my_selector.show()
             if images_to_read:
@@ -43,9 +43,9 @@ class ReadImageInfoUI(BaseUI.BaseUI):
             else:
                 self.my_logger.log("I", "No image selected.", self.TAG)
                 print("No image selected! Tip: Use space to select file in multi-select mode and Enter to confirm your choice.")
-                print("User cancelled operation.")
+                self.my_ui_utils.message_on_cancel()
         else:
-            print("Operation cancelled.")
+            self.my_ui_utils.message_on_cancel()
 
     def __handle_read_all_images_info(self):
         if self.confirm_operation():
@@ -81,5 +81,5 @@ class ReadImageInfoUI(BaseUI.BaseUI):
                 except:
                     print("Operation failed.")
         else:
-            print("Operation cancelled.")
+            self.my_ui_utils.message_on_cancel()
         self.my_ui_utils.press_enter_to_continue()

@@ -26,12 +26,12 @@ class ExportConfigUI(BaseUI.BaseUI):
         file_can_be_selected = []
         for i in os.listdir(os.path.join(os.getcwd(), "Configs")):
             file_can_be_selected.append(i)
-        my_file_selector = EnhancedFileSelectorUI(title="Select a Config", items=file_can_be_selected,
-                                                  multi_select=True, logger=self.my_logger)
+        my_file_selector = EnhancedFileSelectorUI("Select a Config", file_can_be_selected,
+                                                  True, self.my_logger, self.my_ui_utils)
         config_list = my_file_selector.show()
         export_result = False
         if len(config_list) == 0:
-            print("User cancelled operation.")
+            self.my_ui_utils.message_on_cancel()
             self.my_ui_utils.press_enter_to_continue()
             return
         elif len(config_list) > 1:

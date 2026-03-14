@@ -22,7 +22,7 @@ class ConfigManagerUI(BaseUI.BaseUI):
                                                                 self.my_logger)
         if function_name == function_name_tuple[0]:
             config_names = self.myConfigManager.get_all_configs()
-            my_selector = EnhancedFileSelectorUI("Select a Config to Activate", config_names, False, self.my_logger)
+            my_selector = EnhancedFileSelectorUI("Select a Config to Activate", config_names, False, self.my_logger, self.my_ui_utils)
             config_to_active = my_selector.show()[0]
             if config_to_active:
                 if self.myConfigManager.set_config_active(config_to_active):
@@ -32,7 +32,7 @@ class ConfigManagerUI(BaseUI.BaseUI):
                     print("Failed to set active config to", config_to_active)
                     self.my_ui_utils.message_on_fail()
             else:
-                print("User cancelled operation.")
+                self.my_ui_utils.message_on_cancel()
             self.my_ui_utils.press_enter_to_continue()
         elif function_name == function_name_tuple[1]:
             config_name = input("Enter the name of your new config: ")

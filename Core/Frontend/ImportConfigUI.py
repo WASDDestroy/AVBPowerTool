@@ -23,11 +23,11 @@ class ImportConfigUI(BaseUI.BaseUI):
         for i in os.listdir(os.getcwd()):
             if i.endswith(".zip"):
                 file_can_be_selected.append(i)
-        my_file_selector = EnhancedFileSelectorUI(title="Select a Config Archive to Import", items=file_can_be_selected, multi_select=True, logger=self.my_logger)
+        my_file_selector = EnhancedFileSelectorUI("Select a Config Archive to Import", file_can_be_selected, True, self.my_logger, self.my_ui_utils)
         import_files = my_file_selector.show()
         self.my_logger.log("I", "Import files: %s" % str(import_files), self.TAG)
         if len(import_files) == 0:
-            print("Cancelled.")
+            self.my_ui_utils.message_on_cancel()
             return
         for file_name in import_files:
             archive_type = self.myConfigManager.check_config_type(
