@@ -1,4 +1,7 @@
-import LogUtils, KeyDirUtils, ConfigParser, EnvironmentChecker
+import Core.LogUtils as LogUtils
+import Core.KeyDirUtils as KeyDirUtils
+import Core.ConfigParser as ConfigParser
+import Core.EnvironmentChecker as EnvironmentChecker
 import subprocess, os, copy, json
 
 class ImageInfoUtils:
@@ -51,6 +54,7 @@ class ImageInfoUtils:
         Will raise RuntimeException when operation cannot be finished due to wrong OS or ENOENT.
 
         :param image_name: image file's name, method will autocorrect it to ".img".
+        :return: image_info string
         """
         if not image_name.endswith(".img"):
             image_name += ".img"

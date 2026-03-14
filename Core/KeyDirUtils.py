@@ -1,4 +1,7 @@
-import os, subprocess, LogUtils, EnvironmentChecker
+import os, subprocess
+
+import Core.LogUtils as LogUtils
+import Core.EnvironmentChecker as EnvironmentChecker
 
 class KeyDirUtils:
 
