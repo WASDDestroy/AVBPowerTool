@@ -4,6 +4,7 @@ import time
 import Core.Frontend.HomePageUI as HomePageUI
 import Core.EnvironmentChecker as EnvironmentChecker
 import Core.LogUtils as LogUtils
+import Core.Frontend.UIUtils as UIUtils
 
 def print_logo():
     try:
@@ -58,9 +59,16 @@ try:
                 "F", "Exception happened when checking necessary folders: " + str(e), TAG)
             exit()
         try:
+            print("Prepare essential components.")
+            ui_util = UIUtils.UIUtils(main_logger)
+        except Exception as e:
+            print("Exception happened during essentials preparation: " + str(e))
+            main_logger.log("F", "Exception happened during essentials preparation: " + str(e), TAG)
+            exit()
+        try:
             print("Starting interface.")
             main_logger.log("I", "Starting interface.", TAG)
-            mainUIInstance = HomePageUI.HomePageUI(logger=main_logger)
+            mainUIInstance = HomePageUI.HomePageUI(logger=main_logger, ui_utils=ui_util)
             print("Successfully created UI instance.")
             main_logger.log("I", "Successfully created UI instance.", TAG)
         except Exception as e:
