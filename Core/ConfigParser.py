@@ -15,12 +15,85 @@ class ConfigParser:
             self.my_logger.log("W", "Logger not given, created an instance just now.", self.TAG)
         else:
             self.my_logger = logger
-        self.my_logger.log("I", "Instance of ConfigParser successfully created.", self.TAG)
         if os.name == "nt":
-            self.my_logger.log("W", "Running on Windows NT, use relative path to avoid chain partition related issues.")
+            self.my_logger.log("W", "Running on Windows NT, use relative path to avoid chain partition related issues.", self.TAG)
         self.TAG = "ConfigParser"
         self.__IMAGE_DIR = os.path.join(os.getcwd(), "Images")
         self.__KEY_DIR = os.path.join(os.getcwd(), "Core", "currentKeySet") if os.name == "posix" else os.path.join(".\\", "Core", "currentKeySet")
+        self.my_logger.log("I", "Instance of ConfigParser successfully created.", self.TAG)
+
+    def cherry_pick_from_config(self, images : list, config_name : str = "current") -> bool:
+        """
+        Generate a temporary JSON contains info of selected images from original config file.
+
+        :param config_name: the **NAME** of config
+        :param images: selected images
+        :return: A boolean indicates whether the process succeeded
+        """
+        try:
+            if config_name == "current":
+                self.my_logger.log("I", "Create temp file for current config.", self.TAG)
+                config_dir = os.path.join(os.getcwd(), "Core", "currentConfigs")
+            else:
+                self.my_logger.log("W", "Create temporary config for persistent configs is not allowed.", self.TAG)
+                return False
+
+            full_config_dic = self.json2_dic(os.path.join(config_dir, "imageInfo.json"))
+            self.my_logger.log("I", "Successfully fetched info from current config.", self.TAG)
+            temp_config_dic = {}
+
+            for single_image in images:
+                temp_config_dic[single_image] = full_config_dic[single_image]
+            try:
+                json_string = json.dumps(temp_config_dic, indent=4, sort_keys=True)
+                with open(os.path.join(os.getcwd(),
+                                       "Core",
+                                       "currentConfigs",
+                                       "tempImageInfo.json"), "w+") as my_file:
+                    my_file.write(json_string)
+                self.my_logger.log("I", "Temporary image info successfully written into "
+                                   + os.path.join(os.getcwd(),
+                                                  "Core",
+                                                  "currentConfigs",
+                                                  "tempImageInfo.json"), "saveResultToFile")
+                return True
+            except Exception as e:
+                self.my_logger.log("I", "Exception happened when saving temp config file. " + str(e), self.TAG)
+                return False
+
+        except FileNotFoundError:
+            self.my_logger.log("E", "Unable to open config file! Maybe current config is corrupt or active config has no related info!")
+            return False
+
+    def remove_cherry_pick_file(self, config_name : str = "current") -> bool:
+        try:
+            if config_name == "current":
+                self.my_logger.log("I", "Create temp file for current config.")
+                config_dir = os.path.join(os.getcwd(), "Core", "currentConfigs")
+            else:
+                self.my_logger.log("W", "Create temporary config for persistent configs is not allowed.", self.TAG)
+                return False
+            os.remove(os.path.join(os.getcwd(), "Core", "currentConfigs", "tempImageInfo.json"))
+            self.my_logger.log("I", "Successfully removed temp cherry-pick file.", self.TAG)
+            return True
+        except FileNotFoundError as e:
+            self.my_logger.log("W", "Unable to access file! " + str(e), self.TAG)
+            return False
+
+    def get_image_in_json(self, complete_path_to_json) -> list:
+        """
+        Read images saved in JSON file.
+
+        :param complete_path_to_json: The directory of config file(json).
+        :return: A list contains image names in JSON file
+        """
+
+        full_dict = self.json2_dic(complete_path_to_json)
+        full_keys = full_dict.keys()
+        result_list = []
+        for item in full_keys:
+            result_list.append(item)
+        return result_list
 
     def get_image_list(self,
                        file_dir = None) -> list[str]:
@@ -150,9 +223,8 @@ class ConfigParser:
         except FileNotFoundError:
             self.my_logger.log("W", "Config file not found!", self.TAG)
             return ""
-    
-    @staticmethod
-    def json2_dic(image_config_file_dir = None) -> dict:
+
+    def json2_dic(self, image_config_file_dir = None) -> dict:
         """
         Parse JSON object to Python dictionary.
 
@@ -163,9 +235,12 @@ class ConfigParser:
         :rtype: dict
         """
         if image_config_file_dir is None:
+            self.my_logger.log("W", "Use default config dir due to empty argument.", self.TAG)
             image_config_file_dir = os.path.join(os.getcwd(), "Core", "currentConfigs", "imageInfo.json")
-        if image_config_file_dir.endswith("/") or image_config_file_dir.endswith("\\"):
-            image_config_file_dir += "imageInfo.json"
-        with open(image_config_file_dir, "r") as myFile:
-            config_dic : dict = json.load(myFile)
+        if image_config_file_dir.endswith("/") or image_config_file_dir.endswith("\\") or not image_config_file_dir.endswith(".json"):
+            self.my_logger.log("W", "Config name not assigned! Use default name.", self.TAG)
+            image_config_file_dir = os.path.join(image_config_file_dir, "imageInfo.json")
+        self.my_logger.log("D", "Path: " + image_config_file_dir, self.TAG)
+        with open(image_config_file_dir, "r") as my_file:
+            config_dic : dict = json.load(my_file)
         return config_dic
