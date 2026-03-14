@@ -56,6 +56,8 @@ class ExportConfigUI(BaseUI.BaseUI):
     def __call_export_backend(self, config_name="", sparse=False, config_list=None):
         try:
             export_to_file_name = input("Enter the name of exported archive, keep it empty to use the name of config: ")
+            if export_to_file_name == "":
+                export_to_file_name = config_name
             if not export_to_file_name.endswith(".zip"):
                 export_to_file_name += ".zip"
             if sparse:
