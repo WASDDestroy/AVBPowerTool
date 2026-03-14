@@ -1,9 +1,8 @@
 import os
+import subprocess
 import sys
 from typing import List, Set, Optional
-import subprocess
 
-import Core.ConfigManager as ConfigManager
 import Core.LogUtils as LogUtils
 
 
@@ -15,8 +14,6 @@ class UIUtils:
             self.my_logger = LogUtils.LogUtils(should_attach_time=True)
         else:
             self.my_logger = logger
-        self.myConfigManager = ConfigManager.ConfigManager(
-            logger=self.my_logger)
         self.my_logger.log(
             "I", "Successfully created UIUtils instance.", self.TAG)
 
@@ -30,7 +27,6 @@ class UIUtils:
             return False
 
         try:
-            self.my_logger.log("D", "Clear screen.", self.TAG)
             result = subprocess.run(["cls"], shell=True) if os.name == "nt" else subprocess.run(["clear"], shell=True)
             if result.returncode != 0 or is_in_ide():
                 self.my_logger.log("W", "Unable to run command %s on platform %s, try alternate method to clear screen." % ("cls" if os.name == "nt" else "clear", os.name), self.TAG)
@@ -49,15 +45,20 @@ class UIUtils:
         input("Press Enter to continue.")
 
     def confirm_operation(self, prompt="Confirm operation?", selection = ("Yes", "No")) -> bool:
-        my_selector = EnhancedFileSelectorUI(prompt, selection, False, self.my_logger, True, True)
+        my_selector = EnhancedFileSelectorUI(prompt, selection, False, self.my_logger, self, True, True)
         if my_selector.show(show_instructions=False)[0] == selection[0]:
             return True
         else:
             return False
     @staticmethod
     def message_on_fail():
+        print("Operation failed.")
         print("Please refer to log file for further information.")
         print("Note: Exit tool, then check log file, otherwise nothing will be shown in latest log.")
+
+    @staticmethod
+    def message_on_cancel():
+        print("Operation canceled.")
 
 class EnhancedFileSelectorUI:
     """
@@ -67,7 +68,7 @@ class EnhancedFileSelectorUI:
     """
 
     def __init__(self, title: str = "Select Files", items: List[str] = None,
-                 multi_select: bool = False, logger = None, infinite_roll = True, cancelable = True):  # type: ignore
+                 multi_select: bool = False, logger = None, ui_util_instance = None, infinite_roll = True, cancelable = True):  # type: ignore
         """
         Initialize a selector.
 
@@ -91,6 +92,7 @@ class EnhancedFileSelectorUI:
             self.my_logger = LogUtils.LogUtils()
         else:
             self.my_logger = logger
+        self.my_ui_utils = ui_util_instance or UIUtils(self.my_logger)
 
     def show(self, show_instructions = True, allow_long_item = False) -> Optional[List[str]]:
         """
@@ -130,7 +132,7 @@ class EnhancedFileSelectorUI:
         """
         Draw UI interface
         """
-        my_ui_utils = UIUtils(logger=self.my_logger)
+        my_ui_utils = self.my_ui_utils
         my_ui_utils.clear_screen()
 
         # Show title
