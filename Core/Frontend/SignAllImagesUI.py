@@ -5,62 +5,106 @@ import BaseUI
 import Core.SignImages as SignImages
 import Core.Frontend.UIUtils as UIUtils
 from Core import ConfigParser
+from Core.ImageInfoUtils import ImageInfoUtils
 
 
 class SignAllImagesUI(BaseUI.BaseUI):
 
     def customized_init(self):
         self.customized_function = {
-            "Y": "Sign all images with current config file",
-            "I": "Sign selected image file"
+            "S": "Sign selected image file",
         }
 
     def call_backend(self, function_name: str):
-        if function_name == "Sign all images with current config file":
-            if self.my_ui_utils.confirm_operation():
-                self.warn_before_signing()
-                my_signer = SignImages.SignImages(self.my_logger)
-                batch_sign_result = my_signer.sign_images_batch()
-                if batch_sign_result[0]:
-                    print("Successfully signed all images!")
-                else:
-                    print("Failed to sign images:")
-                    print("Reason:", batch_sign_result[1])
-                    self.my_ui_utils.message_on_fail()
-            else:
-                self.my_ui_utils.message_on_cancel()
-        elif function_name == "Sign selected image file":
-            self.warn_before_selective_signing()
-            if self.my_ui_utils.confirm_operation("Continue?"):
-                my_config_parser = ConfigParser.ConfigParser(self.my_logger)
-                image_in_json = my_config_parser.get_image_in_json(
-                    os.path.join(os.getcwd(), "Core", "currentConfigs", "imageInfo.json"))
-                set_json = set(image_in_json)
-                image_in_work_dir = []
-                for image in os.listdir(os.path.join(os.getcwd(), "Images")):
-                    if image.endswith(".img"):
-                        image_in_work_dir.append(image.rstrip(".img"))
-                set_work_dir = set(image_in_work_dir)
-                set_available = set_json & set_work_dir
-                for image_name in set_json:
-                    if "vbmeta" in image_name:
-                        set_available.add(image_name)
-                my_selector = UIUtils.EnhancedFileSelectorUI("Select image file(s) to sign",
-                                                             list(set_available),
-                                                             True,
-                                                             self.my_logger,
-                                                             self.my_ui_utils,
-                                                             True,
-                                                             True)
-                images_to_sign = my_selector.show(allow_long_item=True)
-                self.my_logger.log("I", "Sign selected images: " + str(images_to_sign), self.TAG)
+        if function_name == "Sign selected image file":
+            self.handle_sign_selected_images()
+
+        self.my_ui_utils.press_enter_to_continue()
+
+    def handle_sign_selected_images(self):
+        self.my_ui_utils.clear_screen()
+        self.warn_before_selective_signing()
+        if self.my_ui_utils.confirm_operation("Continue?"):
+
+            my_config_parser = ConfigParser.ConfigParser(self.my_logger)
+
+            # Get image with info stored in config file
+            image_in_json = my_config_parser.get_image_in_json(
+                os.path.join(os.getcwd(), "Core", "currentConfigs", "imageInfo.json"))
+            set_json = set(image_in_json)
+            self.my_logger.log("I", "Image configured in JSON file: " + str(set_json), self.TAG)
+
+            # Get image in work dir
+            image_in_work_dir = []
+            for image in os.listdir(os.path.join(os.getcwd(), "Images")):
+                if image.endswith(".img"):
+                    image_in_work_dir.append(image.rstrip(".img"))
+            set_work_dir = set(image_in_work_dir)
+            self.my_logger.log("I", "Images in work directory: " + str(set_work_dir), self.TAG)
+
+            # Construct set of available images
+            # Force to add vbmeta images to handle "other signing processes are successful, but vbmeta generation failed, and they are already removed by method for signing"
+            set_available = set_json & set_work_dir
+            for image_name in set_json:
+                if "vbmeta" in image_name:
+                    set_available.add(image_name)
+            self.my_logger.log("I", "Available images: " + str(set_available), self.TAG)
+
+            # Initialize selector and show it
+            my_selector = UIUtils.EnhancedFileSelectorUI("Select image file(s) to sign",
+                                                         list(set_available),
+                                                         True,
+                                                         self.my_logger,
+                                                         self.my_ui_utils,
+                                                         True,
+                                                         True)
+            images_to_sign = my_selector.show(allow_long_item=True)
+            self.my_logger.log("I", "Sign selected images: " + str(images_to_sign), self.TAG)
+
+            # Get vbmeta images
+            vbmeta_images = []
+            for image_name in images_to_sign:
+                if "vbmeta" in image_name:
+                    vbmeta_images.append(image_name)
+
+            allow_continue_generation = True
+
+            # If request generate vbmeta image, check is this operation performable
+            if len(vbmeta_images) > 0:
+                my_image_info_utils = ImageInfoUtils(self.my_logger)
+                for vbmeta_image in vbmeta_images:
+                    config_check_result = my_image_info_utils.is_config_support_vbmeta_generation("current", vbmeta_image)
+                    workdir_check_result = my_image_info_utils.is_work_dir_support_vbmeta_generation("current", vbmeta_image)
+
+                    if not (config_check_result[0] and workdir_check_result[0]):
+                        allow_continue_generation = False
+
+                        # Show failure reasons
+
+                        print("Unable to generate image \"%s\":" % vbmeta_image)
+
+                        if not config_check_result[0]:
+                            print("- Config does not satisfy requirements: missing AVB info of image ", end = "")
+                            for missing_config in config_check_result[1]:
+                                print("\"%s\"" % missing_config, end = " ")
+                        print()
+
+                        if not workdir_check_result[0]:
+                            print("- Workdir does not satisfy requirements: missing image file of ", end="")
+                            for missing_image in workdir_check_result[1]:
+                                print("\"%s\"" % missing_image, end=" ")
+                        print("\n")
+
+            if allow_continue_generation:
+
                 if images_to_sign:
                     cherry_pick_result = my_config_parser.cherry_pick_from_config(images_to_sign)
                     if cherry_pick_result:
                         self.warn_before_signing()
                         my_signer = SignImages.SignImages(self.my_logger)
                         batch_sign_result = my_signer.sign_images_batch(
-                            os.path.join(os.getcwd(), "Core", "currentConfigs", "tempImageInfo.json"), remove_vb= True if "vbmeta" in images_to_sign else False)
+                            os.path.join(os.getcwd(), "Core", "currentConfigs", "tempImageInfo.json"),
+                            remove_vb=True if "vbmeta" in images_to_sign else False)
                         if batch_sign_result[0]:
                             print("Successfully signed selected images!")
                         else:
@@ -72,10 +116,9 @@ class SignAllImagesUI(BaseUI.BaseUI):
                 else:
                     self.my_ui_utils.message_on_cancel()
             else:
-                self.my_ui_utils.message_on_cancel()
-
-        self.my_ui_utils.press_enter_to_continue()
-
+                self.my_ui_utils.message_on_fail()
+        else:
+            self.my_ui_utils.message_on_cancel()
 
     @staticmethod
     def __is_wsl():
