@@ -99,7 +99,7 @@ class EnhancedFileSelectorUI:
         Display selector and return selected item(s).
         :param show_instructions: Display instructions
         :param allow_long_item: Allow long item(more than 35 letters)
-        :return: list: item(s) selected; None: On user cancellation
+        :return: list: item(s) selected; Empty list: On user cancellation
         """
         if not self.items:
             print("No items to select.")
@@ -118,7 +118,8 @@ class EnhancedFileSelectorUI:
 
         # Return result when user cancels
         if self.cancelled:
-            return None
+            return []
+            # return None
 
         selected_items = [self.items[i] for i in sorted(self.selected_indices)]
 
