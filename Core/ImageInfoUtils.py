@@ -370,6 +370,66 @@ class ImageInfoUtils:
                                         "currentConfigs",
                                         "imageInfo.json"), "saveResultToFile")
 
+    def is_work_dir_support_vbmeta_generation(self, config_name : str = "current", vbmeta_name : str = "vbmeta") -> tuple[bool, list[str]]:
+        """
+        Check whether work directory has all images required for vbmeta generation.
+
+        Config file only contains information for AVB signing, it cannot work as alternate of corresponding image with AVB footer.
+
+        Thus, to prevent silent fail of AVB signing, check images in work directory is a must.
+
+        :param vbmeta_name: name of vbmeta image, such as "vbmeta_system"
+        :param config_name: name of config file, such as "current"
+        :return: Is work directory has all images required for vbmeta generation.
+        """
+        my_config_parser = ConfigParser.ConfigParser(self.my_logger)
+        image_required = my_config_parser.get_vbmeta_included_partitions(config_name, vbmeta_name)
+        lack_images = []
+        for image_name in image_required:
+            if not os.path.exists(os.path.join(os.getcwd(), "Images", image_name + ".img")):
+                self.my_logger.log("I", "Image " + image_name + ".img not found under working directory!", self.TAG)
+                lack_images.append(image_name)
+            else:
+                self.my_logger.log("I", "Image " + image_name + ".img found!", self.TAG)
+        if len(lack_images) == 0:
+            self.my_logger.log("I", "All images found! Able to generate vbmeta image with existing images in work directory!", self.TAG)
+            return True, []
+        else:
+            self.my_logger.log("W", "These images are missing under working directory: " + str(lack_images), self.TAG)
+            return False, lack_images
+
+    def is_config_support_vbmeta_generation(self, config_name: str = "current", vbmeta_name: str = "vbmeta") -> tuple[bool, list[str]]:
+        """
+        Check AVB info stored in assigned config and verify whether is supports generating a vbmeta image.
+
+        For example. user may read info of init_boot.img and vbmeta.img, but generating vbmeta requires info from vbmeta_system, which is not included in this config.
+
+        Without verify, signing process will fail without explicit/clear error from avbtool, making troubleshooting a tough task.
+
+        :param config_name: name of config file, default to "current" .
+        :param vbmeta_name: name of vbmeta image to generate, default to "vbmeta_system" .
+        :return: A tuple contains a boolean and a list. When config supports generation, boolean is True and list is empty, otherwise return False and config items missing.
+        """
+        my_config_parser = ConfigParser.ConfigParser(self.my_logger)
+        all_image_names = my_config_parser.get_all_image_names(config_name)
+        self.my_logger.log("I", "Successfully get all images included in determined config: " + str(all_image_names), self.TAG)
+        vbmeta_required_images = my_config_parser.get_vbmeta_included_partitions(config_name, vbmeta_name)
+        self.my_logger.log("I", "Generating determined vbmeta image requires these images: " + str(vbmeta_required_images), self.TAG)
+        lack_image_config = []
+        for image_name in vbmeta_required_images:
+            if image_name not in all_image_names:
+                self.my_logger.log("I", "Info of image " + image_name + " not found! Unable to generate vbmeta for lacking avb info!", self.TAG)
+                lack_image_config.append(image_name)
+            else:
+                self.my_logger.log("I", "Info of image " + image_name + ".img found!", self.TAG)
+        if len(lack_image_config) == 0:
+            self.my_logger.log("I", "Config supports generating vbmeta image!", self.TAG)
+            return True, []
+        else:
+            self.my_logger.log("W", "Missing AVB info of these images for generating vbmeta image: " + str(lack_image_config), self.TAG)
+            return False, lack_image_config
+
+
 if __name__ == "__main__":
     myLogger = LogUtils.LogUtils()
     myImageInfoUtils = ImageInfoUtils()
