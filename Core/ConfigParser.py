@@ -73,7 +73,7 @@ class ConfigParser:
             else:
                 self.my_logger.log("W", "Create temporary config for persistent configs is not allowed.", self.TAG)
                 return False
-            os.remove(os.path.join(os.getcwd(), "Core", "currentConfigs", "tempImageInfo.json"))
+            os.remove(os.path.join(config_dir, "tempImageInfo.json"))
             self.my_logger.log("I", "Successfully removed temp cherry-pick file.", self.TAG)
             return True
         except FileNotFoundError as e:
@@ -244,3 +244,72 @@ class ConfigParser:
         with open(image_config_file_dir, "r") as my_file:
             config_dic : dict = json.load(my_file)
         return config_dic
+
+    def get_vbmeta_included_partitions(self, config_name : str = "current", vbmeta_name : str = "vbmeta") -> list:
+        """
+        Return included images of determined vbmeta image in determined config, such as vbmeta of config "TB710FU_1.5.04.395".
+        :param config_name: The name of config. DO NOT post filename. Default to current
+        :type config_name: str
+        :param vbmeta_name: The name of vbmeta image, such as "vbmeta_system". NO EXTENSION NAME REQUIRED.
+        :type vbmeta_name: str
+        :return: List of images included.
+        :rtype: list
+        """
+        try:
+            if config_name == "current":
+                current_dic = self.json2_dic()
+            else:
+                current_dic = self.json2_dic(
+                    os.path.join(os.getcwd(), "Configs", config_name, "imageInfo.json"))
+            vbmeta_dic = {}
+            for image_name in current_dic:
+                if image_name == vbmeta_name:
+                    vbmeta_dic = current_dic[image_name]
+                    break
+            image_required = []
+
+            # In chain partition list, data are stored in a way that makes generate command line for adding chain partition easier,
+            # For example, boot partition with chain partition pos 3 will be stored as boot:3:
+            # Thus, we only have to assign path to key file to generate corresponding command line, and there we have to handle this special rule.
+            for chain_partition in vbmeta_dic["Chain"]:
+                image_required.append(chain_partition[:chain_partition.find(":")])
+
+            # For other images included, use normal method .extend() .
+            for key in ("Hash", "Hashtree"):
+                image_required.extend(vbmeta_dic[key])
+            return image_required
+        except FileNotFoundError:
+            self.my_logger.log("W", "Config file not found.", self.TAG)
+            return []
+
+    def get_all_vbmeta_names(self, config_name : str = "current") -> list:
+        """
+        Return all vbmeta image names in determined config.
+        :param config_name: The name of config. DO NOT post filename. Default to current.
+        :return: List of vbmeta image names.
+        """
+        all_images = self.get_all_image_names(config_name)
+        result_list = []
+        for image in all_images:
+            if "vbmeta" in all_images:
+                result_list.append(image)
+        return result_list
+
+    def get_all_image_names(self, config_name : str = "current") -> list:
+        """
+        Return all image names in determined config.
+        :param config_name: The name of config. DO NOT post filename. Default to current.
+        """
+        try:
+            if config_name == "current":
+                current_dic = self.json2_dic()
+            else:
+                current_dic = self.json2_dic(
+                    os.path.join(os.getcwd(), "Configs", config_name, "imageInfo.json"))
+            result_list = []
+            for image_name in current_dic.keys():
+                result_list.append(image_name)
+            return result_list
+        except FileNotFoundError:
+            self.my_logger.log("W", "Config file not found.", self.TAG)
+            return []
