@@ -70,7 +70,6 @@ class ReadImageInfoUI(BaseUI.BaseUI):
                     print("You have these images:")
                     for i in check_result[3]:
                         print(i)
-                self.my_ui_utils.press_enter_to_continue()
                 return
             else:
                 try:
@@ -82,4 +81,3 @@ class ReadImageInfoUI(BaseUI.BaseUI):
                     print("Operation failed.")
         else:
             self.my_ui_utils.message_on_cancel()
-        self.my_ui_utils.press_enter_to_continue()
