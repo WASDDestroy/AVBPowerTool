@@ -62,7 +62,7 @@ def format_bytes(size_str: str) -> str:
         return size_str
 
 def print_props(props: Dict[str, str], indent: int = 4, simplify = False):
-    """格式化打印属性字典，带有适当的缩进"""
+    """格式化打印属性字典，带有适当缩进"""
     if not props:
         print(" " * indent + "└─ (空)")
         return
@@ -126,20 +126,20 @@ def print_partition(partition_name: str, partition_data: Dict[str, Any]):
             print_list_value(chinese_key, value)
         elif key == "Image size":
             # 格式化大小
-            print(f"├─ {chinese_key}: {value} ({format_bytes(value)})")
+            print(f"{chinese_key}: {value} ({format_bytes(value)})")
         elif isinstance(value, list):
             # 其他列表类型
-            print(f"├─ {chinese_key}: {', '.join(map(str, value))}")
+            print(f"{chinese_key}: {', '.join(map(str, value))}")
         else:
             # 普通键值对
-            print(f"├─ {chinese_key}: {value}")
+            print(f"{chinese_key}: {value}")
     
     # 最后处理 Props
     if props:
-        print(f"├─ {get_chinese_key_name('Props')}:")
-        print_props(props, indent=8)
-    else:
-        print(f"└─ {get_chinese_key_name('Props')}: (无)")
+        print(f"{get_chinese_key_name('Props')}:")
+        print_props(props, indent=4)
+    elif not "vbmeta" in partition_name:
+        print(f"{get_chinese_key_name('Props')}: (无)")
 
 def entry(logger):
     """主函数"""
