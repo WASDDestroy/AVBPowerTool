@@ -66,6 +66,7 @@ class EnvironmentChecker:
         tag = "FolderChecker"
         folder_tuple = ("Images",
                        "Configs",
+                        "Keys",
                        os.path.join("Core", "currentConfigs"),
                        os.path.join("Core", "currentKeySet"))
         work_dir = os.getcwd()
