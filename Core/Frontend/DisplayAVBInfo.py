@@ -32,7 +32,7 @@ def get_chinese_key_name(key: str) -> str:
         "Data Block Size" : "验证数据块的大小",
         
         # 特殊列表类型
-        "Chain": "链式验证分区",
+        "Chain": "链式验证分区及其回滚指数下标",
         "Chain partition key": "链分区公钥",
         "Hash": "哈希验证分区",
         "Hashtree": "哈希树验证分区",
