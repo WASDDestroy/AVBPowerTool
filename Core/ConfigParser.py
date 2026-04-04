@@ -188,8 +188,9 @@ class ConfigParser:
         else:
             command_list.extend(["--hash_algorithm", single_config_dict["Hash Algorithm"]])
         command_list.extend(["--rollback_index", single_config_dict["Rollback Index"]])
-        for i in single_config_dict["Props"]:
-            command_list.extend(["--prop", i + ":" + single_config_dict["Props"][i]])
+        if not is_vbmeta:
+            for i in single_config_dict["Props"]:
+                command_list.extend(["--prop", i + ":" + single_config_dict["Props"][i]])
         self.my_logger.log("I", "Success.", self.TAG)
         return command_list
     
