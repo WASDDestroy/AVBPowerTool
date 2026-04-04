@@ -202,33 +202,13 @@ class ImageInfoUtils:
         self.log_if_debug("I", "Successfully parsed image info.")
         self.log_if_debug("I", "Step3, remove unnecessary key-value pairs and add some post process.")
         if is_vbmeta_image:
-            # Only have to process prop
-            result_dic = self.__generate_config_dict_vb(result_dic)
+            result_dic_copy = copy.deepcopy(result_dic)
+            for item in result_dic_copy:
+                if "Prop" in item:
+                    result_dic.pop(item)
         else:
-            # Remove unnecessary value.
-            # Too many valid values, better process them in a separated method.
             result_dic = self.__generate_config_dict(result_dic)
         result_dic = self.__auto_detect_key_file(result_dic)
-        return result_dic
-    
-    # Process props, put them into a subDictionary.
-    @staticmethod
-    def __generate_config_dict_vb(image_info_dic : dict) -> dict:
-        result_dic = image_info_dic
-        prop_list = []
-        result_dic_copy = copy.deepcopy(result_dic)
-        # Remove key-value pairs with empty/wrong value, process props, and detect descriptor type
-        for result_dic_item in result_dic_copy:
-            if "Prop" in result_dic_item:
-                prop_list.append(result_dic[result_dic_item])
-                result_dic.pop(result_dic_item)
-        # noinspection DuplicatedCode
-        prop_dic = {}
-        for result_dic_item in prop_list:
-            arrow_pos = result_dic_item.find("->")
-            if arrow_pos != -1:
-                prop_dic[result_dic_item[: arrow_pos - 1]] = result_dic_item[arrow_pos + 4: -1]
-        result_dic["Props"] = prop_dic
         return result_dic
 
     def __generate_config_dict(self, image_info_dic : dict) -> dict:
