@@ -1,4 +1,3 @@
-import copy
 import os
 import subprocess
 
@@ -127,11 +126,9 @@ class SignImages:
                         return False, ["FAILED_TO_REMOVE_VB"]
         config_dic = self.my_config_parser.json2_dic(image_config_file_dir)
         # self.my_logger.log("D", str(config_dic), self.TAG)
-        vbmeta_list = []
         self.my_logger.log("I", "First, sign non-vbmeta images.", self.TAG)
         for i in config_dic:
             if "vbmeta" in i.lower():
-                vbmeta_list.append(i)
                 continue
             sign_result = self.sign_images_with_output(config_dic[i], i)
             if not sign_result:
@@ -139,22 +136,13 @@ class SignImages:
 
         self.my_logger.log("I", "Then generate vbmeta images.", self.TAG)
 
-        total_times = 0
-        fail_list = copy.deepcopy(vbmeta_list)
-        while total_times < 10 and fail_list:
-            fail_list = []
-            for i in range(len(vbmeta_list)):
-                vbmeta_result = self.sign_images_with_output(config_dic[vbmeta_list[i]], vbmeta_list[i],success_message_only=True)
-                if not vbmeta_result:
-                    fail_list.append(vbmeta_list[i])
-                    self.my_logger.log("W", "Failed to generate vbmeta image: " + vbmeta_list[i], self.TAG)
-                    self.my_logger.log("D", "Current fail list: " + str(fail_list), self.TAG)
-            vbmeta_list = copy.deepcopy(fail_list)
-            total_times += 1
-        if total_times >= 10:
-            self.my_logger.log("W", "Failed to generate vbmeta image!", self.TAG)
-            self.my_logger.log("W", "These vbmeta images have not been generated: " + str(fail_list), self.TAG)
-            return False, ["FAILED_TO_GENERATE_VB_" + str(fail_list)]
+        vbmeta_list = self.my_config_parser.generate_vbmeta_seq_list("current", "vbmeta")
+        for i in range(len(vbmeta_list)):
+            vbmeta_result = self.sign_images_with_output(config_dic[vbmeta_list[i]], vbmeta_list[i],success_message_only=True)
+            if not vbmeta_result:
+                self.my_logger.log("W", "Failed to generate vbmeta image: " + vbmeta_list[i], self.TAG)
+                self.my_logger.log("W", "These vbmeta images have not been generated: " + str(vbmeta_list[i:]), self.TAG)
+                return False, ["FAILED_TO_GENERATE_VB_" + str(vbmeta_list[i:])]
         self.my_logger.log("I", "Successfully signed all images.", self.TAG)
         return True, []
 
