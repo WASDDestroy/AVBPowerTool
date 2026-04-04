@@ -282,6 +282,27 @@ class ConfigParser:
             self.my_logger.log("W", "Config file not found.", self.TAG)
             return []
 
+    def generate_vbmeta_seq_list(self, config_name: str = "current", vbmeta_name: str = "vbmeta") -> list:
+        """
+        Generate a sequential list of vbmeta images.
+
+        This is designed to handle situations such as "vbmeta_system is the chain partition of vbmeta".
+
+        :param config_name: The name of config. DO NOT post filename. Default to current
+        :type config_name: str
+        :param vbmeta_name: The name of vbmeta image, such as "vbmeta_system". NO EXTENSION NAME REQUIRED.
+        :type vbmeta_name: str
+        """
+        result = [vbmeta_name]
+        root_vbmeta_partitions = self.get_vbmeta_included_partitions(config_name, vbmeta_name)
+        self.my_logger.log("T", "Image %s contains %s" % (vbmeta_name, str(root_vbmeta_partitions)), self.TAG)
+        for partition in root_vbmeta_partitions:
+            if "vbmeta" in partition:
+                self.my_logger.log("T", "Found vbmeta partition: %s" % partition, self.TAG)
+                result.extend(self.generate_vbmeta_seq_list(config_name, partition))
+        return result
+
+
     def get_all_vbmeta_names(self, config_name : str = "current") -> list:
         """
         Return all vbmeta image names in determined config.
