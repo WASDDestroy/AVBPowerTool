@@ -6,15 +6,14 @@ from Core.Frontend.UIUtils import EnhancedFileSelectorUI
 
 class BaseUI:
 
-    def __init__(self, logger=None, goto_node="", navigation_engine=None, ui_utils = None) -> None:
+    def __init__(self, goto_node="") -> None:
         self.TAG = self.__class__.__name__
         self.node_function = {}
         self.customized_function = {}  # "Press Key" : "Function Name"
-        self.my_logger = logger or LogUtils.LogUtils(should_attach_time=True)
-        self.my_importer = DynamicImportUtils.DynamicImportUtils(logger=self.my_logger)
-        self.my_navigation_engine = navigation_engine or NavigationEngine.NavigationEngine(
-            self.my_logger)  # type: ignore
-        self.my_ui_utils = ui_utils or UIUtils.UIUtils(logger)
+        self.my_logger = LogUtils.LogUtils()
+        self.my_importer = DynamicImportUtils.DynamicImportUtils()
+        self.my_navigation_engine = NavigationEngine.NavigationEngine()  # type: ignore
+        self.my_ui_utils = UIUtils.UIUtils()
         self.my_logger.log("D", "Currently at: " +
                           self.my_navigation_engine.currentNodeName, self.TAG)
         self.my_logger.log("D", "Desired node: " + goto_node, self.TAG)
@@ -72,13 +71,8 @@ class BaseUI:
         available_functions = []
         for i in self.node_function:
             available_functions.append(self.node_function[i])
-        my_selector = EnhancedFileSelectorUI(self.my_navigation_engine.currentNodeName,
-                                             available_functions,
-                                             False,
-                                             self.my_logger,
-                                             self.my_ui_utils,
-                                             True,
-                                             False)
+        my_selector = EnhancedFileSelectorUI(self.my_navigation_engine.currentNodeName, available_functions, False,
+                                             True, False)
         return my_selector.show(True if self.my_navigation_engine.currentNodeName == "AVBPowerTool Home Page" else False,
                                 True)[0]
 
@@ -102,15 +96,10 @@ class BaseUI:
                         ".py")
                     self.my_logger.log(
                         "I", "Navigate to: " + module_name, self.TAG)
-                    my_object = self.my_importer.create_frontend_instance(self.my_importer.import_front_end_module(module_name),
-                                                                          module_name,
-                                                                          self.my_logger,
-                                                                          i,
-                                                                          self.my_navigation_engine,
-                                                                          self.my_ui_utils)
+                    my_object = self.my_importer.create_frontend_instance(
+                        self.my_importer.import_front_end_module(module_name), module_name, i)
                     self.my_logger.log("I", "Successfully created new UI instance from module %s" % module_name, self.TAG)
-                    my_object.entry(
-                        navigation_engine=self.my_navigation_engine)
+                    my_object.entry()
                     break
                 else:
                     self.my_navigation_engine.go_to_upper_level()
@@ -124,12 +113,7 @@ class BaseUI:
             self.call_backend(function_name)
             return None
 
-    def entry(self, navigation_engine=None):
-        if navigation_engine is not None:
-            self.my_logger.log("D", "Use provided navigation engine.", self.TAG)
-            self.my_navigation_engine = navigation_engine
-        else:
-            self.my_logger.log("D", "Use navigation engine created by the instance.", self.TAG)
+    def entry(self):
         while 1:
             self.my_logger.log("D", "Currently at: " +
                               self.my_navigation_engine.currentNodeName, self.TAG)
