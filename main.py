@@ -1,11 +1,12 @@
+import argparse
 import os
 import sys
 import time
-import argparse
-import Core.Frontend.HomePageUI as HomePageUI
+
 import Core.EnvironmentChecker as EnvironmentChecker
+import Core.Frontend.HomePageUI as HomePageUI
 import Core.LogUtils as LogUtils
-import Core.Frontend.UIUtils as UIUtils
+
 
 def print_logo():
     try:
@@ -70,11 +71,11 @@ def setup_argparse():
 
     # sign command
     parser_sign = subparsers.add_parser("sign", help="Sign given images")
-    parser_sign.add_argument("images", nargs="+", help="List of partition names (e.g., boot dtbo vbmeta)")
+    parser_sign.add_argument("--images", nargs="+", help="List of partition names (e.g., boot dtbo vbmeta)")
 
     # read command
     parser_read = subparsers.add_parser("read", help="Read vbmeta info of given images")
-    parser_read.add_argument("images", nargs="+", help="List of partition names")
+    parser_read.add_argument("--images", nargs="+", help="List of partition names")
 
     # save command
     parser_save = subparsers.add_parser("save", help="Save current config to persistent storage")
@@ -101,11 +102,11 @@ try:
     if __name__ == "__main__":
         TAG = "Main"
         try:
-            print("Checking directory correctness.")
+            # print("Checking directory correctness.")
             current_file = os.path.abspath(__file__)
             current_dir = os.path.dirname(current_file)
             os.chdir(current_dir)
-            print("Current work directory: " + os.getcwd())
+            # print("Current work directory: " + os.getcwd())
         except Exception as e:
             print("Exception happened when handling working directory:", e)
             exit()
@@ -113,33 +114,26 @@ try:
             main_logger = LogUtils.LogUtils(should_attach_time=True)
             main_logger.set_log_level("T")
             if os.path.join(os.getcwd(), "Core", "Frontend") not in sys.path:
-                print("Adding frontend dir to system path.")
+                # print("Adding frontend dir to system path.")
                 main_logger.log("I", "Adding frontend dir to system path.", TAG)
                 sys.path.insert(0, os.path.join(os.getcwd(), "Core", "Frontend"))
-            print("Current work directory: " + os.getcwd())
+            # print("Current work directory: " + os.getcwd())
             main_logger.log("I", "Current working directory: " + os.getcwd(), TAG)
             pythonHeader = EnvironmentChecker.EnvironmentChecker.detect_python_command()
-            print("Python command header: " + str(pythonHeader))
+            # print("Python command header: " + str(pythonHeader))
             main_logger.log("I", "Python command: " + str(pythonHeader), TAG)
-            print("Platform: " + os.name)
+            # print("Platform: " + os.name)
             main_logger.log("I", "OS name: " + os.name, TAG)
         except Exception as e:
             print("Exception happened during early init: ", e)
             exit()
         try:
             EnvironmentChecker.EnvironmentChecker.check_necessary_folders(main_logger)
-            print("Folder check passed.")
+            # print("Folder check passed.")
             main_logger.log("I", "Folder check passed.", TAG)
         except Exception as e:
             print("Exception happened when checking necessary folders: " + str(e))
             main_logger.log("F", "Exception happened when checking necessary folders: " + str(e), TAG)
-            exit()
-        try:
-            print("Prepare essential components.")
-            ui_util = UIUtils.UIUtils()
-        except Exception as e:
-            print("Exception happened during essentials preparation: " + str(e))
-            main_logger.log("F", "Exception happened during essentials preparation: " + str(e), TAG)
             exit()
 
         # Parse command line arguments
