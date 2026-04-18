@@ -12,17 +12,17 @@ class ConfigManagerUI(BaseUI.BaseUI):
             "ConfigManager.py")
         # noinspection PyAttributeOutsideInit
         self.customized_function = {"S": "Set a config active",
-                                   "P": "Save current config as a persistent one"}
+                                   "P": "Save current config as a persistent one",
+                                    "H": "Help"}
 
     def call_backend(self, function_name: str):
         function_name_tuple = ("Set a config active",
-                             "Save current config as a persistent one")
-        self.myConfigManager = self.my_importer.create_instance(self.configManagerModule,
-                                                              "ConfigManager",
-                                                                self.my_logger)
+                             "Save current config as a persistent one",
+                               "Help")
+        self.myConfigManager = self.my_importer.create_instance(self.configManagerModule, "ConfigManager")
         if function_name == function_name_tuple[0]:
             config_names = self.myConfigManager.get_all_configs()
-            my_selector = EnhancedFileSelectorUI("Select a Config to Activate", config_names, False, self.my_logger, self.my_ui_utils)
+            my_selector = EnhancedFileSelectorUI("Select a Config to Activate", config_names, False)
             config_to_active = my_selector.show()[0]
             if config_to_active:
                 if self.myConfigManager.set_config_active(config_to_active):
@@ -33,7 +33,6 @@ class ConfigManagerUI(BaseUI.BaseUI):
                     self.my_ui_utils.message_on_fail()
             else:
                 self.my_ui_utils.message_on_cancel()
-            self.my_ui_utils.press_enter_to_continue()
         elif function_name == function_name_tuple[1]:
             config_name = input("Enter the name of your new config: ")
             result = self.myConfigManager.save_as_persistent_config(config_name)
@@ -42,4 +41,19 @@ class ConfigManagerUI(BaseUI.BaseUI):
             else:
                 print("Failed to save \"current\" config to persistent file.")
                 self.my_ui_utils.message_on_fail()
-            self.my_ui_utils.press_enter_to_continue()
+        elif function_name == function_name_tuple[2]:
+            self.get_help_message()
+        self.my_ui_utils.press_enter_to_continue()
+
+    @staticmethod
+    def get_help_message():
+        help_message = """
+        Configs are stored under folder \"Configs\" with corresponding key files under directory \"Key\".
+        To create a config, create two folders named with your config under Config and Key folder respectively.
+        Then, write a file named imageList.txt under folder in Config directory, one partition name for a line.
+        As for Key folder, place your .pem file under it and program will do the rest.
+        
+        Also, you can open folder ./Core/currentConfigs and ./Core/currentKeySet to do the same thing with interactive
+        guide. However, directly access to core folders may result in unexpected behavior.
+        """
+        print(help_message)
