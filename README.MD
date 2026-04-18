@@ -16,20 +16,63 @@ This tool is designed to make using avbtool.py easier by providing automatic com
 
 Install Python 3.9 or above and run these commands in your terminal:
 
-```
+For interactive mode:
+```shell
 git clone https://github.com/WASDDestroy/AVBPowerTool.git
 cd AVBPowerTool
 python3 main.py # Consider use py or python if you are on Windows
 ```
 
-Then start using it.
+For CLI mode:
+```text
+usage: AVBPowerTool [-h] {sign,read,save,set_active,import,export,about} ...
 
-## WIPs
+Image signing and configuration tool
+
+positional arguments:
+  {sign,read,save,set_active,import,export,about}
+                        Available commands
+    sign                Sign given images
+    read                Read vbmeta info of given images
+    save                Save current config to persistent storage
+    set_active          Set a config as active
+    import              Import config from zip archive
+    export              Export config to zip archive
+    about               Show about message
+
+options:
+  -h, --help            show this help message and exit
+```
+
+Here's an CLI mode example that signs LKM mode images:
+
+```shell
+# Do something...
+mv kernelsu_patched.img init_boot.img # Shell command for preprocessing
+python3 main.py import --file my_config.zip # Import config first
+python3 main.py set_active --name my_config # Then activate it, program will do nothing when no config is activated.
+python3 main.py sign --images init_boot vbmeta # Sign init_boot and vbmeta, LKM mode with AOSP test AVB key
+# Lenovo Legion Y700 Gen2 to Gen4, Xiaoxin Pad Pro GT(Lenovo YOGA Tab), YOGA Tab 2025
+# Do something else...
+```
+
+## Known Issues
+
+> [!note]
+> ~~In fact these are also WIPs~~
+
+- Unable to navigate with arrow keys (while W and S are still available) when running on Linux, including Android.
+- Will throw RuntimeError when no config is activated without proper exception handler
+- Unable to set up FEC automatically when it is unavailable.
+
+## WIPs of AVBPowerTool 1.0
 
 - [x] main.py as entry point under project's root directory
 - [x] Select one or multiple images to read config or sign
 - [x] Interface for importing, exporting and manage configs
-- [ ] Transplant FEC to Windows
-- [ ] Check whether current images have satisfied requirements of making vbmeta images
+- [x] CLI mode support
 - [x] Allow using arrow keys to navigate options instead of entering choice
+- [x] Check whether current images have satisfied requirements of making vbmeta images
+- [ ] Add localization support
+- [ ] Transplant FEC to Windows
 - [ ] Code quality improvements
