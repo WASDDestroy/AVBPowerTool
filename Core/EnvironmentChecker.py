@@ -1,5 +1,6 @@
 import os
 import subprocess
+import threading
 
 class EnvironmentChecker:
     @staticmethod
@@ -77,3 +78,31 @@ class EnvironmentChecker:
                 logger.log("I", "Folder %s does not exist, automatically created it." % i, tag)
             else:
                 logger.log("I", "Folder %s exists." % i, tag)
+
+class EnvironmentInfo:
+
+    _instance = None
+    _lock = threading.Lock()
+    _initialized = False
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            with cls._lock:
+                if not cls._instance:
+                    cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        if EnvironmentInfo._initialized:
+            return
+        with EnvironmentInfo._lock:
+            if EnvironmentInfo._initialized:
+                return
+        self.python_command = None
+        EnvironmentInfo._initialized = True
+        pass
+
+    def get_python_command(self):
+        if self.python_command is None:
+            self.python_command = EnvironmentChecker.detect_python_command()
+        return self.python_command

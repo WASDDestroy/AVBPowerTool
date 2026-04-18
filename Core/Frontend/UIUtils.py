@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+import threading
 from typing import List, Set, Optional
 
 import Core.LogUtils as LogUtils
@@ -8,14 +9,26 @@ import Core.LogUtils as LogUtils
 
 class UIUtils:
 
-    def __init__(self, logger=None) -> None:
+    _instance = None
+    _lock = threading.Lock()
+    _initialized = False
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self) -> None:
+        if UIUtils._initialized:
+            return
+        with UIUtils._lock:
+            if UIUtils._initialized:
+                return
         self.TAG = "UIUtils"
-        if logger is None:
-            self.my_logger = LogUtils.LogUtils(should_attach_time=True)
-        else:
-            self.my_logger = logger
+        self.my_logger = LogUtils.LogUtils()
         self.my_logger.log(
             "I", "Successfully created UIUtils instance.", self.TAG)
+        UIUtils._initialized = True
 
     def clear_screen(self):
 
@@ -44,8 +57,9 @@ class UIUtils:
     def press_enter_to_continue():
         input("Press Enter to continue.")
 
-    def confirm_operation(self, prompt="Confirm operation?", selection = ("Yes", "No")) -> bool:
-        my_selector = EnhancedFileSelectorUI(prompt, selection, False, self.my_logger, self, True, True)
+    @staticmethod
+    def confirm_operation(prompt="Confirm operation?", selection = ("Yes", "No")) -> bool:
+        my_selector = EnhancedFileSelectorUI(prompt, selection, False, True, True)
         if my_selector.show(show_instructions=False)[0] == selection[0]:
             return True
         else:
@@ -67,15 +81,14 @@ class EnhancedFileSelectorUI:
     Supports keyboard navigation, multi-select and infinite roll.
     """
 
-    def __init__(self, title: str = "Select Files", items: List[str] = None,
-                 multi_select: bool = False, logger = None, ui_util_instance = None, infinite_roll = True, cancelable = True):  # type: ignore
+    def __init__(self, title: str = "Select Files", items: List[str] = None, multi_select: bool = False,
+                 infinite_roll=True, cancelable=True):  # type: ignore
         """
         Initialize a selector.
 
         :param title: Title of your selector interface
         :param items: Items shown in selector interface
         :param multi_select: Is multi-select supported
-        :param logger: logger instance
         :param infinite_roll: Is infinite roll supported
         :param cancelable: Is cancelable (Use ESC to cancel)
         """
@@ -88,11 +101,8 @@ class EnhancedFileSelectorUI:
         self.cancelled = False
         self.infinite_roll = infinite_roll
         self.cancelable = cancelable
-        if logger is None:
-            self.my_logger = LogUtils.LogUtils()
-        else:
-            self.my_logger = logger
-        self.my_ui_utils = ui_util_instance or UIUtils(self.my_logger)
+        self.my_logger = LogUtils.LogUtils()
+        self.my_ui_utils = UIUtils()
 
     def show(self, show_instructions = True, allow_long_item = False) -> Optional[List[str]]:
         """

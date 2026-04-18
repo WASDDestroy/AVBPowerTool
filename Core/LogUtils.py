@@ -9,6 +9,7 @@ setLogLevel(): Set when should LogUtils *starts* to log it to destination.
 """
 import os
 import time
+import threading
 
 
 class LogUtils:
@@ -23,6 +24,16 @@ class LogUtils:
                        "F" : 6,
                        "O" : 7}
 
+    _instance = None
+    _lock = threading.Lock()
+    _initialized = False
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            with cls._lock:
+                if not cls._instance:
+                    cls._instance = super().__new__(cls)
+        return cls._instance
 
     # Determine log destination, console is the default option.
     def __init__(self,
@@ -30,6 +41,11 @@ class LogUtils:
                  should_attach_time = False,
                  log_dir = None,
                  instant_mode = False) -> None:
+        if LogUtils._initialized:
+            return
+        with LogUtils._lock:
+            if LogUtils._initialized:
+                return
         self.instantMode = instant_mode
         self.isLogToFile = True
         self.__shouldAttachTime = should_attach_time
@@ -51,6 +67,7 @@ class LogUtils:
                 print(f"Warning: Error creating log file: {e}, falling back to console output")
                 self.isLogToFile = False
         self.log("I", "Logger instance created.", "LogUtils")
+        LogUtils._initialized = True
     def __del__(self) -> None:
         if hasattr(self, 'logFile') and self.logFile:
             # noinspection PyBroadException
