@@ -168,6 +168,26 @@ class LogUtils:
         except Exception as e:
             print(f"Logging error: {e}")
             print(f"Original message: [{log_level}] [{log_object}] {log_str}")
+
+    # Log4j style logging method
+
+    def fatal(self, log_str : str, log_object = "[Logger]"):
+        self.log("F", log_str, log_object)
+
+    def error(self, log_str : str, log_object = "[Logger]"):
+        self.log("E", log_str, log_object)
+
+    def warn(self, log_str : str, log_object = "[Logger]"):
+        self.log("W", log_str, log_object)
+
+    def info(self, log_str : str, log_object = "[Logger]"):
+        self.log("I", log_str, log_object)
+
+    def debug(self, log_str : str, log_object = "[Logger]"):
+        self.log("D", log_str, log_object)
+
+    def trace(self, log_str : str, log_object = "[Logger]"):
+        self.log("T", log_str, log_object)
     
     def set_log_level(self, target_level : str):
         self.__log_level = target_level
