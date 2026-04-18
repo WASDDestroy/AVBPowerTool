@@ -4,6 +4,7 @@ import subprocess
 import Core.ConfigParser as ConfigParser
 import Core.EnvironmentChecker as EnvironmentChecker
 import Core.LogUtils as LogUtils
+from Core.LogUtils import ConsoleLog
 
 
 class SignImages:
@@ -48,11 +49,10 @@ class SignImages:
         self.my_logger.log("I", "=" * 80, self.TAG)
 
         if not success_message_only:
-            print()
             if "vbmeta" in image_name.lower():
-                print("Generating vbmeta image, name: " + image_name)
+                ConsoleLog.info("Generating vbmeta image, name: " + image_name)
             else:
-                print("Signing image: " + image_name)
+                ConsoleLog.info("Signing image: " + image_name)
         self.my_logger.log("I", "Processing image: " + image_name, self.TAG)
 
         single_command: list = self.my_config_parser.build_single_avb_tool_command(
@@ -70,20 +70,20 @@ class SignImages:
                            avb_tool_result[2], self.TAG)
         if avb_tool_result[0]:
             if "vbmeta" in image_name.lower():
-                print("Successfully generated vbmeta image: " + image_name)
+                ConsoleLog.info("Successfully generated vbmeta image: " + image_name)
             else:
-                print("Successfully signed " + image_name)
+                ConsoleLog.info("Successfully signed " + image_name)
             self.my_logger.log(
                 "D", "Successfully processed image: " + image_name, self.TAG)
             return True
         else:
             if not success_message_only:
                 if "vbmeta" in image_name.lower():
-                    print("Failed to generate vbmeta image: " + image_name)
-                    print(
+                    ConsoleLog.error("Failed to generate vbmeta image: " + image_name)
+                    ConsoleLog.error(
                         "Check your images manually, make sure that all images are signed properly.")
                 else:
-                    print("Failed to sign " + image_name)
+                    ConsoleLog.error("Failed to sign " + image_name)
             self.my_logger.log(
                 "W", "Failed to process image: " + image_name, self.TAG)
             return False
