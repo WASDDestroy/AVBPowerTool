@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import argparse
 import Core.Frontend.HomePageUI as HomePageUI
 import Core.EnvironmentChecker as EnvironmentChecker
 import Core.LogUtils as LogUtils
@@ -19,6 +20,83 @@ def print_logo():
         time.sleep(0.5)
     except FileNotFoundError:
         pass
+
+# Command handlers (placeholders with logging)
+def handle_sign(args, logger):
+    logger.log("I", f"Sign command invoked with images: {args.images}", "CLI")
+    # TODO: implement sign logic
+    pass
+
+def handle_read(args, logger):
+    logger.log("I", f"Read command invoked with images: {args.images}", "CLI")
+    # TODO: implement read logic
+    pass
+
+def handle_save(args, logger):
+    logger.log("I", f"Save command invoked with name: {args.name}", "CLI")
+    # TODO: implement save logic
+    pass
+
+def handle_set_active(args, logger):
+    logger.log("I", f"Set active command invoked with name: {args.name}", "CLI")
+    # TODO: implement set_active logic
+    pass
+
+def handle_import(args, logger):
+    logger.log("I", f"Import command invoked with file: {args.file}", "CLI")
+    # TODO: implement import logic
+    pass
+
+def handle_export(args, logger):
+    logger.log("I", f"Export command invoked with file: {args.file}", "CLI")
+    # TODO: implement export logic
+    pass
+
+def run_ui(logger):
+    """Start the interactive UI."""
+    logger.log("I", "Starting interface.", "Main")
+    main_ui_instance = HomePageUI.HomePageUI()
+    logger.log("I", "Successfully created UI instance.", "Main")
+    print_logo()
+    while True:
+        main_ui_instance.entry()
+
+def handle_about():
+    print("AVBPowerTool Version")
+
+def setup_argparse():
+    parser = argparse.ArgumentParser(description="Image signing and configuration tool")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands", required=False)
+
+    # sign command
+    parser_sign = subparsers.add_parser("sign", help="Sign given images")
+    parser_sign.add_argument("images", nargs="+", help="List of partition names (e.g., boot dtbo vbmeta)")
+
+    # read command
+    parser_read = subparsers.add_parser("read", help="Read vbmeta info of given images")
+    parser_read.add_argument("images", nargs="+", help="List of partition names")
+
+    # save command
+    parser_save = subparsers.add_parser("save", help="Save current config to persistent storage")
+    parser_save.add_argument("--name", required=True, help="Name to assign to the saved config")
+
+    # set_active command
+    parser_set_active = subparsers.add_parser("set_active", help="Set a config as active")
+    parser_set_active.add_argument("--name", required=True, help="Name of the config to activate")
+
+    # import command
+    parser_import = subparsers.add_parser("import", help="Import config from zip archive")
+    parser_import.add_argument("--file", required=True, help="Path to the zip archive")
+
+    # export command
+    parser_export = subparsers.add_parser("export", help="Export config to zip archive")
+    parser_export.add_argument("--file", required=True, help="Destination path for the zip archive")
+
+    # about command
+    subparsers.add_parser("about", help="Show about message")
+
+    return parser
+
 try:
     if __name__ == "__main__":
         TAG = "Main"
@@ -49,40 +127,46 @@ try:
             print("Exception happened during early init: ", e)
             exit()
         try:
-            EnvironmentChecker.EnvironmentChecker.check_necessary_folders(
-                main_logger)
+            EnvironmentChecker.EnvironmentChecker.check_necessary_folders(main_logger)
             print("Folder check passed.")
             main_logger.log("I", "Folder check passed.", TAG)
         except Exception as e:
             print("Exception happened when checking necessary folders: " + str(e))
-            main_logger.log(
-                "F", "Exception happened when checking necessary folders: " + str(e), TAG)
+            main_logger.log("F", "Exception happened when checking necessary folders: " + str(e), TAG)
             exit()
         try:
             print("Prepare essential components.")
-            ui_util = UIUtils.UIUtils(main_logger)
+            ui_util = UIUtils.UIUtils()
         except Exception as e:
             print("Exception happened during essentials preparation: " + str(e))
             main_logger.log("F", "Exception happened during essentials preparation: " + str(e), TAG)
             exit()
-        try:
-            print("Starting interface.")
-            main_logger.log("I", "Starting interface.", TAG)
-            mainUIInstance = HomePageUI.HomePageUI(logger=main_logger, ui_utils=ui_util)
-            print("Successfully created UI instance.")
-            main_logger.log("I", "Successfully created UI instance.", TAG)
-        except Exception as e:
-            print("Exception happened while creating main UI: " + str(e))
-            main_logger.log(
-                "F", "Exception happened while creating main UI: " + str(e), TAG)
-            exit()
-        print_logo()
-        try:
-            while 1:
-                mainUIInstance.entry()
-        except Exception as e:
-            print("Exception happened in main UI:", e)
-            print("Please refer to log file for further information.")
-            main_logger.log("F", "Exception happened in main UI: " + str(e), TAG)
+
+        # Parse command line arguments
+        parser = setup_argparse()
+        args = parser.parse_args()
+
+        if args.command is None:
+            # No command: run UI
+            run_ui(main_logger)
+        else:
+            # Dispatch to appropriate handler
+            if args.command == "sign":
+                handle_sign(args, main_logger)
+            elif args.command == "read":
+                handle_read(args, main_logger)
+            elif args.command == "save":
+                handle_save(args, main_logger)
+            elif args.command == "set_active":
+                handle_set_active(args, main_logger)
+            elif args.command == "import":
+                handle_import(args, main_logger)
+            elif args.command == "export":
+                handle_export(args, main_logger)
+            elif args.command == "about":
+                handle_about()
+            else:
+                main_logger.log("E", f"Unknown command: {args.command}", "CLI")
+                sys.exit(1)
 except KeyboardInterrupt:
     print("\nCtrl + C is pressed, exiting.")
