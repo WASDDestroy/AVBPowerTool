@@ -6,13 +6,9 @@ import Core.EnvironmentChecker as EnvironmentChecker
 
 class KeyDirUtils:
 
-    def __init__(self, logger = None) -> None:
+    def __init__(self) -> None:
         self.TAG = "KeyDirUtils"
-        if not logger:
-            self.my_logger = LogUtils.LogUtils()
-            self.my_logger.log("W", "Logger not given, created an instance just now.", self.TAG)
-        else:
-            self.my_logger = logger
+        self.my_logger = LogUtils.LogUtils()
         self.my_logger.log("I", "Instance of KeyDirUtils successfully created.", self.TAG)
 
     def generate_key_file_cache(self, key_file_dir = None, cache_file_name ="keyCache.cache"):

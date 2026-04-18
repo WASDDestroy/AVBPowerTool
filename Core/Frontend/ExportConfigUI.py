@@ -15,8 +15,7 @@ class ExportConfigUI(BaseUI.BaseUI):
         }
         # noinspection PyAttributeOutsideInit
         self.myConfigManager = self.my_importer.create_instance(self.my_importer.import_module("ConfigManager"),
-                                                              "ConfigManager",
-                                                                self.my_logger)
+                                                                "ConfigManager")
 
     def call_backend(self, function_name: str):
         if function_name == self.customized_function["E"]:
@@ -26,8 +25,7 @@ class ExportConfigUI(BaseUI.BaseUI):
         file_can_be_selected = []
         for i in os.listdir(os.path.join(os.getcwd(), "Configs")):
             file_can_be_selected.append(i)
-        my_file_selector = EnhancedFileSelectorUI("Select a Config", file_can_be_selected,
-                                                  True, self.my_logger, self.my_ui_utils)
+        my_file_selector = EnhancedFileSelectorUI("Select a Config", file_can_be_selected, True)
         config_list = my_file_selector.show()
         export_result = False
         if len(config_list) == 0:

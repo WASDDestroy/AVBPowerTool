@@ -6,13 +6,9 @@ import subprocess, os, copy, json
 
 class ImageInfoUtils:
 
-    def __init__(self, logger = None) -> None:
+    def __init__(self) -> None:
         self.TAG = "ImageInfoUtils"
-        if not logger:
-            self.my_logger = LogUtils.LogUtils()
-            self.my_logger.log("W", "Logger not given, created an instance just now.", self.TAG)
-        else:
-            self.my_logger = logger
+        self.my_logger = LogUtils.LogUtils()
         self.my_logger.log("I", "Instance of ImageInfoUtils successfully created.", self.TAG)
 
     def log_if_debug(self, log_level ="T",
@@ -50,7 +46,7 @@ class ImageInfoUtils:
 
     def read_image_info(self, image_name : str) -> str:
         """
-        Read footer of a SINGLE IMAGE. retval: string
+        Read footer of a SINGLE IMAGE.
         Will raise RuntimeException when operation cannot be finished due to wrong OS or ENOENT.
 
         :param image_name: image file's name, method will autocorrect it to ".img".
@@ -59,13 +55,13 @@ class ImageInfoUtils:
         if not image_name.endswith(".img"):
             image_name += ".img"
 
-        self.my_logger.log("D", "Reading image info: " + image_name)
+        self.my_logger.log("D", "Reading image info: " + image_name, self.TAG)
 
         command_header = EnvironmentChecker.EnvironmentChecker.detect_python_command()
 
         if command_header is None:
-            self.my_logger.log("W", "Unable to find proper Python")
-            raise RuntimeError("Unable to find proper Python")
+            self.my_logger.log("E", "Unable to find proper Python", self.TAG)
+            return ""
 
         command_list = [command_header,
                        os.path.join(os.getcwd(), "Core", "avbtool.py"),
@@ -76,25 +72,17 @@ class ImageInfoUtils:
         # Add capture_output and text args to ensure object "result" contains output content    
         result = subprocess.run(command_list, capture_output=True, text=True)
         if result.returncode == 0:
-            self.log_if_debug("T", "Successfully executed \"avbtool info_image\" command.")
+            self.my_logger.log("T", "Successfully executed \"avbtool info_image\" command.", self.TAG)
             return str(result.stdout)
         else:
-            self.log_if_debug("W", "avbtool.py returned non-zero exit code. Check next line of log for detailed information.")
             # Process standard error, we don't need usage tips.
             error_content = str(result.stderr)
             if "does not look like" in error_content:
-                self.my_logger.log("W", "You are reading a image without avb footer.", "ImageInfoUtils")
-                self.my_logger.log("D", "Maybe AVBPowerTool encountered unhandled exception in signing stage.")
-                self.my_logger.log("D", "Or much simpler, the problem is in image itself.")
-                raise RuntimeError("Non-vbmeta image.")
+                self.my_logger.log("E", "Non-vbmeta image!", self.TAG)
+                return ""
             error_content = error_content[error_content.find("error:"):].strip("\n")
-            self.my_logger.log("W", "Error info: " + error_content, "ImageInfoUtils")
-            # Provide special tip for ERRNO 2.
-            if "Errno 2" in error_content:
-                self.my_logger.log("W", "Image file not found. Check your image dir.")
-                if os.name == "nt":            
-                    self.my_logger.log("W", "You are running this program on Windows, Linux environment is recommended.")
-            raise RuntimeError("avbtool.py encountered an issue, fix it and restart the program.")
+            self.my_logger.log("E", "Error message: " + error_content, self.TAG)
+            return ""
 
     def __image_info_parser(self, image_info_string : str, is_vbmeta_image = False) -> dict:
         """
@@ -362,7 +350,7 @@ class ImageInfoUtils:
         :param config_name: name of config file, such as "current"
         :return: Is work directory has all images required for vbmeta generation.
         """
-        my_config_parser = ConfigParser.ConfigParser(self.my_logger)
+        my_config_parser = ConfigParser.ConfigParser()
         image_required = my_config_parser.get_vbmeta_included_partitions(config_name, vbmeta_name)
         lack_images = []
         for image_name in image_required:
@@ -390,7 +378,7 @@ class ImageInfoUtils:
         :param vbmeta_name: name of vbmeta image to generate, default to "vbmeta_system" .
         :return: A tuple contains a boolean and a list. When config supports generation, boolean is True and list is empty, otherwise return False and config items missing.
         """
-        my_config_parser = ConfigParser.ConfigParser(self.my_logger)
+        my_config_parser = ConfigParser.ConfigParser()
         all_image_names = my_config_parser.get_all_image_names(config_name)
         self.my_logger.log("I", "Successfully get all images included in determined config: " + str(all_image_names), self.TAG)
         vbmeta_required_images = my_config_parser.get_vbmeta_included_partitions(config_name, vbmeta_name)
@@ -409,15 +397,29 @@ class ImageInfoUtils:
             self.my_logger.log("W", "Missing AVB info of these images for generating vbmeta image: " + str(lack_image_config), self.TAG)
             return False, lack_image_config
 
+    def scan_images_with_vbmeta_struct(self, image_dir = None) -> list[str]:
+        """
+        Scan directory given, return names of images that contain valid vbmeta structure.
+        """
+        if image_dir is None:
+            image_dir = os.path.join(os.getcwd(), "Images")
+        image_with_vbmeta_struct = []
+        for image_name in os.listdir(image_dir):
+            try:
+                vbmeta_result = self.read_image_info(os.path.join(image_dir, image_name))
+                if vbmeta_result is not None:
+                    image_with_vbmeta_struct.append(image_name)
+            except RuntimeError:
+                self.my_logger.log("I", "Image " + image_name + " does not contain vbmeta structure.", self.TAG)
+        return image_with_vbmeta_struct
+
+
 
 if __name__ == "__main__":
     myLogger = LogUtils.LogUtils()
     myImageInfoUtils = ImageInfoUtils()
     myConfigParser = ConfigParser.ConfigParser()
     imageList = myConfigParser.get_image_list()
-    myLogger.log("I", "================================================================================", "ImageInfoUtils")
-    myLogger.log("I", "Image list read from config:", "ImageInfoUtils")
     for i in imageList:
         myLogger.log("I", i + ".img", "ImageInfoUtils")
-    myLogger.log("I", "================================================================================", "ImageInfoUtils")
     myImageInfoUtils.read_image_info_batch(image_list= imageList)

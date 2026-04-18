@@ -26,7 +26,7 @@ class SignAllImagesUI(BaseUI.BaseUI):
         self.warn_before_selective_signing()
         if self.my_ui_utils.confirm_operation("Continue?"):
 
-            my_config_parser = ConfigParser.ConfigParser(self.my_logger)
+            my_config_parser = ConfigParser.ConfigParser()
 
             # Get image with info stored in config file
             image_in_json = my_config_parser.get_image_in_json(
@@ -51,13 +51,8 @@ class SignAllImagesUI(BaseUI.BaseUI):
             self.my_logger.log("I", "Available images: " + str(set_available), self.TAG)
 
             # Initialize selector and show it
-            my_selector = UIUtils.EnhancedFileSelectorUI("Select image file(s) to sign",
-                                                         list(set_available),
-                                                         True,
-                                                         self.my_logger,
-                                                         self.my_ui_utils,
-                                                         True,
-                                                         True)
+            my_selector = UIUtils.EnhancedFileSelectorUI("Select image file(s) to sign", list(set_available), True,
+                                                         True, True)
             images_to_sign = my_selector.show(allow_long_item=True)
             self.my_logger.log("I", "Sign selected images: " + str(images_to_sign), self.TAG)
 
@@ -67,11 +62,11 @@ class SignAllImagesUI(BaseUI.BaseUI):
                 if "vbmeta" in image_name:
                     vbmeta_images.append(image_name)
 
-            allow_continue_generation = True
+            allow_continue_generation = True # Handle vbmeta generation, set to false if images we have currently does not contain sufficient info to generate vbmeta images
 
             # If request generate vbmeta image, check is this operation performable
             if len(vbmeta_images) > 0:
-                my_image_info_utils = ImageInfoUtils(self.my_logger)
+                my_image_info_utils = ImageInfoUtils()
                 for vbmeta_image in vbmeta_images:
                     config_check_result = my_image_info_utils.is_config_support_vbmeta_generation("current", vbmeta_image)
                     workdir_check_result = my_image_info_utils.is_work_dir_support_vbmeta_generation("current", vbmeta_image)
@@ -101,7 +96,7 @@ class SignAllImagesUI(BaseUI.BaseUI):
                     cherry_pick_result = my_config_parser.cherry_pick_from_config(images_to_sign)
                     if cherry_pick_result:
                         self.warn_before_signing()
-                        my_signer = SignImages.SignImages(self.my_logger)
+                        my_signer = SignImages.SignImages()
                         batch_sign_result = my_signer.sign_images_batch(
                             os.path.join(os.getcwd(), "Core", "currentConfigs", "tempImageInfo.json"),
                             remove_vb=True if "vbmeta" in images_to_sign else False)

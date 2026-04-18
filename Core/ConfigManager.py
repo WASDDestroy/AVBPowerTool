@@ -17,13 +17,9 @@ import Core.KeyDirUtils as KeyDirUtils
 
 class ConfigManager:
 
-    def __init__(self, logger = None) -> None:
+    def __init__(self) -> None:
         self.TAG = "ConfigManager"
-        if not logger:
-            self.my_logger = LogUtils.LogUtils()
-            self.my_logger.log("W", "Logger not given, created an instance just now.", "ConfigManager")
-        else:
-            self.my_logger = logger
+        self.my_logger = LogUtils.LogUtils()
         self.my_logger.log("I", "Instance of ConfigManager successfully created.", "ConfigManager")
 
     def is_config_complete(self, config_name : str = "current") -> bool:
@@ -58,7 +54,7 @@ class ConfigManager:
             if not checker:
                 return False
         # Else, check completeness of key directory
-        key_dir_utils = KeyDirUtils.KeyDirUtils(self.my_logger)
+        key_dir_utils = KeyDirUtils.KeyDirUtils()
         cached_info = key_dir_utils.get_cached_info(config_name)
         file_names = key_dir_utils.get_pem_filenames(config_name)
         cached_file_name = []

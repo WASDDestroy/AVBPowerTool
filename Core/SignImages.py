@@ -8,15 +8,10 @@ import Core.LogUtils as LogUtils
 
 class SignImages:
 
-    def __init__(self, logger=None) -> None:
+    def __init__(self) -> None:
         self.TAG = "SignImages"
-        if not logger:
-            self.my_logger = LogUtils.LogUtils()
-            self.my_logger.log(
-                "W", "Logger not given, created an instance just now.", self.TAG)
-        else:
-            self.my_logger = logger
-        self.my_config_parser = ConfigParser.ConfigParser(self.my_logger)
+        self.my_logger = LogUtils.LogUtils()
+        self.my_config_parser = ConfigParser.ConfigParser()
         self.__IMAGE_DIR = os.path.join(os.getcwd(), "Images")
         self.my_logger.log(
             "I", "Instance of SignImages successfully created.", self.TAG)

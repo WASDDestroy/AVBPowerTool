@@ -15,9 +15,9 @@ class ReadImageInfoUI(BaseUI.BaseUI):
             "S": "Read info of selected image(s) (NOT RECOMMENDED)",
         }
         # noinspection PyAttributeOutsideInit
-        self.my_image_info_utils = ImageInfoUtils.ImageInfoUtils(self.my_logger)
+        self.my_image_info_utils = ImageInfoUtils.ImageInfoUtils()
         # noinspection PyAttributeOutsideInit
-        self.m_config_parser = ConfigParser.ConfigParser(self.my_logger)
+        self.m_config_parser = ConfigParser.ConfigParser()
 
     def call_backend(self, function_name: str):
         if function_name == "Read info of all images":
@@ -30,8 +30,7 @@ class ReadImageInfoUI(BaseUI.BaseUI):
         if self.my_ui_utils.confirm_operation("If you are going to create a signing config, this operation is strongly NOT recommended!",
                                               ("I understand, continue operation", "No, cancel operation")):
             available_images = os.listdir(os.path.join(os.getcwd(), "Images"))
-            my_selector = EnhancedFileSelectorUI("Select Image(s) to Read", available_images, True, self.my_logger, self.my_ui_utils, True,
-                                                 True)
+            my_selector = EnhancedFileSelectorUI("Select Image(s) to Read", available_images, True, True, True)
             images_to_read = my_selector.show()
             if images_to_read:
                 print("Reading selected images.")

@@ -8,13 +8,9 @@ DEBUG = True
 
 class ConfigParser:
 
-    def __init__(self, logger = None) -> None:
+    def __init__(self) -> None:
         self.TAG = "ConfigParser"
-        if not logger:
-            self.my_logger = LogUtils.LogUtils()
-            self.my_logger.log("W", "Logger not given, created an instance just now.", self.TAG)
-        else:
-            self.my_logger = logger
+        self.my_logger = LogUtils.LogUtils()
         if os.name == "nt":
             self.my_logger.log("W", "Running on Windows NT, use relative path to avoid chain partition related issues.", self.TAG)
         self.TAG = "ConfigParser"
@@ -335,3 +331,8 @@ class ConfigParser:
         except FileNotFoundError:
             self.my_logger.log("W", "Config file not found.", self.TAG)
             return []
+
+class ProgramConfigParser:
+
+    def __init__(self):
+        self.my_logger = LogUtils.LogUtils()

@@ -11,7 +11,7 @@ def load_avb_data(logger) -> Dict[str, Any]:
     实际使用时，可以从文件读取或直接使用给定的字典
     """
 
-    my_config_parser = ConfigParser.ConfigParser(logger=logger)
+    my_config_parser = ConfigParser.ConfigParser()
     return my_config_parser.json2_dic()
     
 def get_chinese_key_name(key: str) -> str:

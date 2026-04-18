@@ -11,8 +11,7 @@ class ImportConfigUI(BaseUI.BaseUI):
         self.TAG = "ImportConfigUI"
         self.customized_function = {"I" : "Import config(s)"}
         # noinspection PyAttributeOutsideInit
-        self.myConfigManager = ConfigManager.ConfigManager(
-            logger=self.my_logger)
+        self.myConfigManager = ConfigManager.ConfigManager()
 
     def call_backend(self, function_name: str):
         if function_name == self.customized_function["I"]:
@@ -23,7 +22,7 @@ class ImportConfigUI(BaseUI.BaseUI):
         for i in os.listdir(os.getcwd()):
             if i.endswith(".zip"):
                 file_can_be_selected.append(i)
-        my_file_selector = EnhancedFileSelectorUI("Select a Config Archive to Import", file_can_be_selected, True, self.my_logger, self.my_ui_utils)
+        my_file_selector = EnhancedFileSelectorUI("Select a Config Archive to Import", file_can_be_selected, True)
         import_files = my_file_selector.show()
         self.my_logger.log("I", "Import files: %s" % str(import_files), self.TAG)
         if len(import_files) == 0:
