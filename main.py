@@ -59,28 +59,66 @@ def handle_sign(args, logger):
 
 def handle_read(args, logger):
     logger.log("I", f"Read command invoked with images: {args.images}", TAG_CLI)
-    # TODO: implement read logic
-    pass
+    import Core.ImageInfoUtils as ImageInfoUtils
+    import Core.ConfigParser as ConfigParser
+    my_image_info_utils = ImageInfoUtils.ImageInfoUtils()
+    if args.images is None:
+        my_config_parser = ConfigParser.ConfigParser()
+        my_image_info_utils.read_image_info_batch(my_config_parser.get_image_list())
+    else:
+        my_image_info_utils.read_image_info_batch(args.images)
 
 def handle_save(args, logger):
     logger.log("I", f"Save command invoked with name: {args.name}", TAG_CLI)
-    # TODO: implement save logic
-    pass
+    import Core.ConfigManager as ConfigManager
+    my_config_manager = ConfigManager.ConfigManager()
+    if my_config_manager.save_as_persistent_config(args.name):
+        cLog.info("Successfully saved config to persistent storage.")
+    else:
+        cLog.error("Failed to save config to persistent storage. Refer to log for further information.")
 
 def handle_set_active(args, logger):
     logger.log("I", f"Set active command invoked with name: {args.name}", TAG_CLI)
-    # TODO: implement set_active logic
-    pass
+    import Core.ConfigManager as ConfigManager
+    my_config_manager = ConfigManager.ConfigManager()
+    if my_config_manager.set_config_active(args.name):
+        cLog.info("Successfully set active config to persistent storage.")
+    else:
+        cLog.error("Failed to set config to persistent storage. Refer to log for further information.")
 
 def handle_import(args, logger):
     logger.log("I", f"Import command invoked with file: {args.file}", TAG_CLI)
-    # TODO: implement import logic
-    pass
+    import Core.ConfigManager as ConfigManager
+    my_config_manager = ConfigManager.ConfigManager()
+    archive_type = my_config_manager.check_config_type(file_name=args.file)
+    logger.log("I", "Archive type is %s" % archive_type, TAG_CLI)
+    if archive_type == "SINGLE":
+        try:
+            my_config_manager.import_single_config(import_from_file_name=args.file)
+            cLog.info("Successfully imported single config archive %s." % args.file)
+        except Exception as e:
+            logger.log("W", e, TAG_CLI)
+            cLog.error("Import failed!")
+    elif archive_type == "BATCH":
+        try:
+            my_config_manager.batch_import_config(import_from_file_name=args.file)
+            cLog.info("Successfully imported config.")
+        except Exception as e:
+            logger.log("W", e, TAG_CLI)
+            cLog.error("Import failed! Refer to log file for further information.")
+    else:
+        cLog.error("Invalid archive file.")
 
 def handle_export(args, logger):
-    logger.log("I", f"Export command invoked with file: {args.file}", TAG_CLI)
-    # TODO: implement export logic
-    pass
+    import Core.ConfigManager as ConfigManager
+    my_config_manager = ConfigManager.ConfigManager()
+    logger.log("I", f"Export command invoked with file: {args.config}", TAG_CLI)
+    export_result = my_config_manager.export_single_config(
+                    export_config_folder_name=args.config, export_to_file_name=args.config + ".zip")
+    if export_result:
+        cLog.info("Successfully exported selected config to root directory as an archive.")
+    else:
+        cLog.error("Failed to export config!")
 
 def run_ui(logger):
     """Start the interactive UI."""
@@ -122,7 +160,7 @@ def setup_argparse():
 
     # export command
     parser_export = subparsers.add_parser("export", help="Export config to zip archive")
-    parser_export.add_argument("--file", required=True, help="Destination path for the zip archive")
+    parser_export.add_argument("--config", required=True, help="Name of single config to export")
 
     # about command
     subparsers.add_parser("about", help="Show about message")
