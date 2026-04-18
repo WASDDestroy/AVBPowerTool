@@ -2,7 +2,12 @@
 LogUtils provides log ability for programs. Destination can be manually assigned in __init__().
 
 log(): Log a string to destination you assigned when an instance is created.
-
+fatal(): Log a fatal message.
+error(): Log an error message.
+warn(): Log a warning message.
+info(): Log an info message.
+debug(): Log a debug message.
+trace(): Log a trace message.
 setLogLevel(): Set when should LogUtils *starts* to log it to destination.
 
 :author: WASD_Destroy
@@ -194,3 +199,29 @@ class LogUtils:
     
     def set_should_attach_time(self, should_attach_time : bool):
         self.__shouldAttachTime = should_attach_time
+
+class ConsoleLog:
+
+    @staticmethod
+    def trace(message):
+        print("[TRACE] [CLI] " + message)
+
+    @staticmethod
+    def debug(message):
+        print("[DEBUG] [CLI] " + message)
+
+    @staticmethod
+    def info(message):
+        print("[INFO] [CLI] " + message)
+
+    @staticmethod
+    def warn(message):
+        print("[WARN] [CLI] " + message)
+
+    @staticmethod
+    def error(message):
+        print("[ERROR] [CLI] " + message)
+
+    @staticmethod
+    def fatal(message):
+        print("[FATAL] [CLI] " + message)
