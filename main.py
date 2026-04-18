@@ -6,7 +6,10 @@ import time
 import Core.EnvironmentChecker as EnvironmentChecker
 import Core.Frontend.HomePageUI as HomePageUI
 import Core.LogUtils as LogUtils
+from Core.LogUtils import ConsoleLog as cLog
 
+TAG_CLI = "CLI"
+TAG = "Main"
 
 def print_logo():
     try:
@@ -24,32 +27,58 @@ def print_logo():
 
 # Command handlers (placeholders with logging)
 def handle_sign(args, logger):
-    logger.log("I", f"Sign command invoked with images: {args.images}", "CLI")
-    # TODO: implement sign logic
-    pass
+    logger.log("I", f"Sign command invoked with images: {args.images}", TAG_CLI)
+    import Core.SignImages as SignImages
+    my_signer = SignImages.SignImages()
+    if args.images is None:
+        logger.warn("Image list not given! Defaulting to all images.", TAG_CLI)
+        try:
+            my_signer.sign_images_batch(remove_vb=args.remove_vbmeta, remove_footers_first=args.remove_footer)
+        except RuntimeError as e:
+            cLog.error(str(e))
+    else:
+        import Core.ConfigParser as ConfigParser
+        my_config_parser = ConfigParser.ConfigParser()
+        cherry_pick_result = my_config_parser.cherry_pick_from_config(args.images)
+        if not cherry_pick_result:
+            cLog.error("Failed to cherry pick from config.")
+            logger.error("Failed to cherry pick config from complete config file.", TAG_CLI)
+            exit(1)
+        try:
+            batch_sign_result = my_signer.sign_images_batch(
+                os.path.join(os.getcwd(), "Core", "currentConfigs", "tempImageInfo.json"),
+                remove_vb=args.remove_vbmeta, remove_footers_first=args.remove_footer)
+            if batch_sign_result[0]:
+                cLog.info("Successfully signed selected images!")
+            else:
+                cLog.error("Failed to sign selected images! Error: " + str(batch_sign_result[1]))
+        except RuntimeError as e:
+            cLog.error(str(e))
+        my_config_parser.remove_cherry_pick_file()
+
 
 def handle_read(args, logger):
-    logger.log("I", f"Read command invoked with images: {args.images}", "CLI")
+    logger.log("I", f"Read command invoked with images: {args.images}", TAG_CLI)
     # TODO: implement read logic
     pass
 
 def handle_save(args, logger):
-    logger.log("I", f"Save command invoked with name: {args.name}", "CLI")
+    logger.log("I", f"Save command invoked with name: {args.name}", TAG_CLI)
     # TODO: implement save logic
     pass
 
 def handle_set_active(args, logger):
-    logger.log("I", f"Set active command invoked with name: {args.name}", "CLI")
+    logger.log("I", f"Set active command invoked with name: {args.name}", TAG_CLI)
     # TODO: implement set_active logic
     pass
 
 def handle_import(args, logger):
-    logger.log("I", f"Import command invoked with file: {args.file}", "CLI")
+    logger.log("I", f"Import command invoked with file: {args.file}", TAG_CLI)
     # TODO: implement import logic
     pass
 
 def handle_export(args, logger):
-    logger.log("I", f"Export command invoked with file: {args.file}", "CLI")
+    logger.log("I", f"Export command invoked with file: {args.file}", TAG_CLI)
     # TODO: implement export logic
     pass
 
@@ -66,12 +95,14 @@ def handle_about():
     print("AVBPowerTool Version")
 
 def setup_argparse():
-    parser = argparse.ArgumentParser(description="Image signing and configuration tool")
+    parser = argparse.ArgumentParser(prog="AVBPowerTool", description="Image signing and configuration tool")
     subparsers = parser.add_subparsers(dest="command", help="Available commands", required=False)
 
     # sign command
     parser_sign = subparsers.add_parser("sign", help="Sign given images")
     parser_sign.add_argument("--images", nargs="+", help="List of partition names (e.g., boot dtbo vbmeta)")
+    parser_sign.add_argument("--remove_footer", help="Remove footers of selected images before signing.", action="store_true")
+    parser_sign.add_argument("--remove_vbmeta", help="Remove vbmeta images before signing.", action="store_true")
 
     # read command
     parser_read = subparsers.add_parser("read", help="Read vbmeta info of given images")
@@ -100,7 +131,6 @@ def setup_argparse():
 
 try:
     if __name__ == "__main__":
-        TAG = "Main"
         try:
             # print("Checking directory correctness.")
             current_file = os.path.abspath(__file__)
@@ -108,7 +138,7 @@ try:
             os.chdir(current_dir)
             # print("Current work directory: " + os.getcwd())
         except Exception as e:
-            print("Exception happened when handling working directory:", e)
+            cLog.fatal("Exception happened when handling working directory:" + str(e))
             exit()
         try:
             main_logger = LogUtils.LogUtils(should_attach_time=True)
@@ -125,14 +155,14 @@ try:
             # print("Platform: " + os.name)
             main_logger.log("I", "OS name: " + os.name, TAG)
         except Exception as e:
-            print("Exception happened during early init: ", e)
+            cLog.fatal("Exception happened during early init: " + str(e))
             exit()
         try:
             EnvironmentChecker.EnvironmentChecker.check_necessary_folders(main_logger)
             # print("Folder check passed.")
             main_logger.log("I", "Folder check passed.", TAG)
         except Exception as e:
-            print("Exception happened when checking necessary folders: " + str(e))
+            cLog.fatal("Exception happened when checking necessary folders: " + str(e))
             main_logger.log("F", "Exception happened when checking necessary folders: " + str(e), TAG)
             exit()
 
@@ -160,7 +190,7 @@ try:
             elif args.command == "about":
                 handle_about()
             else:
-                main_logger.log("E", f"Unknown command: {args.command}", "CLI")
+                main_logger.log("E", f"Unknown command: {args.command}", TAG_CLI)
                 sys.exit(1)
 except KeyboardInterrupt:
     print("\nCtrl + C is pressed, exiting.")
