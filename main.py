@@ -11,6 +11,22 @@ from Core.LogUtils import ConsoleLog as cLog
 TAG_CLI = "CLI"
 TAG = "Main"
 
+
+def is_wsl():
+    wsl_env_vars = [
+        'WSLENV',
+        'WSL_DISTRO_NAME',
+        'WSL_INTEROP',
+        'WSL_UTF8'
+    ]
+
+    env_results = {}
+    for var in wsl_env_vars:
+        env_results[var] = os.environ.get(var, 'Not set')
+
+    is_wsl = any(os.environ.get(var) for var in wsl_env_vars)
+    return env_results, is_wsl
+
 def print_logo():
     try:
         for i in range(5):
@@ -169,6 +185,11 @@ def setup_argparse():
 
 try:
     if __name__ == "__main__":
+        if is_wsl()[1] and os.getcwd().startswith("/mnt"):
+            print("NEVER RUN THIS PROGRAM IN WSL WITH SCRIPTS STORED IN NTFS WORLD")
+            print("MAY RESULT IN PERMISSION DENIAL OF NUMEROUS FILES")
+            print("COPY THIS FOLDER TO LINUX WORLD AND TRY AGAIN")
+            exit(1)
         try:
             # print("Checking directory correctness.")
             current_file = os.path.abspath(__file__)
