@@ -54,8 +54,8 @@ class UIUtils:
             self.my_logger.log("W", "Unable to run clear screen command on platform %s due to FileNotFoundError" % os.name, self.TAG)
 
     @staticmethod
-    def press_enter_to_continue():
-        input("Press Enter to continue.")
+    def press_enter_to_continue(prompt = ""):
+        input(prompt or "Press Enter to continue.")
 
     @staticmethod
     def confirm_operation(prompt="Confirm operation?", selection = ("Yes", "No")) -> bool:
