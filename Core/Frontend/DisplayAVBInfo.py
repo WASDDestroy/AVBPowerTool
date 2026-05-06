@@ -4,6 +4,7 @@ AVB (Android Verified Boot) 信息解析器
 from typing import Any, Dict
 import os
 import Core.ConfigParser as ConfigParser
+import Core.Frontend.UIUtils as UIUtils
 
 def load_avb_data() -> Dict[str, Any]:
     """
@@ -143,13 +144,18 @@ def print_partition(partition_name: str, partition_data: Dict[str, Any]):
 
 def entry(partitions = ()):
     """主函数"""
+
     os.system("cls") if os.name == "nt" else os.system("clear")
+    my_ui_utils = UIUtils.UIUtils()
+    # 加载数据
+    avb_data = load_avb_data()
+    if avb_data == {}:
+        my_ui_utils.press_enter_to_continue("没有读取到配置信息，请检查 ./Core/currentConfigs 目录中是否存在有效的 imageInfo.json")
+        return
+
     print("=" * 80)
     print("指定配置文件的信息：")
     print("=" * 80)
-    
-    # 加载数据
-    avb_data = load_avb_data()
     
     # 按顺序输出所有分区
     if partitions:
@@ -174,4 +180,4 @@ def entry(partitions = ()):
                 print_partition(partition, avb_data[partition])
     
     print("\n" + "=" * 80)
-    input("解析完成，按回车键继续")
+    my_ui_utils.press_enter_to_continue("解析完成，按回车键继续")
