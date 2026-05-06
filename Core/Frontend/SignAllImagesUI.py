@@ -1,9 +1,8 @@
 import os
-import time
 
 import BaseUI
-import Core.SignImages as SignImages
 import Core.Frontend.UIUtils as UIUtils
+import Core.SignImages as SignImages
 from Core import ConfigParser
 from Core.ImageInfoUtils import ImageInfoUtils
 
@@ -23,8 +22,11 @@ class SignAllImagesUI(BaseUI.BaseUI):
 
     def handle_sign_selected_images(self):
         self.my_ui_utils.clear_screen()
-        self.warn_before_selective_signing()
-        if self.my_ui_utils.confirm_operation("Continue?"):
+        warn_words_before_signing =  ("Attention! Some images has their AVB info stored in vbmeta (vbmeta, vbmeta_system, vbmeta_vendor, etc.),"
+                                      + "\n" + "Make sure you have clear understanding of what will happen after you signed images with this function."
+                                      + "\n" + "Continue?")
+
+        if self.my_ui_utils.confirm_operation(warn_words_before_signing):
 
             my_config_parser = ConfigParser.ConfigParser()
 
@@ -65,14 +67,16 @@ class SignAllImagesUI(BaseUI.BaseUI):
                 if "vbmeta" in image_name:
                     vbmeta_images.append(image_name)
 
-            allow_continue_generation = True # Handle vbmeta generation, set to false if images we have currently does not contain sufficient info to generate vbmeta images
+            allow_continue_generation = True  # Handle vbmeta generation, set to false if images we have currently does not contain sufficient info to generate vbmeta images
 
             # If request generate vbmeta image, check is this operation performable
             if len(vbmeta_images) > 0:
                 my_image_info_utils = ImageInfoUtils()
                 for vbmeta_image in vbmeta_images:
-                    config_check_result = my_image_info_utils.is_config_support_vbmeta_generation("current", vbmeta_image)
-                    workdir_check_result = my_image_info_utils.is_work_dir_support_vbmeta_generation("current", vbmeta_image)
+                    config_check_result = my_image_info_utils.is_config_support_vbmeta_generation("current",
+                                                                                                  vbmeta_image)
+                    workdir_check_result = my_image_info_utils.is_work_dir_support_vbmeta_generation("current",
+                                                                                                     vbmeta_image)
 
                     if not (config_check_result[0] and workdir_check_result[0]):
                         allow_continue_generation = False
@@ -82,9 +86,9 @@ class SignAllImagesUI(BaseUI.BaseUI):
                         print("Unable to generate image \"%s\":" % vbmeta_image)
 
                         if not config_check_result[0]:
-                            print("- Config does not satisfy requirements: missing AVB info of image ", end = "")
+                            print("- Config does not satisfy requirements: missing AVB info of image ", end="")
                             for missing_config in config_check_result[1]:
-                                print("\"%s\"" % missing_config, end = " ")
+                                print("\"%s\"" % missing_config, end=" ")
                         print()
 
                         if not workdir_check_result[0]:
@@ -148,12 +152,4 @@ class SignAllImagesUI(BaseUI.BaseUI):
         print()
         print("It may take up to minutes depending on your hardware config.")
         print("The program is still running normally, DO NOT KILL IT!")
-        for i in range(3):
-            print("Start signing after %d secs." % (3 - i))
-            time.sleep(1)
         print()
-
-    def warn_before_selective_signing(self):
-        print("Attention! Some images has their AVB info stored in vbmeta (vbmeta, vbmeta_system, vbmeta_vendor, etc.),")
-        print("Make sure you have clear understanding of what will happen after you signed images with this function.")
-        self.my_ui_utils.press_enter_to_continue()
