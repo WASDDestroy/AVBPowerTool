@@ -7,7 +7,7 @@ from Core import ConfigParser
 from Core.ImageInfoUtils import ImageInfoUtils
 
 
-class SignAllImagesUI(BaseUI.BaseUI):
+class SignImagesUI(BaseUI.BaseUI):
 
     def customized_init(self):
         self.customized_function = {

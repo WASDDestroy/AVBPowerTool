@@ -1,0 +1,9 @@
+{
+    "Description": "Sign images in working dir.",
+    "Frontend": "SignImagesUI.py",
+    "Name": "Sign Images",
+    "Next": [
+        "END"
+    ],
+    "Previous": "main_navigation.json"
+}

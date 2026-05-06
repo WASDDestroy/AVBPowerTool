@@ -5,7 +5,7 @@
     "Next": [
         "read_image_info.json",
         "avb_config_management.json",
-        "sign_all_images.json"
+        "sign_images.json"
     ],
     "Previous": "END",
     "Selection": [
