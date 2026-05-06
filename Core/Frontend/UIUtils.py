@@ -25,7 +25,7 @@ class UIUtils:
             if UIUtils._initialized:
                 return
         self.TAG = "UIUtils"
-        self.my_logger = LogUtils.LogUtils(instant_mode=True)
+        self.my_logger = LogUtils.LogUtils()
         self.my_logger.log(
             "I", "Successfully created UIUtils instance.", self.TAG)
         UIUtils._initialized = True

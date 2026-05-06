@@ -45,13 +45,20 @@ class LogUtils:
                  output = "file",
                  should_attach_time = False,
                  log_dir = None,
-                 instant_mode = False) -> None:
+                 flush_threshold = 100) -> None:
+        """
+        Initialize a logger.
+
+        :param output: Choose a target (console/file) for log output, defaulting to file.
+        :param should_attach_time: Attach time [yyyy-mm-dd hh-MM-ss] in log entries, default to False.
+        :param log_dir: Directory to save logs, default to "Logs" dir under current work directory if not provided.
+        :param flush_threshold: Flush after how many log entries are written into buffer, default to 100.
+        """
         if LogUtils._initialized:
             return
         with LogUtils._lock:
             if LogUtils._initialized:
                 return
-        self.instantMode = instant_mode
         self.isLogToFile = True
         self.__shouldAttachTime = should_attach_time
         if log_dir is None:
@@ -72,6 +79,8 @@ class LogUtils:
                 print(f"Warning: Error creating log file: {e}, falling back to console output")
                 self.isLogToFile = False
         self.log("I", "Logger instance created.", "LogUtils")
+        self.__log_count = 0
+        self.__log_count_threshold = flush_threshold
         LogUtils._initialized = True
     def __del__(self) -> None:
         if hasattr(self, 'logFile') and self.logFile:
@@ -160,19 +169,26 @@ class LogUtils:
                 log_object = "[" + log_object
             if not log_object.endswith("]"):
                 log_object = log_object + "]"
-            if log_str != "" and log_str != "\n":
-                if self.isLogToFile and self.logFile:
-                    self.logFile.write(self.__process_log_string(log_level, log_object + " " + log_str)
-                        + "\n")
-                    if self.instantMode:
-                        self.logFile.flush()
-                else:
-                    print(
-                        self.__process_log_string(log_level, log_object + " " + log_str)
-                        )
+            self.__write_log(log_level, log_object, log_str)
+            # noinspection PyChainedComparisons
+            if self.__log_count >= self.__log_count_threshold and self.__log_count_threshold != -1:
+                self.__write_log("I", "LogUtils", "Threshold %d reached, flushing." % self.__log_count_threshold)
+                self.__log_count = 0
+                self.logFile.flush()
         except Exception as e:
             print(f"Logging error: {e}")
             print(f"Original message: [{log_level}] [{log_object}] {log_str}")
+
+    def __write_log(self, log_level, log_object, log_str):
+        if log_str != "" and log_str != "\n":
+            if self.isLogToFile and self.logFile:
+                self.logFile.write(self.__process_log_string(log_level, log_object + " " + log_str)
+                                   + "\n")
+            else:
+                print(
+                    self.__process_log_string(log_level, log_object + " " + log_str)
+                )
+            self.__log_count += 1
 
     # Log4j style logging method
 
@@ -199,6 +215,9 @@ class LogUtils:
     
     def set_should_attach_time(self, should_attach_time : bool):
         self.__shouldAttachTime = should_attach_time
+
+    def set_flush_threshold(self, threshold):
+        self.__log_count_threshold = threshold
 
 class ConsoleLog:
 
