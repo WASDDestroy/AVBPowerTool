@@ -217,7 +217,8 @@ class ImageInfoUtils:
         excluded_key_list = ["Footer version", "Original image size", "VBMeta offset",
                            "VBMeta size", "Minimum libavb version", "Header Block",
                            "Authentication Block", "Auxiliary Block", "Flags",
-                           "Release String", "Digest",
+                           "Release String", "Digest", "Tree Offset", "Tree Size",
+                            "FEC num roots", "FEC offset", "FEC size",
                            "Descriptors", "Rollback Index Location"]
         for excluded_key in excluded_key_list:
             try:
