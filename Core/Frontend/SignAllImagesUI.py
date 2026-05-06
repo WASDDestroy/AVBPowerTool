@@ -31,6 +31,9 @@ class SignAllImagesUI(BaseUI.BaseUI):
             # Get image with info stored in config file
             image_in_json = my_config_parser.get_image_in_json(
                 os.path.join(os.getcwd(), "Core", "currentConfigs", "imageInfo.json"))
+            if not image_in_json:
+                self.my_ui_utils.message_on_cancel("Failed to fetch information about selected images! Cancelling.")
+                return
             set_json = set(image_in_json)
             self.my_logger.log("I", "Image configured in JSON file: " + str(set_json), self.TAG)
 
