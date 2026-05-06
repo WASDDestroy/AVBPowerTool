@@ -78,10 +78,10 @@ class LogUtils:
             except Exception as e:
                 print(f"Warning: Error creating log file: {e}, falling back to console output")
                 self.isLogToFile = False
-        self.log("I", "Logger instance created.", "LogUtils")
         self.__log_count = 0
         self.__log_count_threshold = flush_threshold
         LogUtils._initialized = True
+        self.__write_log("I", "LogUtils", "Logger instance created.")
     def __del__(self) -> None:
         if hasattr(self, 'logFile') and self.logFile:
             # noinspection PyBroadException
