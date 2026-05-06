@@ -65,10 +65,13 @@ class UIUtils:
         else:
             return False
     @staticmethod
-    def message_on_fail():
-        print("Operation failed.")
-        print("Please refer to log file for further information.")
-        print("Note: Exit tool, then check log file, otherwise nothing will be shown in latest log.")
+    def message_on_fail(prompt = ""):
+        if prompt:
+            print(prompt)
+        else:
+            print("Operation failed.")
+            print("Please refer to log file for further information.")
+            print("Note: Exit tool, then check log file, otherwise nothing will be shown in latest log.")
 
     @staticmethod
     def message_on_cancel(prompt = ""):
