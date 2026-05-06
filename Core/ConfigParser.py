@@ -106,6 +106,9 @@ class ConfigParser:
                                     "currentConfigs",
                                     "imageList.txt")
         try:
+            if not os.path.exists(file_dir):
+                self.my_logger.log("E", "File imageList.txt not found! Check your \"currentConfigs\" dir.")
+                return []
             with open(file_dir, "r") as my_file:
                 self.my_logger.log("I", "Successfully opened config file.", self.TAG)
                 skip_list = ["#", " ", "\n"]
@@ -238,6 +241,9 @@ class ConfigParser:
             self.my_logger.log("W", "Config name not assigned! Use default name.", self.TAG)
             image_config_file_dir = os.path.join(image_config_file_dir, "imageInfo.json")
         self.my_logger.log("D", "Path: " + image_config_file_dir, self.TAG)
+        if not os.path.exists(image_config_file_dir):
+            self.my_logger.log("E", "Path does not exist!", self.TAG)
+            return {}
         with open(image_config_file_dir, "r") as my_file:
             config_dic : dict = json.load(my_file)
         return config_dic
