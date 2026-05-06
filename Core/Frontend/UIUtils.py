@@ -4,8 +4,6 @@ import sys
 import threading
 from typing import List, Set, Optional
 
-import select
-
 import Core.LogUtils as LogUtils
 
 
@@ -216,20 +214,39 @@ class EnhancedFileSelectorUI:
         """
         Process user input
         """
+
+        def roll_up():
+            if self.current_index > 0:
+                self.current_index -= 1
+            elif self.infinite_roll:
+                self.current_index = len(self.items) - 1
+
+        def roll_down():
+            if self.current_index < len(self.items) - 1:
+                self.current_index += 1
+            elif self.infinite_roll:
+                self.current_index = 0
+
+        def on_key_event(event):
+            if event.event_type == 'up' and event.name == 'up':
+                roll_up()
+            elif event.event_type == 'up' and event.name == 'down':
+                roll_down()
+            # elif event.event_type == 'up' and event.name == 'left':
+            #     return "a"
+            # elif event.event_type == 'up' and event.name == 'right':
+            #     return "d"
+
         try:
             if os.name == 'nt':
                 import msvcrt
                 key = msvcrt.getch().decode('utf-8', errors='ignore')
             else:
-                import tty
-                import termios
-                fd = sys.stdin.fileno()
-                old_settings = termios.tcgetattr(fd)
-                try:
-                    tty.setraw(sys.stdin.fileno())
-                    key = sys.stdin.read(1)
-                finally:
-                    termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+                import keyboard
+                # 监听键盘事件
+                keyboard.hook(on_key_event)
+                keyboard.wait()
+                return
         except (ImportError, Exception):
             # Fall back to standard input
             key = input("").lower()
@@ -239,24 +256,6 @@ class EnhancedFileSelectorUI:
                 key = ''
 
         # Handle special keys
-        if key == '\x1b':
-            # Check further input
-            rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
-            if rlist:
-                self.my_logger.log("D", "ANSI escape seq detected")
-                seq = sys.stdin.read(2)  # Read rest of the ANSI escape sequence
-                self.my_logger.log("D", str(seq))
-                if seq == '[A':  # Arrow up
-                    key = '\x48'
-                elif seq == '[B':  # Arrow down
-                    key = '\x50'
-                elif seq == '[C':  # Arrow right, reserved for further use
-                    key = '\x4D'
-                elif seq == '[D':  # Arrow left, reserved for further use
-                    key = '\x4B'
-                else:
-                    # Input is really Esc
-                    key = '\x1b'
         if key == '\x1b' and self.cancelable:  # ESC
             self.cancelled = True
             self.finished = True
@@ -270,16 +269,10 @@ class EnhancedFileSelectorUI:
             return
 
         elif key in ['w', 'W', '\x48']:  # Up arrow or W
-            if self.current_index > 0:
-                self.current_index -= 1
-            elif self.infinite_roll:
-                self.current_index = len(self.items) - 1
+            roll_up()
 
         elif key in ['s', 'S', '\x50']:  # Down arrow or S
-            if self.current_index < len(self.items) - 1:
-                self.current_index += 1
-            elif self.infinite_roll:
-                self.current_index = 0
+            roll_down()
 
         elif key == ' ':  # Space
             if self.multi_select:
