@@ -5,7 +5,7 @@ from typing import Any, Dict
 import os
 import Core.ConfigParser as ConfigParser
 
-def load_avb_data(logger) -> Dict[str, Any]:
+def load_avb_data() -> Dict[str, Any]:
     """
     加载AVB字典数据
     实际使用时，可以从文件读取或直接使用给定的字典
@@ -141,7 +141,7 @@ def print_partition(partition_name: str, partition_data: Dict[str, Any]):
     elif not "vbmeta" in partition_name:
         print(f"{get_chinese_key_name('Props')}: (无)")
 
-def entry(logger):
+def entry(partitions = ()):
     """主函数"""
     os.system("cls") if os.name == "nt" else os.system("clear")
     print("=" * 80)
@@ -149,13 +149,18 @@ def entry(logger):
     print("=" * 80)
     
     # 加载数据
-    avb_data = load_avb_data(logger)
+    avb_data = load_avb_data()
     
     # 按顺序输出所有分区
-    partition_order = [
-        "vbmeta", "vbmeta_system", "boot", "init_boot", "vendor_boot",
-        "recovery", "dtbo", "pvmfw"
-    ]
+    if partitions:
+        partition_order = list(partitions)
+    else:
+        import Core.ConfigParser as ConfigParser
+        my_config_parser = ConfigParser.ConfigParser()
+        partition_order = my_config_parser.get_image_list() or [
+            "vbmeta", "vbmeta_system", "boot", "init_boot", "vendor_boot",
+            "recovery", "dtbo", "pvmfw"
+        ]
     
     # 按指定顺序输出
     for partition in partition_order:
@@ -163,9 +168,10 @@ def entry(logger):
             print_partition(partition, avb_data[partition])
     
     # 检查是否有未在顺序列表中的分区
-    for partition in avb_data:
-        if partition not in partition_order:
-            print_partition(partition, avb_data[partition])
+    if partitions == ():
+        for partition in avb_data:
+            if partition not in partition_order:
+                print_partition(partition, avb_data[partition])
     
     print("\n" + "=" * 80)
     input("解析完成，按回车键继续")
