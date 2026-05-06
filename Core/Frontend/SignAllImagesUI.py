@@ -102,6 +102,12 @@ class SignAllImagesUI(BaseUI.BaseUI):
                 if images_to_sign:
                     cherry_pick_result = my_config_parser.cherry_pick_from_config(images_to_sign)
                     if cherry_pick_result:
+                        if self.__is_wsl()[1] and "/mnt" in os.getcwd():
+                            print("NEVER RUN THIS PROGRAM IN WSL WITH SCRIPTS STORED IN NTFS WORLD")
+                            print("MAY RESULT IN PERMISSION DENIAL OF PEM FILES")
+                            self.my_ui_utils.message_on_fail("Improper directory, move complete project directory to Linux world and restart the program.")
+                            self.my_ui_utils.press_enter_to_continue()
+                            return
                         self.warn_before_signing()
                         my_signer = SignImages.SignImages()
                         batch_sign_result = my_signer.sign_images_batch(
@@ -138,17 +144,12 @@ class SignAllImagesUI(BaseUI.BaseUI):
         is_wsl = any(os.environ.get(var) for var in wsl_env_vars)
         return env_results, is_wsl
 
-    def warn_before_signing(self):
+    @staticmethod
+    def warn_before_signing():
         if os.name == "nt":
             print(
                 "WARNING: YOU CANNOT ADD HASHTREE FOOTER WITH FEC ROOTS WHEN RUNNING ON WINDOWS")
             print("AUTOMATICALLY SKIPPING FEC GENERATION")
-            self.my_ui_utils.press_enter_to_continue()
-        elif self.__is_wsl()[1] and "/mnt" in os.getcwd():
-            print(
-                "NOT RECOMMENDED TO RUN THIS PROGRAM IN WSL WITH SCRIPTS STORED IN NTFS WORLD")
-            print("MAY RESULT IN EACCES OF PEM FILES")
-            self.my_ui_utils.press_enter_to_continue()
         print()
         print("It may take up to minutes depending on your hardware config.")
         print("The program is still running normally, DO NOT KILL IT!")
