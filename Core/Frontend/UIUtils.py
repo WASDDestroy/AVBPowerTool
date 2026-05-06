@@ -71,8 +71,8 @@ class UIUtils:
         print("Note: Exit tool, then check log file, otherwise nothing will be shown in latest log.")
 
     @staticmethod
-    def message_on_cancel():
-        print("Operation canceled.")
+    def message_on_cancel(prompt = ""):
+        print(prompt or "Operation canceled.")
 
 class EnhancedFileSelectorUI:
     """
