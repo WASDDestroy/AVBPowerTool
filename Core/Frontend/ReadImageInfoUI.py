@@ -42,7 +42,6 @@ class ReadImageInfoUI(BaseUI.BaseUI):
             else:
                 self.my_logger.log("I", "No image selected.", self.TAG)
                 print("No image selected! Tip: Use space to select file in multi-select mode and Enter to confirm your choice.")
-                self.my_ui_utils.message_on_cancel()
         else:
             self.my_ui_utils.message_on_cancel()
 

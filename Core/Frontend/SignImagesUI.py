@@ -61,6 +61,11 @@ class SignImagesUI(BaseUI.BaseUI):
             images_to_sign = my_selector.show(allow_long_item=True)
             self.my_logger.log("I", "Sign selected images: " + str(images_to_sign), self.TAG)
 
+            if len(images_to_sign) == 0:
+                self.my_ui_utils.message_on_cancel("No option selected, cancelling.")
+                self.my_ui_utils.press_enter_to_continue()
+                return
+
             # Get vbmeta images
             vbmeta_images = []
             for image_name in images_to_sign:

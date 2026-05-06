@@ -23,7 +23,13 @@ class ConfigManagerUI(BaseUI.BaseUI):
         if function_name == function_name_tuple[0]:
             config_names = self.myConfigManager.get_all_configs()
             my_selector = EnhancedFileSelectorUI("Select a Config to Activate", config_names, False)
-            config_to_active = my_selector.show()[0]
+            config_to_active_list = my_selector.show()
+            if len(config_to_active_list) > 0:
+                config_to_active = config_to_active_list[0]
+            else:
+                self.my_ui_utils.message_on_cancel("No option selected, cancelling.")
+                self.my_ui_utils.press_enter_to_continue()
+                return
             if config_to_active:
                 if self.myConfigManager.set_config_active(config_to_active):
                     print("Successfully switched active config to", config_to_active)

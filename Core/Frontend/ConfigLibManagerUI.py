@@ -17,12 +17,24 @@ class ConfigLibManagerUI(BaseUI.BaseUI):
         self.my_logger.log("I", function_name + ", directly invoke selector.")
         config_list = self.my_config_manager.get_all_configs()
         my_selector = EnhancedFileSelectorUI("Select a config", config_list, False)
-        selected_config = my_selector.show()[0]
+        selected_config_list = my_selector.show()
+        if len(selected_config_list) > 0:
+            selected_config = selected_config_list[0]
+        else:
+            self.my_ui_utils.message_on_cancel("No option selected, cancelling.")
+            self.my_ui_utils.press_enter_to_continue()
+            return
         available_functions = []
         for i in self.config_function:
             available_functions.append(self.config_function[i])
         my_selector = EnhancedFileSelectorUI("Options available for " + selected_config, available_functions, False)
-        selected_function = my_selector.show()[0]
+        selected_function_list = my_selector.show()
+        if len(selected_function_list) > 0:
+            selected_function = selected_function_list[0]
+        else:
+            self.my_ui_utils.message_on_cancel("No option selected, cancelling.")
+            self.my_ui_utils.press_enter_to_continue()
+            return
         if selected_function == self.config_function["R"]:
             new_config_name = self.my_config_manager.get_new_config_name(selected_config, prompt="Config Rename")
             rename_result = self.my_config_manager.rename_config(selected_config, new_config_name)

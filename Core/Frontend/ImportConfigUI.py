@@ -26,7 +26,8 @@ class ImportConfigUI(BaseUI.BaseUI):
         import_files = my_file_selector.show()
         self.my_logger.log("I", "Import files: %s" % str(import_files), self.TAG)
         if len(import_files) == 0:
-            self.my_ui_utils.message_on_cancel()
+            self.my_ui_utils.message_on_cancel("No option selected, cancelling.")
+            self.my_ui_utils.press_enter_to_continue()
             return
         for file_name in import_files:
             archive_type = self.myConfigManager.check_config_type(
