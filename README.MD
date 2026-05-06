@@ -61,8 +61,6 @@ python3 main.py sign --images init_boot vbmeta # Sign init_boot and vbmeta, LKM 
 > [!note]
 > ~~In fact these are also WIPs~~
 
-- Unable to navigate with arrow keys (while W and S are still available) when running on Linux, including Android.
-- Will throw RuntimeError when no config is activated without proper exception handler
 - Unable to set up FEC automatically when it is unavailable.
 
 ## WIPs of AVBPowerTool 1.0
