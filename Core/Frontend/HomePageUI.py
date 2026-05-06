@@ -12,7 +12,7 @@ class HomePageUI(BaseUI.BaseUI):
 
     def call_backend(self, function_name: str):
         if function_name == "View current config info":
-            DisplayAVBInfo.entry(self.my_logger)  # type: ignore
+            DisplayAVBInfo.entry()  # type: ignore
 
 
 if __name__ == "__main__":
