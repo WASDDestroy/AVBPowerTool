@@ -25,7 +25,7 @@ class UIUtils:
             if UIUtils._initialized:
                 return
         self.TAG = "UIUtils"
-        self.my_logger = LogUtils.LogUtils()
+        self.my_logger = LogUtils.LogUtils(instant_mode=True)
         self.my_logger.log(
             "I", "Successfully created UIUtils instance.", self.TAG)
         UIUtils._initialized = True
@@ -104,6 +104,7 @@ class EnhancedFileSelectorUI:
         self.cancelled = False
         self.infinite_roll = infinite_roll
         self.cancelable = cancelable
+        self.TAG = "EnhancedFileSelectorUI"
         self.my_logger = LogUtils.LogUtils()
         self.my_ui_utils = UIUtils()
 
@@ -221,21 +222,59 @@ class EnhancedFileSelectorUI:
             else:
                 import tty
                 import termios
+                import select
                 fd = sys.stdin.fileno()
                 old_settings = termios.tcgetattr(fd)
                 try:
-                    tty.setraw(sys.stdin.fileno())
-                    key = sys.stdin.read()
-                    # ^[[A UP ^[[B DOWN
-                    if key == "^[[A":
-                        key = "\x48"
-                    elif key == "^[[B":
-                        key = "\x50"
-                    while sys.stdin.read(1):
-                        pass
+                    tty.setraw(fd)
+                    raw = os.read(fd, 1)
+
+                    if raw == b'\x1b':
+                        # ESC byte — could be a lone Esc or the start of an
+                        # escape sequence. Poll for more bytes.
+                        r, _, _ = select.select([fd], [], [], 0.05)
+                        if r:
+                            raw += os.read(fd, 4)
+
+                    key = raw.decode('utf-8', errors='ignore')
+
+                    # self.my_logger.log(
+                    #     "D",
+                    #     f"Input raw={raw.hex()} len={len(raw)} key={repr(key)}",
+                    #     self.TAG)
+
+                    # Map known escape sequences to codes the shared
+                    # key-handling block below already understands.
+                    if len(raw) == 3 and raw[:2] == b'\x1b[':
+                        if raw == b'\x1b[A':    # Up
+                            key = '\x48'
+                        elif raw == b'\x1b[B':  # Down
+                            key = '\x50'
+                        elif raw == b'\x1b[D':  # Left
+                            key = '\x48'
+                        elif raw == b'\x1b[C':  # Right
+                            key = '\x50'
+                    elif len(raw) == 3 and raw[:2] == b'\x1bO':
+                        if raw == b'\x1bOA':    # Up (app. mode)
+                            key = '\x48'
+                        elif raw == b'\x1bOB':  # Down (app. mode)
+                            key = '\x50'
+                        elif raw == b'\x1bOD':  # Left (app. mode)
+                            key = '\x48'
+                        elif raw == b'\x1bOC':  # Right (app. mode)
+                            key = '\x50'
+
+                    # self.my_logger.log(
+                    #     "D",
+                    #     f"Final key={repr(key)} ord={ord(key) if key else 'N/A'}",
+                    #     self.TAG)
                 finally:
                     termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        except (ImportError, Exception):
+        except (ImportError, Exception) as e:
+            self.my_logger.log(
+                "W",
+                f"termios/raw input failed ({e}), falling back to input()",
+                self.TAG)
             # Fall back to standard input
             key = input("").lower()
             if len(key) > 0:
