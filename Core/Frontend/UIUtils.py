@@ -214,39 +214,27 @@ class EnhancedFileSelectorUI:
         """
         Process user input
         """
-
-        def roll_up():
-            if self.current_index > 0:
-                self.current_index -= 1
-            elif self.infinite_roll:
-                self.current_index = len(self.items) - 1
-
-        def roll_down():
-            if self.current_index < len(self.items) - 1:
-                self.current_index += 1
-            elif self.infinite_roll:
-                self.current_index = 0
-
-        def on_key_event(event):
-            if event.event_type == 'up' and event.name == 'up':
-                roll_up()
-            elif event.event_type == 'up' and event.name == 'down':
-                roll_down()
-            # elif event.event_type == 'up' and event.name == 'left':
-            #     return "a"
-            # elif event.event_type == 'up' and event.name == 'right':
-            #     return "d"
-
         try:
             if os.name == 'nt':
                 import msvcrt
                 key = msvcrt.getch().decode('utf-8', errors='ignore')
             else:
-                import keyboard
-                # 监听键盘事件
-                keyboard.hook(on_key_event)
-                keyboard.wait()
-                return
+                import tty
+                import termios
+                fd = sys.stdin.fileno()
+                old_settings = termios.tcgetattr(fd)
+                try:
+                    tty.setraw(sys.stdin.fileno())
+                    key = sys.stdin.read()
+                    # ^[[A UP ^[[B DOWN
+                    if key == "^[[A":
+                        key = "\x48"
+                    elif key == "^[[B":
+                        key = "\x50"
+                    while sys.stdin.read(1):
+                        pass
+                finally:
+                    termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         except (ImportError, Exception):
             # Fall back to standard input
             key = input("").lower()
@@ -269,10 +257,16 @@ class EnhancedFileSelectorUI:
             return
 
         elif key in ['w', 'W', '\x48']:  # Up arrow or W
-            roll_up()
+            if self.current_index > 0:
+                self.current_index -= 1
+            elif self.infinite_roll:
+                self.current_index = len(self.items) - 1
 
         elif key in ['s', 'S', '\x50']:  # Down arrow or S
-            roll_down()
+            if self.current_index < len(self.items) - 1:
+                self.current_index += 1
+            elif self.infinite_roll:
+                self.current_index = 0
 
         elif key == ' ':  # Space
             if self.multi_select:
