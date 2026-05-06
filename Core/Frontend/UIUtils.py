@@ -4,6 +4,8 @@ import sys
 import threading
 from typing import List, Set, Optional
 
+import select
+
 import Core.LogUtils as LogUtils
 
 
@@ -237,6 +239,24 @@ class EnhancedFileSelectorUI:
                 key = ''
 
         # Handle special keys
+        if key == '\x1b':
+            # Check further input
+            rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
+            if rlist:
+                self.my_logger.log("D", "ANSI escape seq detected")
+                seq = sys.stdin.read(2)  # Read rest of the ANSI escape sequence
+                self.my_logger.log("D", str(seq))
+                if seq == '[A':  # Arrow up
+                    key = '\x48'
+                elif seq == '[B':  # Arrow down
+                    key = '\x50'
+                elif seq == '[C':  # Arrow right, reserved for further use
+                    key = '\x4D'
+                elif seq == '[D':  # Arrow left, reserved for further use
+                    key = '\x4B'
+                else:
+                    # Input is really Esc
+                    key = '\x1b'
         if key == '\x1b' and self.cancelable:  # ESC
             self.cancelled = True
             self.finished = True
