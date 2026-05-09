@@ -171,9 +171,6 @@ class ConfigParser:
             else:
                 self.my_logger.log("I", "Adding hashtree footer command.", self.TAG)
                 command_list.append("add_hashtree_footer")
-                if os.name == "nt":
-                    command_list.append("--do_not_generate_fec")
-                    self.my_logger.log("W", "Running on Windows, skipping FEC encoding.", self.TAG)
             # Add common args for non-vbmeta images
             if not os.path.exists(os.path.join(self.__IMAGE_DIR, single_config_dict["Image File"])):
                 raise RuntimeError("Required image %s not found!" % (os.path.join(self.__IMAGE_DIR, single_config_dict["Image File"])))
@@ -187,6 +184,7 @@ class ConfigParser:
         else:
             command_list.extend(["--hash_algorithm", single_config_dict["Hash Algorithm"]])
         command_list.extend(["--rollback_index", single_config_dict["Rollback Index"]])
+        command_list.extend(["--flags", single_config_dict["Flags"]])
         if not is_vbmeta:
             for i in single_config_dict["Props"]:
                 command_list.extend(["--prop", i + ":" + single_config_dict["Props"][i]])

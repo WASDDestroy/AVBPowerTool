@@ -4109,12 +4109,6 @@ def calc_hash_level_offsets(image_size, block_size, digest_size):
 
   return level_offsets, tree_size
 
-
-# See system/extras/libfec/include/fec/io.h for these definitions.
-FEC_FOOTER_FORMAT = '<LLLLLQ32s'
-FEC_MAGIC = 0xfecfecfe
-
-
 def calc_fec_data_size(image_size, num_roots):
   """Calculates how much space FEC data will take.
 
@@ -4128,16 +4122,10 @@ def calc_fec_data_size(image_size, num_roots):
 
   Raises:
     ValueError: If output from the 'fec' tool is invalid.
+    RuntimeError: If neither the 'fec' binary nor reedsolo is available.
   """
-  p = subprocess.Popen(
-      ['fec', '--print-fec-size', str(image_size), '--roots', str(num_roots)],
-      stdout=subprocess.PIPE,
-      stderr=subprocess.PIPE)
-  (pout, perr) = p.communicate()
-  retcode = p.wait()
-  if retcode != 0:
-    raise ValueError('Error invoking fec: {}'.format(perr))
-  return int(pout)
+  from FecEncoder import calc_fec_data_size as _calc
+  return _calc(image_size, num_roots)
 
 
 def generate_fec_data(image_filename, num_roots):
@@ -4152,25 +4140,10 @@ def generate_fec_data(image_filename, num_roots):
 
   Raises:
     ValueError: If calling the 'fec' tool failed or the output is invalid.
+    RuntimeError: If neither the 'fec' binary nor reedsolo is available.
   """
-  with tempfile.NamedTemporaryFile() as fec_tmpfile:
-    try:
-      subprocess.check_call(
-          ['fec', '--encode', '--roots', str(num_roots), image_filename,
-           fec_tmpfile.name],
-          stderr=open(os.devnull, 'wb'))
-    except subprocess.CalledProcessError as e:
-      raise ValueError('Execution of \'fec\' tool failed: {}.'
-                       .format(e)) from e
-    fec_data = fec_tmpfile.read()
-
-  footer_size = struct.calcsize(FEC_FOOTER_FORMAT)
-  footer_data = fec_data[-footer_size:]
-  (magic, _, _, num_roots, fec_size, _, _) = struct.unpack(FEC_FOOTER_FORMAT,
-                                                           footer_data)
-  if magic != FEC_MAGIC:
-    raise ValueError('Unexpected magic in FEC footer')
-  return fec_data[0:fec_size]
+  from FecEncoder import generate_fec_data as _gen
+  return _gen(image_filename, num_roots)
 
 
 def generate_hash_tree(image, image_size, block_size, hash_alg_name, salt,

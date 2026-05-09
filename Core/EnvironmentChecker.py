@@ -78,6 +78,13 @@ class EnvironmentChecker:
                 logger.log("I", "Folder %s does not exist, automatically created it." % i, tag)
             else:
                 logger.log("I", "Folder %s exists." % i, tag)
+    
+    @staticmethod
+    def check_fec_state():
+        if os.name == "nt":
+            return False
+        else:
+            subprocess.run(["command", "-v", "fec"])
 
 class EnvironmentInfo:
 
