@@ -151,10 +151,6 @@ class SignImagesUI(BaseUI.BaseUI):
 
     @staticmethod
     def warn_before_signing():
-        if os.name == "nt":
-            print(
-                "WARNING: YOU CANNOT ADD HASHTREE FOOTER WITH FEC ROOTS WHEN RUNNING ON WINDOWS")
-            print("AUTOMATICALLY SKIPPING FEC GENERATION")
         print()
         print("It may take up to minutes depending on your hardware config.")
         print("The program is still running normally, DO NOT KILL IT!")
