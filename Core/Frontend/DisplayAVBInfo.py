@@ -26,6 +26,7 @@ def get_chinese_key_name(key: str) -> str:
         "Image size": "镜像大小(字节)",
         "Partition Name": "分区名称",
         "Props": "属性",
+        "Flags" : "vbmeta 标志",
         "Public key (sha1)": "公钥(SHA1)",
         "Public key file": "对应的公钥文件",
         "Rollback Index": "回滚索引",
