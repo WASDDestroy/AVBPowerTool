@@ -259,6 +259,9 @@ class ConfigParser:
         try:
             if config_name == "current":
                 current_dic = self.json2_dic()
+            elif config_name == "temp":
+                current_dic = self.json2_dic(
+                    os.path.join(os.getcwd(), "Core", "currentConfigs", "tempImageInfo.json"))
             else:
                 current_dic = self.json2_dic(
                     os.path.join(os.getcwd(), "Configs", config_name, "imageInfo.json"))
@@ -272,12 +275,24 @@ class ConfigParser:
             # In chain partition list, data are stored in a way that makes generate command line for adding chain partition easier,
             # For example, boot partition with chain partition pos 3 will be stored as boot:3:
             # Thus, we only have to assign path to key file to generate corresponding command line, and there we have to handle this special rule.
-            for chain_partition in vbmeta_dic["Chain"]:
-                image_required.append(chain_partition[:chain_partition.find(":")])
+            
+            try:
+                for chain_partition in vbmeta_dic["Chain"]:
+                    image_required.append(chain_partition[:chain_partition.find(":")])
+            except KeyError:
+                self.my_logger.warn("Selected config does not contain information about Chain partitions.", self.TAG)
 
             # For other images included, use normal method .extend() .
-            for key in ("Hash", "Hashtree"):
-                image_required.extend(vbmeta_dic[key])
+            try:
+                image_required.extend(vbmeta_dic["Hash"])
+            except KeyError:
+                self.my_logger.warn("Selected config does not contain information about Hash partitions.", self.TAG)
+
+            try:
+                image_required.extend(vbmeta_dic["Hashtree"])
+            except KeyError:
+                self.my_logger.warn("Selected config does not contain information about Hashtree partitions.", self.TAG)
+
             return image_required
         except FileNotFoundError:
             self.my_logger.log("W", "Config file not found.", self.TAG)
@@ -296,6 +311,9 @@ class ConfigParser:
         """
         result = [vbmeta_name]
         root_vbmeta_partitions = self.get_vbmeta_included_partitions(config_name, vbmeta_name)
+        if not root_vbmeta_partitions:
+            self.my_logger.warn("vbmeta partition not found!", self.TAG)
+            return []
         self.my_logger.log("T", "Image %s contains %s" % (vbmeta_name, str(root_vbmeta_partitions)), self.TAG)
         for partition in root_vbmeta_partitions:
             if "vbmeta" in partition:
