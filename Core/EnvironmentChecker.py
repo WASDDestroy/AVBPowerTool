@@ -85,6 +85,26 @@ class EnvironmentChecker:
             return False
         else:
             subprocess.run(["command", "-v", "fec"])
+    
+    @staticmethod
+    def check_libs():
+        """
+        Check whether necessary libraries are installed.
+
+        Will return True, [] when all requirements are satisfied, else, False with a list of missing libraries will be returned.
+        """
+        import importlib.util
+        lack_libs = []
+        # TODO: Use lib names from requirements.txt instead of hardcoded library import string
+        for library_name in ("reedsolo", "numpy"):
+            if importlib.util.find_spec(library_name) is None:
+                lack_libs.append(library_name)
+        if lack_libs:
+            return False, lack_libs
+        else:
+            return True, []
+                 
+
 
 class EnvironmentInfo:
 
