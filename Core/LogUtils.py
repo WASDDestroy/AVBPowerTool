@@ -59,6 +59,7 @@ class LogUtils:
         with LogUtils._lock:
             if LogUtils._initialized:
                 return
+            LogUtils._initialized = True
         self.isLogToFile = True
         self.__shouldAttachTime = should_attach_time
         if log_dir is None:
@@ -80,7 +81,6 @@ class LogUtils:
                 self.isLogToFile = False
         self.__log_count = 0
         self.__log_count_threshold = flush_threshold
-        LogUtils._initialized = True
         self.__write_log("I", "LogUtils", "Logger instance created.")
     def __del__(self) -> None:
         if hasattr(self, 'logFile') and self.logFile:
