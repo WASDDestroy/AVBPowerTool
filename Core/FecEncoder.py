@@ -15,12 +15,11 @@ import os
 import shutil
 import struct
 import subprocess
+import sys
 import tempfile
 import time
 
 import numpy as np
-
-from LogUtils import LogUtils
 
 try:
     from reedsolo import RSCodec as _RSCodec
@@ -29,15 +28,19 @@ except ImportError:
     _HAS_REEDSOLO = False
 
 _TAG = "FecEncoder"
-_logger = None
 
+_LEVEL_MAP = {"I": "INFO", "W": "WARN", "E": "ERROR", "D": "DEBUG", "T": "TRACE", "F": "FATAL"}
 
-def _get_logger():
-    """Lazily acquire the LogUtils singleton."""
-    global _logger
-    if _logger is None:
-        _logger = LogUtils(output="file")
-    return _logger
+_logger_first_called = True
+
+def _log(level, msg):
+    """Write a log message to stderr so the parent process can capture it."""
+    global _logger_first_called
+    if _logger_first_called:
+        print(file=sys.stderr)
+        _logger_first_called = False
+    print("- [{}] [{}] {}".format(_LEVEL_MAP.get(level, level), _TAG, msg),
+          file=sys.stderr)
 
 
 # ---------------------------------------------------------------------------
@@ -203,12 +206,11 @@ def _generate_fec_data_numpy(image_filename, num_roots):
     M = _compute_enc_matrix(num_roots)
 
     file_size = os.path.getsize(image_filename)
-    logger = _get_logger()
 
     if file_size >= _LARGE_FILE_THRESHOLD:
-        logger.log("W",
+        _log("W",
             "FEC encoding large file ({} MB) using numpy, this will take a while..."
-            .format(round(file_size / (1024 * 1024))), _TAG)
+            .format(round(file_size / (1024 * 1024))))
 
     target_batch_bytes = 256 * 1024 * 1024
     chunks_per_batch = max(1, target_batch_bytes // chunk_size)
@@ -251,12 +253,11 @@ def _generate_fec_data_numpy(image_filename, num_roots):
             now = time.time()
             if now - t_last_log >= 30:
                 pct = 100.0 * total_read / max(file_size, 1)
-                logger.log("W",
+                _log("W",
                     "FEC encoding progress: {}/{} MB ({:.0f}%)".format(
                         round(total_read / (1024 * 1024)),
                         round(file_size / (1024 * 1024)),
-                        pct),
-                    _TAG)
+                        pct))
                 t_last_log = now
 
     return bytes(fec_data)
@@ -276,12 +277,11 @@ def _generate_fec_data_reedsolo(image_filename, num_roots):
     if file_size >= _REEDSOLO_WARN_THRESHOLD:
         n_chunks = math.ceil(file_size / chunk_size)
         est_min = n_chunks * 0.0002 / 60
-        _get_logger().log("W",
+        _log("W",
             "FEC: reedsolo fallback for {} MB file ({} chunks). "
             "This is SLOW — estimated {:.0f} minutes. "
             "Install numpy for fast encoding."
-            .format(round(file_size / (1024 * 1024)), n_chunks, max(est_min, 0.1)),
-            _TAG)
+            .format(round(file_size / (1024 * 1024)), n_chunks, max(est_min, 0.1)))
 
     rs = _RSCodec(nsym=num_roots, fcr=1)
     fec_data = bytearray()
@@ -309,12 +309,11 @@ def _generate_fec_data_reedsolo(image_filename, num_roots):
             total += len(buffer)
             now = time.time()
             if now - t_last >= 30 and file_size >= _REEDSOLO_WARN_THRESHOLD:
-                _get_logger().log("W",
+                _log("W",
                     "FEC (reedsolo) progress: {}/{} MB ({:.0f}%)".format(
                         round(total / (1024 * 1024)),
                         round(file_size / (1024 * 1024)),
-                        100.0 * total / max(file_size, 1)),
-                    _TAG)
+                        100.0 * total / max(file_size, 1)))
                 t_last = now
 
     if carryover:
@@ -425,17 +424,15 @@ def generate_fec_data(image_filename, num_roots):
         raise ValueError("Image file not found: {}".format(image_filename))
 
     if _is_fec_binary_available():
-        _get_logger().log("I",
-            "FEC: using external fec binary for {}".format(image_filename),
-            _TAG)
+        _log("I",
+            "FEC: using external fec binary for {}".format(image_filename))
         return _generate_fec_data_binary(image_filename, num_roots)
 
     # Numpy is the required primary path
     file_size = os.path.getsize(image_filename)
     method = "numpy"
-    _get_logger().log("I",
+    _log("I",
         "FEC: using {} encoder for {} ({} MB, {} roots)".format(
             method, os.path.basename(image_filename),
-            round(file_size / (1024 * 1024)), num_roots),
-        _TAG)
+            round(file_size / (1024 * 1024)), num_roots))
     return _generate_fec_data_numpy(image_filename, num_roots)
