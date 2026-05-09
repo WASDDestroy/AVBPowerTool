@@ -165,10 +165,6 @@ class LogUtils:
             if self.__LOG_LEVEL_DIC[log_level] < self.__LOG_LEVEL_DIC[self.__log_level]:
                 return
             log_str = str(log_str)
-            if not log_object.startswith("["):
-                log_object = "[" + log_object
-            if not log_object.endswith("]"):
-                log_object = log_object + "]"
             self.__write_log(log_level, log_object, log_str)
             # noinspection PyChainedComparisons
             if self.__log_count >= self.__log_count_threshold and self.__log_count_threshold != -1:
@@ -180,6 +176,10 @@ class LogUtils:
             print(f"Original message: [{log_level}] [{log_object}] {log_str}")
 
     def __write_log(self, log_level, log_object, log_str):
+        if not log_object.startswith("["):
+            log_object = "[" + log_object
+        if not log_object.endswith("]"):
+            log_object = log_object + "]"
         if log_str != "" and log_str != "\n":
             if self.isLogToFile and self.logFile:
                 self.logFile.write(self.__process_log_string(log_level, log_object + " " + log_str)
