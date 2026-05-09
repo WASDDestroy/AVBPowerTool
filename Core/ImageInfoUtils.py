@@ -110,7 +110,8 @@ class ImageInfoUtils:
                          "Hash" : [], # Store partitions with hash descriptors that added to vbmeta image
                          "Hashtree" : [], # Store partitions with hashtree descriptors that added to vbmeta image
                          "Algorithm" : "", # Store hash algorithm used by vbmeta image
-                         "Public key (sha1)" : "" # Store public key SHA1 of vbmeta image
+                         "Public key (sha1)" : "", # Store public key SHA1 of vbmeta image,
+                         "Flags" : "",
                          }
             info_list_length = len(image_info_list)
             encounter_string_desc = False # Has encountered string "Descriptors"? This string indicates the beginning of "other partitions' info"
@@ -174,6 +175,8 @@ class ImageInfoUtils:
                         result_dic["Rollback Index"] = image_info_list[info_line][image_info_list[info_line].find(":") + 1:].strip(" ")
                     elif "Public key (sha1)" in image_info_list[info_line]:
                         result_dic["Public key (sha1)"] = image_info_list[info_line][image_info_list[info_line].find(":") + 1:].strip(" ")
+                    elif "Flags" in image_info_list[info_line]:
+                        result_dic["Flags"] = image_info_list[info_line][image_info_list[info_line].find(":") + 1:].strip(" ")
                     info_line += 1
         else:
             result_dic = {}
@@ -216,7 +219,7 @@ class ImageInfoUtils:
         # Remove useless keys
         excluded_key_list = ["Footer version", "Original image size", "VBMeta offset",
                            "VBMeta size", "Minimum libavb version", "Header Block",
-                           "Authentication Block", "Auxiliary Block", "Flags",
+                           "Authentication Block", "Auxiliary Block",
                            "Release String", "Digest", "Tree Offset", "Tree Size",
                             "FEC num roots", "FEC offset", "FEC size",
                            "Descriptors", "Rollback Index Location"]
@@ -364,6 +367,12 @@ class ImageInfoUtils:
             self.my_logger.log("I", "All images found! Able to generate vbmeta image with existing images in work directory!", self.TAG)
             return True, []
         else:
+            lack_images_are_all_vbmeta = True
+            for i in lack_images:
+                if "vbmeta" not in i:
+                    lack_images_are_all_vbmeta = False
+            if lack_images_are_all_vbmeta:
+                return True, []
             self.my_logger.log("W", "These images are missing under working directory: " + str(lack_images), self.TAG)
             return False, lack_images
 
