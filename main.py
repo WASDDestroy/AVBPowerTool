@@ -200,7 +200,23 @@ try:
             # print("Current work directory: " + os.getcwd())
         except Exception as e:
             cLog.fatal("Exception happened when handling working directory:" + str(e))
-            exit()
+            exit(1)
+        missing_libs = EnvironmentChecker.EnvironmentChecker.check_libs()[1]
+        if missing_libs:
+            missing_libs_string = ""
+            for i in missing_libs:
+                missing_libs_string += i + " "
+            print("Missing lib(s):", missing_libs_string)
+            print("Installing dependencies automatically.")
+            try:
+                import subprocess
+                subprocess.run(["pip", "install"] + missing_libs)
+            except ImportError:
+                print("Failed to import subprocess, exiting.")
+                exit(1)
+            except Exception as e:
+                print("Unhandled exception:", e)
+                exit(1)
         try:
             main_logger = LogUtils.LogUtils(should_attach_time=True)
             main_logger.set_log_level("T")
@@ -217,7 +233,7 @@ try:
             main_logger.log("I", "OS name: " + os.name, TAG)
         except Exception as e:
             cLog.fatal("Exception happened during early init: " + str(e))
-            exit()
+            exit(1)
         try:
             EnvironmentChecker.EnvironmentChecker.check_necessary_folders(main_logger)
             # print("Folder check passed.")
@@ -225,7 +241,7 @@ try:
         except Exception as e:
             cLog.fatal("Exception happened when checking necessary folders: " + str(e))
             main_logger.log("F", "Exception happened when checking necessary folders: " + str(e), TAG)
-            exit()
+            exit(1)
 
         # Parse command line arguments
         parser = setup_argparse()
