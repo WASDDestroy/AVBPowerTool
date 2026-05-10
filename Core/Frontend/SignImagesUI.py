@@ -43,7 +43,7 @@ class SignImagesUI(BaseUI.BaseUI):
             image_in_work_dir = []
             for image in os.listdir(os.path.join(os.getcwd(), "Images")):
                 if image.endswith(".img"):
-                    image_in_work_dir.append(image.rstrip(".img"))
+                    image_in_work_dir.append(image[:-4])
             set_work_dir = set(image_in_work_dir)
             self.my_logger.log("I", "Images in work directory: " + str(set_work_dir), self.TAG)
 

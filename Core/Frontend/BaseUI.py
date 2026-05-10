@@ -92,8 +92,8 @@ class BaseUI:
                 self.my_navigation_engine.refresh_node_info()
                 if self.my_navigation_engine.currentDic["Name"] == function_name:
                     # Found function in one of the next node, dynamically import it and execute entry
-                    module_name = self.my_navigation_engine.currentDic["Frontend"].rstrip(
-                        ".py")
+                    if self.my_navigation_engine.currentDic["Frontend"].endswith(".py"):
+                        module_name = self.my_navigation_engine.currentDic["Frontend"][:-3]
                     self.my_logger.log(
                         "I", "Navigate to: " + module_name, self.TAG)
                     my_object = self.my_importer.create_frontend_instance(

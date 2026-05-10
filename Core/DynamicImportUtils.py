@@ -14,7 +14,8 @@ class DynamicImportUtils:
     def import_module(self, module_name : str, module_dir = None):
         if module_dir is None:
             module_dir = os.path.join(os.getcwd(), "Core")
-        module_name = module_name.rstrip(".py")
+        if module_name.endswith(".py"):
+            module_name = module_name[:-3]
         self.my_logger.log("D", "Importing module: " + module_name, self.TAG)
         self.my_logger.log("D", "Complete path: " + os.path.join(module_dir, module_name + ".py"), self.TAG)
         try:

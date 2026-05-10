@@ -51,10 +51,10 @@ class KeyDirUtils:
                             "--key",
                             os.path.join(key_file_dir, file_name),
                             "--output",
-                            os.path.join(key_file_dir, file_name.strip(".pem") + "_pub.bin")])
+                            os.path.join(key_file_dir, file_name[:-4] + "_pub.bin")])
             sha1_result = subprocess.run(["certutil",
                                    "-hashfile",
-                                   os.path.join(key_file_dir, file_name.strip(".pem") + "_pub.bin"),
+                                   os.path.join(key_file_dir, file_name[:-4] + "_pub.bin"),
                                    "sha1"],
                                    capture_output = True,
                                    text = True).stdout.split("\n")[1]
@@ -65,9 +65,9 @@ class KeyDirUtils:
                             "--key",
                             os.path.join(key_file_dir, file_name),
                             "--output",
-                            os.path.join(key_file_dir, file_name.strip(".pem") + "_pub.bin")])
+                            os.path.join(key_file_dir, file_name[:-4] + "_pub.bin")])
             sha1_result = subprocess.run(["sha1sum",
-                                   os.path.join(key_file_dir, file_name.strip(".pem") + "_pub.bin")],
+                                   os.path.join(key_file_dir, file_name[:-4] + "_pub.bin")],
                                   capture_output = True,
                                   text = True).stdout.split("  ")[0]
         self.my_logger.log("I", "Filename: %s, SHA1 digest: %s" % (file_name, sha1_result), self.TAG)
