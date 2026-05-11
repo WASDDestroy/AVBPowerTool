@@ -1,5 +1,10 @@
 # AVB Power Tool
 
+> [!tip]
+> Chinese version: [Here](./这是什么.md)
+>
+> 中文版：[这里](./这是什么.md)
+
 ## Brief
 
 As is known to all, AOSP has a tool to create Android Verified Boot(AVB) footer, avbtool.py. However, this script is designed to work with build workflow, which is unfriendly to ROMers with requirements of AVB.
