@@ -6,12 +6,12 @@ class HomePageUI(BaseUI.BaseUI):
     def customized_init(self):
         self.TAG = "HomePageUI"
         self.customized_function = {
-            "V": "View current config info"
+            "V": "View Current Config Info"
         }
         # noinspection PyAttributeOutsideInit
 
     def call_backend(self, function_name: str):
-        if function_name == "View current config info":
+        if function_name == "View Current Config Info":
             DisplayAVBInfo.entry()  # type: ignore
 
 

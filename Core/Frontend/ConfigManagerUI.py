@@ -11,13 +11,13 @@ class ConfigManagerUI(BaseUI.BaseUI):
         self.configManagerModule = self.my_importer.import_module(
             "ConfigManager.py")
         # noinspection PyAttributeOutsideInit
-        self.customized_function = {"S": "Set a config active",
-                                   "P": "Save current config as a persistent one",
+        self.customized_function = {"S": "Activate a config",
+                                   "P": "Save config to persistent storage",
                                     "H": "Help"}
 
     def call_backend(self, function_name: str):
-        function_name_tuple = ("Set a config active",
-                             "Save current config as a persistent one",
+        function_name_tuple = ("Activate a config",
+                             "Save config to persistent storage",
                                "Help")
         self.myConfigManager = self.my_importer.create_instance(self.configManagerModule, "ConfigManager")
         if function_name == function_name_tuple[0]:
