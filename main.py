@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import time
 
 import Core.CLIHandler as CLIHandler
@@ -11,7 +10,6 @@ import Core.LogUtils as LogUtils
 import Core.GlobalConfigUtils as GlobalConfigUtils
 from Core.LogUtils import ConsoleLog as cLog
 
-TAG_CLI = "CLI"
 TAG = "Main"
 CONFIG_PATH = os.path.join(os.getcwd(), "GlobalConfig.cfg")
 
@@ -41,6 +39,17 @@ def run_ui():
     while True:
         main_ui_instance.entry()
 
+def check_work_directory_correctness():
+    try:
+        # print("Checking directory correctness.")
+        current_file = os.path.abspath(__file__)
+        current_dir = os.path.dirname(current_file)
+        os.chdir(current_dir)
+        # print("Current work directory: " + os.getcwd())
+    except Exception as e:
+        cLog.fatal("Exception happened when handling working directory:" + str(e))
+        exit(1)
+
 def initialize_logger():
     global_config_info = GlobalConfigUtils.GlobalConfigInfo()
     logger = LogUtils.LogUtils(should_attach_time=int(global_config_info.get_value("log_attach_time")),
@@ -55,61 +64,7 @@ def check_wsl():
         print("COPY THIS FOLDER TO LINUX WORLD AND TRY AGAIN")
         exit(1)
 
-def check_work_directory_correctness():
-    try:
-        # print("Checking directory correctness.")
-        current_file = os.path.abspath(__file__)
-        current_dir = os.path.dirname(current_file)
-        os.chdir(current_dir)
-        # print("Current work directory: " + os.getcwd())
-    except Exception as e:
-        cLog.fatal("Exception happened when handling working directory:" + str(e))
-        exit(1)
 
-def check_libraries(should_install = True):
-    missing_libs = EnvironmentChecker.EnvironmentChecker.check_libs()[1]
-    if missing_libs:
-        missing_libs_string = ""
-        for i in missing_libs:
-            missing_libs_string += i + " "
-        print("Missing lib(s):", missing_libs_string)
-        if should_install:
-            print("Installing dependencies automatically.")
-            try:
-                import subprocess
-                subprocess.run(["pip", "install"] + missing_libs)
-            except ImportError:
-                print("Failed to import subprocess, exiting.")
-                exit(1)
-            except Exception as e:
-                print("Unhandled exception:", e)
-                exit(1)
-        else:
-            print("Run pip install " + missing_libs_string)
-            exit(1)
-
-def check_necessary_folders():
-    logger = LogUtils.LogUtils()
-    try:
-        EnvironmentChecker.EnvironmentChecker.check_necessary_folders(logger)
-        # print("Folder check passed.")
-        logger.log("I", "Folder check passed.", TAG)
-    except Exception as e:
-        cLog.fatal("Exception happened when checking necessary folders: " + str(e))
-        logger.log("F", "Exception happened when checking necessary folders: " + str(e), TAG)
-        exit(1)
-
-def add_frontend_dir_to_path():
-    logger = LogUtils.LogUtils()
-    try:
-        if os.path.join(os.getcwd(), "Core", "Frontend") not in sys.path:
-            # print("Adding frontend dir to system path.")
-            logger.log("I", "Adding frontend dir to system path.", TAG)
-            sys.path.insert(0, os.path.join(os.getcwd(), "Core", "Frontend"))
-    except Exception as e:
-        cLog.fatal("Exception happened when processing frontend folder: " + str(e))
-        logger.log("F", "Exception happened when processing frontend folder: " + str(e), TAG)
-        exit(1)
 
 def log_system_info():
     logger = LogUtils.LogUtils()
@@ -126,13 +81,19 @@ def main():
     global_config_utils = GlobalConfigUtils.GlobalConfigUtils()
     global_config_info = GlobalConfigUtils.GlobalConfigInfo()
     global_config_info.set_values_by_dict(global_config_utils.parse_key_value_file(CONFIG_PATH))
-    if int(global_config_info.get_value("check_wsl")):
+
+    if bool(global_config_info.get_value("check_wsl")):
         check_wsl()
+
     initialize_logger()
+
+    my_environment_setup = EnvironmentChecker.EnvironmentSetup()
     check_work_directory_correctness()
-    check_libraries()
-    add_frontend_dir_to_path()
-    check_necessary_folders()
+    should_install = bool(global_config_info.get_value("install_missing_libs"))
+    should_check = bool(global_config_info.get_value("check_missing_libs"))
+    my_environment_setup.check_libraries(should_install, should_check)
+    my_environment_setup.add_frontend_dir_to_path()
+    my_environment_setup.check_necessary_folders()
 
     # Parse command line arguments
     parser = CLIHandler.setup_argparse()
