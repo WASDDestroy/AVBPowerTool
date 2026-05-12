@@ -1,9 +1,9 @@
 import Core.DynamicImportUtils as DynamicImportUtils
-import Core.Frontend.UIUtils as UIUtils
+import Frontend.UIUtils as UIUtils
 import Core.LogUtils as LogUtils
 import Core.NavigationEngine as NavigationEngine
 import Core.GlobalConfigUtils as GlobalConfigUtils
-from Core.Frontend.UIUtils import EnhancedFileSelectorUI
+from Frontend.UIUtils import EnhancedFileSelectorUI
 
 class BaseUI:
 

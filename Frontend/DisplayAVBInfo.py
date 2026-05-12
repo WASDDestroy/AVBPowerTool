@@ -4,7 +4,7 @@ AVB (Android Verified Boot) 信息解析器
 from typing import Any, Dict
 import os
 import Core.ConfigParser as ConfigParser
-import Core.Frontend.UIUtils as UIUtils
+import Frontend.UIUtils as UIUtils
 
 def load_avb_data() -> Dict[str, Any]:
     """

@@ -1,7 +1,7 @@
 import os
 
 import BaseUI
-import Core.Frontend.UIUtils as UIUtils
+import Frontend.UIUtils as UIUtils
 import Core.SignImages as SignImages
 from Core import ConfigParser
 from Core.ImageInfoUtils import ImageInfoUtils

@@ -2,7 +2,7 @@ import os
 import time
 
 import BaseUI
-from Core.Frontend.UIUtils import EnhancedFileSelectorUI
+from Frontend.UIUtils import EnhancedFileSelectorUI
 
 
 class ExportConfigUI(BaseUI.BaseUI):

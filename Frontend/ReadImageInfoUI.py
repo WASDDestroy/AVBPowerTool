@@ -1,7 +1,7 @@
 import os
 
 import BaseUI
-from Core.Frontend.UIUtils import EnhancedFileSelectorUI
+from Frontend.UIUtils import EnhancedFileSelectorUI
 import Core.ImageInfoUtils as ImageInfoUtils
 import Core.ConfigParser as ConfigParser
 

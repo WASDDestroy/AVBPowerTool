@@ -1,5 +1,5 @@
-import Core.Frontend.BaseUI as BaseUI
-import Core.Frontend.DisplayAVBInfo as DisplayAVBInfo
+import Frontend.BaseUI as BaseUI
+import Frontend.DisplayAVBInfo as DisplayAVBInfo
 
 class HomePageUI(BaseUI.BaseUI):
 

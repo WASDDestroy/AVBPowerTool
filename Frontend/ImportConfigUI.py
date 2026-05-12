@@ -2,7 +2,7 @@ import os
 
 import BaseUI
 import Core.ConfigManager as ConfigManager
-from Core.Frontend.UIUtils import EnhancedFileSelectorUI as EnhancedFileSelectorUI
+from Frontend.UIUtils import EnhancedFileSelectorUI as EnhancedFileSelectorUI
 
 
 class ImportConfigUI(BaseUI.BaseUI):
