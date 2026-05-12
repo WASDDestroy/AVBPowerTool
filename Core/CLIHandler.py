@@ -1,6 +1,7 @@
 import argparse
 import os
 
+from Core.GlobalConfigUtils import GlobalConfigInfo
 from Core.LogUtils import ConsoleLog as cLog
 from Core.LogUtils import LogUtils
 
@@ -12,6 +13,7 @@ def handle_sign(args, logger):
     import Core.SignImages as SignImages
     my_signer = SignImages.SignImages()
     if args.images is None:
+        cLog.warn("Image list not given! Defaulting to all images.")
         logger.warn("Image list not given! Defaulting to all images.", TAG_CLI)
         try:
             my_signer.sign_images_batch(remove_vb=args.remove_vbmeta, remove_footers_first=args.remove_footer)
@@ -44,9 +46,11 @@ def handle_read(args, logger):
     import Core.ConfigParser as ConfigParser
     my_image_info_utils = ImageInfoUtils.ImageInfoUtils()
     if args.images is None:
+        cLog.warn("Image list not given! Defaulting to all images.")
         my_config_parser = ConfigParser.ConfigParser()
         my_image_info_utils.read_image_info_batch(my_config_parser.get_image_list())
     else:
+        cLog.info("Reading vbmeta info from image file.")
         my_image_info_utils.read_image_info_batch(args.images)
 
 def handle_save(args, logger):
@@ -63,9 +67,9 @@ def handle_set_active(args, logger):
     import Core.ConfigManager as ConfigManager
     my_config_manager = ConfigManager.ConfigManager()
     if my_config_manager.set_config_active(args.name):
-        cLog.info("Successfully set active config to persistent storage.")
+        cLog.info("Successfully activated config.")
     else:
-        cLog.error("Failed to set config to persistent storage. Refer to log for further information.")
+        cLog.error("Failed to activate config. Refer to log for further information.")
 
 def handle_import(args, logger):
     logger.log("I", f"Import command invoked with file: {args.file}", TAG_CLI)
@@ -102,7 +106,8 @@ def handle_export(args, logger):
         cLog.error("Failed to export config!")
 
 def handle_about():
-    print("AVBPowerTool Version")
+    global_config = GlobalConfigInfo()
+    print("AVBPowerTool Version " + global_config.get_value("tool_version"))
 
 def setup_argparse():
     parser = argparse.ArgumentParser(prog="AVBPowerTool", description="Image signing and configuration tool")
