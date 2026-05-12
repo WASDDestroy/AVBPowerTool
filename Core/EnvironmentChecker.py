@@ -78,13 +78,30 @@ class EnvironmentChecker:
                 logger.log("I", "Folder %s does not exist, automatically created it." % i, tag)
             else:
                 logger.log("I", "Folder %s exists." % i, tag)
-    
+
+    @staticmethod
+    def is_wsl():
+        wsl_env_vars = [
+            'WSLENV',
+            'WSL_DISTRO_NAME',
+            'WSL_INTEROP',
+            'WSL_UTF8'
+        ]
+
+        env_results = {}
+        for var in wsl_env_vars:
+            env_results[var] = os.environ.get(var, 'Not set')
+
+        is_wsl = any(os.environ.get(var) for var in wsl_env_vars)
+        return env_results, is_wsl
+
     @staticmethod
     def check_fec_state():
-        if os.name == "nt":
-            return False
-        else:
-            subprocess.run(["command", "-v", "fec"])
+        # if os.name == "nt":
+        #     return False
+        # else:
+        #     subprocess.run(["command", "-v", "fec"])
+        pass
     
     @staticmethod
     def check_libs():
