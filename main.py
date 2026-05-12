@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import argparse
 import os
 import sys
 import time
 
+import Core.CLIHandler as CLIHandler
 import Core.EnvironmentChecker as EnvironmentChecker
 import Core.Frontend.HomePageUI as HomePageUI
 import Core.LogUtils as LogUtils
@@ -12,22 +12,6 @@ from Core.LogUtils import ConsoleLog as cLog
 
 TAG_CLI = "CLI"
 TAG = "Main"
-
-
-def is_wsl():
-    wsl_env_vars = [
-        'WSLENV',
-        'WSL_DISTRO_NAME',
-        'WSL_INTEROP',
-        'WSL_UTF8'
-    ]
-
-    env_results = {}
-    for var in wsl_env_vars:
-        env_results[var] = os.environ.get(var, 'Not set')
-
-    is_wsl = any(os.environ.get(var) for var in wsl_env_vars)
-    return env_results, is_wsl
 
 def print_logo():
     try:
@@ -43,103 +27,9 @@ def print_logo():
     except FileNotFoundError:
         pass
 
-# Command handlers (placeholders with logging)
-def handle_sign(args, logger):
-    logger.log("I", f"Sign command invoked with images: {args.images}", TAG_CLI)
-    import Core.SignImages as SignImages
-    my_signer = SignImages.SignImages()
-    if args.images is None:
-        logger.warn("Image list not given! Defaulting to all images.", TAG_CLI)
-        try:
-            my_signer.sign_images_batch(remove_vb=args.remove_vbmeta, remove_footers_first=args.remove_footer)
-        except RuntimeError as e:
-            cLog.error(str(e))
-    else:
-        import Core.ConfigParser as ConfigParser
-        my_config_parser = ConfigParser.ConfigParser()
-        cherry_pick_result = my_config_parser.cherry_pick_from_config(args.images)
-        if not cherry_pick_result:
-            cLog.error("Failed to cherry pick from config.")
-            logger.error("Failed to cherry pick config from complete config file.", TAG_CLI)
-            exit(1)
-        try:
-            batch_sign_result = my_signer.sign_images_batch(
-                os.path.join(os.getcwd(), "Core", "currentConfigs", "tempImageInfo.json"),
-                remove_vb=args.remove_vbmeta, remove_footers_first=args.remove_footer)
-            if batch_sign_result[0]:
-                cLog.info("Successfully signed selected images!")
-            else:
-                cLog.error("Failed to sign selected images! Error: " + str(batch_sign_result[1]))
-        except RuntimeError as e:
-            cLog.error(str(e))
-        my_config_parser.remove_cherry_pick_file()
-
-
-def handle_read(args, logger):
-    logger.log("I", f"Read command invoked with images: {args.images}", TAG_CLI)
-    import Core.ImageInfoUtils as ImageInfoUtils
-    import Core.ConfigParser as ConfigParser
-    my_image_info_utils = ImageInfoUtils.ImageInfoUtils()
-    if args.images is None:
-        my_config_parser = ConfigParser.ConfigParser()
-        my_image_info_utils.read_image_info_batch(my_config_parser.get_image_list())
-    else:
-        my_image_info_utils.read_image_info_batch(args.images)
-
-def handle_save(args, logger):
-    logger.log("I", f"Save command invoked with name: {args.name}", TAG_CLI)
-    import Core.ConfigManager as ConfigManager
-    my_config_manager = ConfigManager.ConfigManager()
-    if my_config_manager.save_as_persistent_config(args.name):
-        cLog.info("Successfully saved config to persistent storage.")
-    else:
-        cLog.error("Failed to save config to persistent storage. Refer to log for further information.")
-
-def handle_set_active(args, logger):
-    logger.log("I", f"Set active command invoked with name: {args.name}", TAG_CLI)
-    import Core.ConfigManager as ConfigManager
-    my_config_manager = ConfigManager.ConfigManager()
-    if my_config_manager.set_config_active(args.name):
-        cLog.info("Successfully set active config to persistent storage.")
-    else:
-        cLog.error("Failed to set config to persistent storage. Refer to log for further information.")
-
-def handle_import(args, logger):
-    logger.log("I", f"Import command invoked with file: {args.file}", TAG_CLI)
-    import Core.ConfigManager as ConfigManager
-    my_config_manager = ConfigManager.ConfigManager()
-    archive_type = my_config_manager.check_config_type(file_name=args.file)
-    logger.log("I", "Archive type is %s" % archive_type, TAG_CLI)
-    if archive_type == "SINGLE":
-        try:
-            my_config_manager.import_single_config(import_from_file_name=args.file)
-            cLog.info("Successfully imported single config archive %s." % args.file)
-        except Exception as e:
-            logger.log("W", e, TAG_CLI)
-            cLog.error("Import failed!")
-    elif archive_type == "BATCH":
-        try:
-            my_config_manager.batch_import_config(import_from_file_name=args.file)
-            cLog.info("Successfully imported config.")
-        except Exception as e:
-            logger.log("W", e, TAG_CLI)
-            cLog.error("Import failed! Refer to log file for further information.")
-    else:
-        cLog.error("Invalid archive file.")
-
-def handle_export(args, logger):
-    import Core.ConfigManager as ConfigManager
-    my_config_manager = ConfigManager.ConfigManager()
-    logger.log("I", f"Export command invoked with file: {args.config}", TAG_CLI)
-    export_result = my_config_manager.export_single_config(
-                    export_config_folder_name=args.config, export_to_file_name=args.config + ".zip")
-    if export_result:
-        cLog.info("Successfully exported selected config to root directory as an archive.")
-    else:
-        cLog.error("Failed to export config!")
-
-def run_ui(logger):
+def run_ui():
     """Start the interactive UI."""
+    logger = LogUtils.LogUtils()
     logger.log("I", "Starting interface.", "Main")
     main_ui_instance = HomePageUI.HomePageUI()
     logger.log("I", "Successfully created UI instance.", "Main")
@@ -147,66 +37,36 @@ def run_ui(logger):
     while True:
         main_ui_instance.entry()
 
-def handle_about():
-    print("AVBPowerTool Version")
+def initialize_logger():
+    logger = LogUtils.LogUtils(should_attach_time=True)
+    logger.set_log_level("T")
 
-def setup_argparse():
-    parser = argparse.ArgumentParser(prog="AVBPowerTool", description="Image signing and configuration tool")
-    subparsers = parser.add_subparsers(dest="command", help="Available commands", required=False)
+def check_wsl():
+    if EnvironmentChecker.EnvironmentChecker.is_wsl()[1] and os.getcwd().startswith("/mnt"):
+        print("NEVER RUN THIS PROGRAM IN WSL WITH SCRIPTS STORED IN NTFS WORLD")
+        print("MAY RESULT IN PERMISSION DENIAL OF NUMEROUS FILES")
+        print("COPY THIS FOLDER TO LINUX WORLD AND TRY AGAIN")
+        exit(1)
 
-    # sign command
-    parser_sign = subparsers.add_parser("sign", help="Sign given images")
-    parser_sign.add_argument("--images", nargs="+", help="List of partition names (e.g., boot dtbo vbmeta)")
-    parser_sign.add_argument("--remove_footer", help="Remove footers of selected images before signing.", action="store_true")
-    parser_sign.add_argument("--remove_vbmeta", help="Remove vbmeta images before signing.", action="store_true")
+def check_work_directory_correctness():
+    try:
+        # print("Checking directory correctness.")
+        current_file = os.path.abspath(__file__)
+        current_dir = os.path.dirname(current_file)
+        os.chdir(current_dir)
+        # print("Current work directory: " + os.getcwd())
+    except Exception as e:
+        cLog.fatal("Exception happened when handling working directory:" + str(e))
+        exit(1)
 
-    # read command
-    parser_read = subparsers.add_parser("read", help="Read vbmeta info of given images")
-    parser_read.add_argument("--images", nargs="+", help="List of partition names")
-
-    # save command
-    parser_save = subparsers.add_parser("save", help="Save current config to persistent storage")
-    parser_save.add_argument("--name", required=True, help="Name to assign to the saved config")
-
-    # set_active command
-    parser_set_active = subparsers.add_parser("set_active", help="Set a config as active")
-    parser_set_active.add_argument("--name", required=True, help="Name of the config to activate")
-
-    # import command
-    parser_import = subparsers.add_parser("import", help="Import config from zip archive")
-    parser_import.add_argument("--file", required=True, help="Path to the zip archive")
-
-    # export command
-    parser_export = subparsers.add_parser("export", help="Export config to zip archive")
-    parser_export.add_argument("--config", required=True, help="Name of single config to export")
-
-    # about command
-    subparsers.add_parser("about", help="Show about message")
-
-    return parser
-
-try:
-    if __name__ == "__main__":
-        if is_wsl()[1] and os.getcwd().startswith("/mnt"):
-            print("NEVER RUN THIS PROGRAM IN WSL WITH SCRIPTS STORED IN NTFS WORLD")
-            print("MAY RESULT IN PERMISSION DENIAL OF NUMEROUS FILES")
-            print("COPY THIS FOLDER TO LINUX WORLD AND TRY AGAIN")
-            exit(1)
-        try:
-            # print("Checking directory correctness.")
-            current_file = os.path.abspath(__file__)
-            current_dir = os.path.dirname(current_file)
-            os.chdir(current_dir)
-            # print("Current work directory: " + os.getcwd())
-        except Exception as e:
-            cLog.fatal("Exception happened when handling working directory:" + str(e))
-            exit(1)
-        missing_libs = EnvironmentChecker.EnvironmentChecker.check_libs()[1]
-        if missing_libs:
-            missing_libs_string = ""
-            for i in missing_libs:
-                missing_libs_string += i + " "
-            print("Missing lib(s):", missing_libs_string)
+def check_libraries(should_install = True):
+    missing_libs = EnvironmentChecker.EnvironmentChecker.check_libs()[1]
+    if missing_libs:
+        missing_libs_string = ""
+        for i in missing_libs:
+            missing_libs_string += i + " "
+        print("Missing lib(s):", missing_libs_string)
+        if should_install:
             print("Installing dependencies automatically.")
             try:
                 import subprocess
@@ -217,57 +77,65 @@ try:
             except Exception as e:
                 print("Unhandled exception:", e)
                 exit(1)
-        try:
-            main_logger = LogUtils.LogUtils(should_attach_time=True)
-            main_logger.set_log_level("T")
-            if os.path.join(os.getcwd(), "Core", "Frontend") not in sys.path:
-                # print("Adding frontend dir to system path.")
-                main_logger.log("I", "Adding frontend dir to system path.", TAG)
-                sys.path.insert(0, os.path.join(os.getcwd(), "Core", "Frontend"))
-            # print("Current work directory: " + os.getcwd())
-            main_logger.log("I", "Current working directory: " + os.getcwd(), TAG)
-            pythonHeader = EnvironmentChecker.EnvironmentChecker.detect_python_command()
-            # print("Python command header: " + str(pythonHeader))
-            main_logger.log("I", "Python command: " + str(pythonHeader), TAG)
-            # print("Platform: " + os.name)
-            main_logger.log("I", "OS name: " + os.name, TAG)
-        except Exception as e:
-            cLog.fatal("Exception happened during early init: " + str(e))
-            exit(1)
-        try:
-            EnvironmentChecker.EnvironmentChecker.check_necessary_folders(main_logger)
-            # print("Folder check passed.")
-            main_logger.log("I", "Folder check passed.", TAG)
-        except Exception as e:
-            cLog.fatal("Exception happened when checking necessary folders: " + str(e))
-            main_logger.log("F", "Exception happened when checking necessary folders: " + str(e), TAG)
-            exit(1)
-
-        # Parse command line arguments
-        parser = setup_argparse()
-        args = parser.parse_args()
-
-        if args.command is None:
-            # No command: run UI
-            run_ui(main_logger)
         else:
-            # Dispatch to appropriate handler
-            if args.command == "sign":
-                handle_sign(args, main_logger)
-            elif args.command == "read":
-                handle_read(args, main_logger)
-            elif args.command == "save":
-                handle_save(args, main_logger)
-            elif args.command == "set_active":
-                handle_set_active(args, main_logger)
-            elif args.command == "import":
-                handle_import(args, main_logger)
-            elif args.command == "export":
-                handle_export(args, main_logger)
-            elif args.command == "about":
-                handle_about()
-            else:
-                main_logger.log("E", f"Unknown command: {args.command}", TAG_CLI)
-                sys.exit(1)
+            print("Run pip install " + missing_libs_string)
+            exit(1)
+
+def check_necessary_folders():
+    logger = LogUtils.LogUtils()
+    try:
+        EnvironmentChecker.EnvironmentChecker.check_necessary_folders(logger)
+        # print("Folder check passed.")
+        logger.log("I", "Folder check passed.", TAG)
+    except Exception as e:
+        cLog.fatal("Exception happened when checking necessary folders: " + str(e))
+        logger.log("F", "Exception happened when checking necessary folders: " + str(e), TAG)
+        exit(1)
+
+def add_frontend_dir_to_path():
+    logger = LogUtils.LogUtils()
+    try:
+        if os.path.join(os.getcwd(), "Core", "Frontend") not in sys.path:
+            # print("Adding frontend dir to system path.")
+            logger.log("I", "Adding frontend dir to system path.", TAG)
+            sys.path.insert(0, os.path.join(os.getcwd(), "Core", "Frontend"))
+    except Exception as e:
+        cLog.fatal("Exception happened when processing frontend folder: " + str(e))
+        logger.log("F", "Exception happened when processing frontend folder: " + str(e), TAG)
+        exit(1)
+
+def log_system_info():
+    logger = LogUtils.LogUtils()
+    # print("Current work directory: " + os.getcwd())
+    logger.log("I", "Current working directory: " + os.getcwd(), TAG)
+    python_header = EnvironmentChecker.EnvironmentChecker.detect_python_command()
+    # print("Python command header: " + str(pythonHeader))
+    logger.log("I", "Python command: " + str(python_header), TAG)
+    # print("Platform: " + os.name)
+    logger.log("I", "OS name: " + os.name, TAG)
+
+def main():
+    # Initialization
+    check_wsl()
+    initialize_logger()
+    check_work_directory_correctness()
+    check_libraries()
+    add_frontend_dir_to_path()
+    check_necessary_folders()
+
+    # Parse command line arguments
+    parser = CLIHandler.setup_argparse()
+    args = parser.parse_args()
+    retval = CLIHandler.parse_tool_args(args)
+    if retval == 0:
+        exit(0)
+    elif retval == 1:
+        run_ui()
+    elif retval == 2:
+        exit(1)
+
+try:
+    if __name__ == "__main__":
+        main()
 except KeyboardInterrupt:
     print("\nCtrl + C is pressed, exiting.")
