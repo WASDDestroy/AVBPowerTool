@@ -24,7 +24,7 @@ class ImportConfigUI(BaseUI.BaseUI):
                 file_can_be_selected.append(i)
         my_file_selector = EnhancedFileSelectorUI("Select a Config Archive to Import", file_can_be_selected, True)
         import_files = my_file_selector.show()
-        self.my_logger.log("I", "Import files: %s" % str(import_files), self.TAG)
+        self._my_logger.log("I", "Import files: %s" % str(import_files), self.TAG)
         if len(import_files) == 0:
             self.my_ui_utils.message_on_cancel("No option selected, cancelling.")
             self.my_ui_utils.press_enter_to_continue()
@@ -32,14 +32,14 @@ class ImportConfigUI(BaseUI.BaseUI):
         for file_name in import_files:
             archive_type = self.myConfigManager.check_config_type(
                 file_name=file_name)
-            self.my_logger.log("I", "Archive type is %s" % archive_type, self.TAG)
+            self._my_logger.log("I", "Archive type is %s" % archive_type, self.TAG)
             if archive_type == "SINGLE":
                 try:
                     self.myConfigManager.import_single_config(
                         import_from_file_name=file_name)
                     print("Successfully imported single config archive %s." % file_name)
                 except Exception as e:
-                    self.my_logger.log("W", e, self.TAG)
+                    self._my_logger.log("W", e, self.TAG)
                     print("Import failed!")
                     self.my_ui_utils.press_enter_to_continue()
             elif archive_type == "BATCH":
@@ -48,7 +48,7 @@ class ImportConfigUI(BaseUI.BaseUI):
                         import_from_file_name=file_name)
                     print("Successfully imported config.")
                 except Exception as e:
-                    self.my_logger.log("W", e, self.TAG)
+                    self._my_logger.log("W", e, self.TAG)
                     print("Import failed!")
                     self.my_ui_utils.press_enter_to_continue()
             else:

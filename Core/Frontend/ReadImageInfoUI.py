@@ -33,14 +33,14 @@ class ReadImageInfoUI(BaseUI.BaseUI):
             images_to_read = my_selector.show()
             if images_to_read:
                 print("Reading selected images.")
-                self.my_logger.log("I", "Read selected image(s).", self.TAG)
+                self._my_logger.log("I", "Read selected image(s).", self.TAG)
                 for i in range(len(images_to_read)):
                     if images_to_read[i].endswith(".img"):
                         images_to_read[i] = images_to_read[i][:-4]
                 self.my_image_info_utils.read_image_info_batch(images_to_read)
                 print("Successfully read info of selected images.")
             else:
-                self.my_logger.log("I", "No image selected.", self.TAG)
+                self._my_logger.log("I", "No image selected.", self.TAG)
                 print("No image selected! Tip: Use space to select file in multi-select mode and Enter to confirm your choice.")
         else:
             self.my_ui_utils.message_on_cancel()

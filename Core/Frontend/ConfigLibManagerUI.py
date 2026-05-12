@@ -14,7 +14,7 @@ class ConfigLibManagerUI(BaseUI.BaseUI):
                                 "A" : "Activate",}
 
     def call_backend(self, function_name: str):
-        self.my_logger.log("I", function_name + ", directly invoke selector.")
+        self._my_logger.log("I", function_name + ", directly invoke selector.")
         config_list = self.my_config_manager.get_all_configs()
         my_selector = EnhancedFileSelectorUI("Select a config", config_list, False)
         selected_config_list = my_selector.show()

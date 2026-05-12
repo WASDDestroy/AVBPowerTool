@@ -14,7 +14,7 @@ class ExportConfigUI(BaseUI.BaseUI):
             "E": "Export selected config(s)",
         }
         # noinspection PyAttributeOutsideInit
-        self.myConfigManager = self.my_importer.create_instance(self.my_importer.import_module("ConfigManager"),
+        self.myConfigManager = self._my_importer.create_instance(self._my_importer.import_module("ConfigManager"),
                                                                 "ConfigManager")
 
     def call_backend(self, function_name: str):
@@ -69,7 +69,7 @@ class ExportConfigUI(BaseUI.BaseUI):
                                                                   selected_configs=config_list)
             return result
         except FileNotFoundError:
-            self.my_logger.log("W",
+            self._my_logger.log("W",
                                "Config folder not found! Check system settings because config is already guaranteed exist in previous steps.",
-                               self.TAG)
+                                self.TAG)
             return False

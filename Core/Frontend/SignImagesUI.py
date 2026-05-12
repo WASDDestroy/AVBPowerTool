@@ -37,7 +37,7 @@ class SignImagesUI(BaseUI.BaseUI):
                 self.my_ui_utils.message_on_cancel("Failed to fetch information about selected images! Cancelling.")
                 return
             set_json = set(image_in_json)
-            self.my_logger.log("I", "Image configured in JSON file: " + str(set_json), self.TAG)
+            self._my_logger.log("I", "Image configured in JSON file: " + str(set_json), self.TAG)
 
             # Get image in work dir
             image_in_work_dir = []
@@ -45,7 +45,7 @@ class SignImagesUI(BaseUI.BaseUI):
                 if image.endswith(".img"):
                     image_in_work_dir.append(image[:-4])
             set_work_dir = set(image_in_work_dir)
-            self.my_logger.log("I", "Images in work directory: " + str(set_work_dir), self.TAG)
+            self._my_logger.log("I", "Images in work directory: " + str(set_work_dir), self.TAG)
 
             # Construct set of available images
             # Force to add vbmeta images to handle "other signing processes are successful, but vbmeta generation failed, and they are already removed by method for signing"
@@ -53,13 +53,13 @@ class SignImagesUI(BaseUI.BaseUI):
             for image_name in set_json:
                 if "vbmeta" in image_name:
                     set_available.add(image_name)
-            self.my_logger.log("I", "Available images: " + str(set_available), self.TAG)
+            self._my_logger.log("I", "Available images: " + str(set_available), self.TAG)
 
             # Initialize selector and show it
             my_selector = UIUtils.EnhancedFileSelectorUI("Select image file(s) to sign", list(set_available), True,
                                                          True, True)
             images_to_sign = my_selector.show(allow_long_item=True)
-            self.my_logger.log("I", "Sign selected images: " + str(images_to_sign), self.TAG)
+            self._my_logger.log("I", "Sign selected images: " + str(images_to_sign), self.TAG)
 
             if len(images_to_sign) == 0:
                 self.my_ui_utils.message_on_cancel("No option selected, cancelling.")

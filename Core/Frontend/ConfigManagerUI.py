@@ -8,7 +8,7 @@ class ConfigManagerUI(BaseUI.BaseUI):
     def customized_init(self):
         self.TAG = "ConfigManagerUI"
         # noinspection PyAttributeOutsideInit
-        self.configManagerModule = self.my_importer.import_module(
+        self.configManagerModule = self._my_importer.import_module(
             "ConfigManager.py")
         # noinspection PyAttributeOutsideInit
         self.customized_function = {"S": "Activate a config",
@@ -19,7 +19,7 @@ class ConfigManagerUI(BaseUI.BaseUI):
         function_name_tuple = ("Activate a config",
                              "Save config to persistent storage",
                                "Help")
-        self.myConfigManager = self.my_importer.create_instance(self.configManagerModule, "ConfigManager")
+        self.myConfigManager = self._my_importer.create_instance(self.configManagerModule, "ConfigManager")
         if function_name == function_name_tuple[0]:
             config_names = self.myConfigManager.get_all_configs()
             my_selector = EnhancedFileSelectorUI("Select a Config to Activate", config_names, False)
