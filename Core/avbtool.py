@@ -55,7 +55,7 @@ AVB_INVOCATION_LOGFILE = os.environ.get('AVB_INVOCATION_LOGFILE')
 # Configuration for OpenSSL executable path
 # Default to local openssl if it exists, otherwise use system openssl
 _script_dir = os.path.dirname(os.path.abspath(__file__))
-_local_openssl = os.path.join(_script_dir, 'openssl', 'openssl.exe')
+_local_openssl = os.path.join(_script_dir, "..", "bin", 'openssl', 'openssl.exe')
 OPENSSL_EXECUTABLE = _local_openssl if os.path.exists(_local_openssl) else 'openssl'
 
 def _get_openssl_env():
