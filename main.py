@@ -8,10 +8,12 @@ import Core.CLIHandler as CLIHandler
 import Core.EnvironmentChecker as EnvironmentChecker
 import Core.Frontend.HomePageUI as HomePageUI
 import Core.LogUtils as LogUtils
+import Core.GlobalConfigUtils as GlobalConfigUtils
 from Core.LogUtils import ConsoleLog as cLog
 
 TAG_CLI = "CLI"
 TAG = "Main"
+CONFIG_PATH = os.path.join(os.getcwd(), "GlobalConfig.cfg")
 
 def print_logo():
     try:
@@ -114,10 +116,16 @@ def log_system_info():
     # print("Platform: " + os.name)
     logger.log("I", "OS name: " + os.name, TAG)
 
+def load_global_config(path_to_config_file):
+    global_config_utils = GlobalConfigUtils.GlobalConfigUtils()
+    global_config_info = GlobalConfigUtils.GlobalConfigInfo()
+    global_config_info.set_values_by_dict(global_config_utils.parse_key_value_file(path_to_config_file))
+
 def main():
     # Initialization
     check_wsl()
     initialize_logger()
+    load_global_config(CONFIG_PATH)
     check_work_directory_correctness()
     check_libraries()
     add_frontend_dir_to_path()
