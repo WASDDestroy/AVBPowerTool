@@ -19,7 +19,7 @@ This tool is designed to make using avbtool.py easier by providing automatic com
 
 ## Quick Start
 
-Install Python 3.9 or above and run these commands below:
+Install Python 3.9+ and OpenSSL, then execute:
 
 For interactive mode:
 ```shell
@@ -77,7 +77,7 @@ python3 main.py sign --images init_boot vbmeta # Sign init_boot and vbmeta, LKM 
 - [x] CLI mode support
 - [x] Allow using arrow keys to navigate options instead of entering choice
 - [x] Check whether current images have satisfied requirements of making vbmeta images
-- [ ] Add localization support
+- [ ] ~~Add localization support~~
 - [x] Transplant FEC to Windows ~~We use Python implements to achieve this goal~~
 - [ ] Code quality improvements ~~Never ends, this project is actually my exercise of OOP programming, leading to a lot of unwise choices and tons of refactor have to be made.~~
 - [ ] Save config name and other config metadata to config_info.cfg in config folder for management(?)
