@@ -14,6 +14,8 @@ When using batch export, it will create a "super" zip that contains small zip pa
 import os, zipfile, time, shutil
 import Core.LogUtils as LogUtils
 import Core.KeyDirUtils as KeyDirUtils
+from Core.GlobalConfigUtils import GlobalConfigUtils
+from Core.GlobalConfigUtils import ConfigInfo
 
 class ConfigManager:
 
@@ -67,6 +69,14 @@ class ConfigManager:
     def save_as_persistent_config(self, config_name) -> bool:
         if not self.__is_config_available(config_name):
             config_name = self.get_new_config_name(config_name)
+        if not os.path.exists(os.path.join(os.getcwd(), "Core", "currentConfigs", "config_info.cfg")):
+            f = open(os.path.join(os.getcwd(), "Core", "currentConfigs", "config_info.cfg"), "w+")
+            f.close()
+        config_info = ConfigInfo()
+        config_info.set_values_by_dict(GlobalConfigUtils.parse_key_value_file(os.path.join(os.getcwd(), "Core", "currentConfigs", "config_info.cfg")))
+        config_info.set_value("name", config_name)
+        my_config_utils = GlobalConfigUtils()
+        my_config_utils.save_config_to_file(os.path.join(os.getcwd(), "Core", "currentConfigs", "config_info.cfg"), config_info.get_dict())
         try:
             self.my_logger.log("I", "Creating config directory in Configs dir.", self.TAG)
             os.mkdir(os.path.join(os.getcwd(), "Configs", config_name))
