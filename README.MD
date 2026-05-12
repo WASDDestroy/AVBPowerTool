@@ -65,7 +65,7 @@ python3 main.py sign --images init_boot vbmeta # Sign init_boot and vbmeta, LKM 
 
 *High Priority*
 
-- [ ] Set up FEC binaries automatically with boxed fec for armv8 and x86-64 Linux when they are unavailable.
+- [ ] ~~Set up FEC binaries automatically with boxed fec for armv8 and x86-64 Linux when they are unavailable.~~ *Python FEC is already good enough at this time*
 - [x] Extract unnecessary logics from main.py, such as CLI mode execution
 - [ ] More robust exception handler for CLI mode
 
