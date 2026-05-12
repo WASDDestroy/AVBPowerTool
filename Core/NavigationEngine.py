@@ -14,7 +14,7 @@ class NavigationEngine:
                     cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self) -> None:
+    def __init__(self, navigation_map_dir = "") -> None:
         if NavigationEngine._initialized:
             return
         with NavigationEngine._lock:
@@ -30,7 +30,7 @@ class NavigationEngine:
         self.ROOT_NODE = "main_navigation.json"
         self.TAG = "NavigationEngine"
         self.myLogger.log("I", "Navigation engine started.", self.TAG)
-        self.navigatorDir = os.path.join(os.getcwd(), "Core", "Navigator")
+        self.navigatorDir = navigation_map_dir or os.path.join(os.getcwd(), "Core", "../Navigator")
         self.myLogger.log("I", "Navigation map root dir: " + self.navigatorDir, self.TAG)
         self.currentFileDir = os.path.join(self.navigatorDir, self.ROOT_NODE)
         self.currentFileName = os.path.basename(self.currentFileDir)
@@ -209,14 +209,14 @@ class NavigationMapGenerator:
         self.myLogger = LogUtils.LogUtils()
         self.myNavigationEngine = NavigationEngine()
         self.TAG = "NavigationMapGenerator"
-        self.currentFileName = os.path.join(os.getcwd(), "Core", "Navigator", "main_navigation.json")
+        self.currentFileName = os.path.join(os.getcwd(), "Core", "../Navigator", "main_navigation.json")
         with open(self.currentFileName, "r", encoding="UTF-8") as myFile:
             self.currentDic: dict = json.load(myFile)
         self.get_map_props()
 
     @staticmethod
     def list_file(file_dir=""):
-        path_to_maps = file_dir or os.path.join(os.getcwd(), "Core", "Navigator")
+        path_to_maps = file_dir or os.path.join(os.getcwd(), "Core", "../Navigator")
         return os.listdir(path_to_maps)
 
     def switch_file(self):
@@ -228,7 +228,7 @@ class NavigationMapGenerator:
         my_selection = int(input("Type -1 to create a new map file."))
         if my_selection == -1:
             map_name = input("Enter new map name: ")
-            self.currentFileName = os.path.join(os.getcwd(), "Core", "Navigator", map_name)
+            self.currentFileName = os.path.join(os.getcwd(), "Core", "../Navigator", map_name)
             with open(self.currentFileName, "w+", encoding="UTF-8") as myFile:
                 json.dump({}, myFile)
             self.currentDic = {}
@@ -240,7 +240,7 @@ class NavigationMapGenerator:
                 time.sleep(1)
                 map_name = tmp_list[-1]
             try:
-                self.currentFileName = os.path.join(os.getcwd(), "Core", "Navigator", map_name)
+                self.currentFileName = os.path.join(os.getcwd(), "Core", "../Navigator", map_name)
                 with open(self.currentFileName, "r", encoding="UTF-8") as myFile:
                     self.currentDic = json.load(myFile)
             except FileNotFoundError:
