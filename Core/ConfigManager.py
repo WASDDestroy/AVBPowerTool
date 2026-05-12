@@ -262,7 +262,7 @@ class ConfigManager:
                 else:
                     file_name_list.append(i.filename)
             if import_from_file_name.endswith(".zip"):
-                config_name = import_from_file_name[:-5]
+                config_name = import_from_file_name[:-4]
             rename_before_import = rename_before_import or not self.__is_config_available(config_name)
             if rename_before_import:
                 config_name = self.get_new_config_name(config_name)
