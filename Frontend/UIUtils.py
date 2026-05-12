@@ -5,6 +5,7 @@ import threading
 from typing import List, Set, Optional
 
 import Core.LogUtils as LogUtils
+import Core.EnvironmentChecker as EnvironmentChecker
 
 
 class UIUtils:
@@ -32,16 +33,9 @@ class UIUtils:
 
     def clear_screen(self):
 
-        def is_in_ide():
-            if os.getenv('PYCHARM_HOSTED') == '1':
-                return True
-            if os.getenv('VSCODE_PID') is not None:
-                return True
-            return False
-
         try:
             result = subprocess.run(["cls"], shell=True) if os.name == "nt" else subprocess.run(["clear"], shell=True)
-            if result.returncode != 0 or is_in_ide():
+            if result.returncode != 0 or EnvironmentChecker.EnvironmentChecker.is_in_ide():
                 self.my_logger.log("W", "Unable to run command %s on platform %s, try alternate method to clear screen." % ("cls" if os.name == "nt" else "clear", os.name), self.TAG)
                 supports_ansi = sys.stdout.isatty() and not (os.name == 'nt' and not os.getenv('ANSICON'))
                 self.my_logger.log("D", "ANSI sequence support: %d" % supports_ansi, self.TAG)

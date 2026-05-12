@@ -120,6 +120,14 @@ class EnvironmentChecker:
             return False, lack_libs
         else:
             return True, []
+
+    @staticmethod
+    def is_in_ide():
+        if os.getenv('PYCHARM_HOSTED') == '1':
+            return True
+        if os.getenv('VSCODE_PID') is not None:
+            return True
+        return False
                  
 
 
