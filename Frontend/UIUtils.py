@@ -6,6 +6,7 @@ from typing import List, Set, Optional
 
 import Core.LogUtils as LogUtils
 import Core.EnvironmentChecker as EnvironmentChecker
+import Core.GlobalConfigUtils as GlobalConfigUtils
 
 
 class UIUtils:
@@ -29,10 +30,13 @@ class UIUtils:
         self.my_logger = LogUtils.LogUtils()
         self.my_logger.log(
             "I", "Successfully created UIUtils instance.", self.TAG)
+        __global_config = GlobalConfigUtils.GlobalConfigInfo()
+        self.__should_clear_screen = int(__global_config.get_value("allow_clear_screen"))
         UIUtils._initialized = True
 
     def clear_screen(self):
-
+        if not self.__should_clear_screen:
+            return
         try:
             result = subprocess.run(["cls"], shell=True) if os.name == "nt" else subprocess.run(["clear"], shell=True)
             if result.returncode != 0 or EnvironmentChecker.EnvironmentChecker.is_in_ide():
