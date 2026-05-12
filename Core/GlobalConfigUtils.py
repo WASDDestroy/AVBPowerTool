@@ -113,3 +113,38 @@ class GlobalConfigInfo:
     def set_values_by_dict(self, dictionary):
         for key in dictionary:
             self.set_value(key, dictionary[key])
+
+class ConfigInfo:
+
+    def __init__(self):
+        self.__my_config_utils = GlobalConfigUtils()
+        self.__config_dict = {}
+
+    def clear_values(self):
+        self.__config_dict = {}
+
+    def get_value(self, key):
+        return self.__config_dict.get(key, None)
+
+    def get_keys(self):
+        return self.__config_dict.keys()
+
+    def get_values(self, keys):
+        value_list = []
+        for key in keys:
+            value_list.append(self.get_value(key))
+        return value_list
+
+    def set_value(self, key, value): # This method only affects the config copy in memory, to permanently modify the config, edit the config file.
+        self.__config_dict[key] = value
+
+    def set_values(self, keys, value_list):
+        for key in keys:
+            self.set_value(key, value_list[key])
+
+    def set_values_by_dict(self, dictionary):
+        for key in dictionary:
+            self.set_value(key, dictionary[key])
+
+    def get_dict(self):
+        return self.__config_dict
