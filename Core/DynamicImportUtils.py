@@ -12,7 +12,7 @@ class DynamicImportUtils:
         self.__frontend_dir = __global_config_info.get_value("frontend_dir")
 
     def import_front_end_module(self, module_name : str) -> object:
-        return self.import_module(module_name, os.path.join(os.getcwd(), "Core", "Frontend"))
+        return self.import_module(module_name, self.__frontend_dir)
     
     def import_module(self, module_name : str, module_dir = None):
         if module_dir is None:
