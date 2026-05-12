@@ -1,5 +1,6 @@
 import os, sys
 import Core.LogUtils as LogUtils
+import Core.GlobalConfigUtils as GlobalConfigUtils
 import importlib.util
 
 class DynamicImportUtils:
@@ -7,6 +8,8 @@ class DynamicImportUtils:
     def __init__(self) -> None:
         self.TAG = "DynamicImportUtils"
         self.my_logger = LogUtils.LogUtils()
+        __global_config_info = GlobalConfigUtils.GlobalConfigInfo()
+        self.__frontend_dir = __global_config_info.get_value("frontend_dir")
 
     def import_front_end_module(self, module_name : str) -> object:
         return self.import_module(module_name, os.path.join(os.getcwd(), "Core", "Frontend"))
