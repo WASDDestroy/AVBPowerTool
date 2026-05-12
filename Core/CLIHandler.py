@@ -1,8 +1,8 @@
 import argparse
 import os
 
-from LogUtils import ConsoleLog as cLog
-from LogUtils import LogUtils
+from Core.LogUtils import ConsoleLog as cLog
+from Core.LogUtils import LogUtils
 
 TAG_CLI = "CLI"
 
