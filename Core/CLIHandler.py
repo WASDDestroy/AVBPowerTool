@@ -1,6 +1,7 @@
 import argparse
 import os
 
+from Core.ConfigManager import ConfigManager
 from Core.GlobalConfigUtils import GlobalConfigInfo
 from Core.LogUtils import ConsoleLog as cLog
 from Core.LogUtils import LogUtils
@@ -109,6 +110,13 @@ def handle_about():
     global_config = GlobalConfigInfo()
     print("AVBPowerTool Version " + global_config.get_value("tool_version"))
 
+def handle_get_all_configs():
+    configs = ConfigManager.get_all_configs()
+    config_string = ""
+    for config in configs:
+        config_string += config + " "
+    print(config_string)
+
 def setup_argparse():
     parser = argparse.ArgumentParser(prog="AVBPowerTool", description="Image signing and configuration tool")
     subparsers = parser.add_subparsers(dest="command", help="Available commands", required=False)
@@ -128,7 +136,7 @@ def setup_argparse():
     parser_save.add_argument("--name", required=True, help="Name to assign to the saved config")
 
     # set_active command
-    parser_set_active = subparsers.add_parser("set_active", help="Set a config as active")
+    parser_set_active = subparsers.add_parser("activate", help="Set a config as active")
     parser_set_active.add_argument("--name", required=True, help="Name of the config to activate")
 
     # import command
@@ -138,6 +146,9 @@ def setup_argparse():
     # export command
     parser_export = subparsers.add_parser("export", help="Export config to zip archive")
     parser_export.add_argument("--config", required=True, help="Name of single config to export")
+
+    # get_all_configs_command
+    subparsers.add_parser("get_all_config", help="Get names of all configs")
 
     # about command
     subparsers.add_parser("about", help="Show about message")
@@ -158,7 +169,7 @@ def parse_tool_args(args):
             handle_read(args, logger)
         elif args.command == "save":
             handle_save(args, logger)
-        elif args.command == "set_active":
+        elif args.command == "activate":
             handle_set_active(args, logger)
         elif args.command == "import":
             handle_import(args, logger)
@@ -166,6 +177,8 @@ def parse_tool_args(args):
             handle_export(args, logger)
         elif args.command == "about":
             handle_about()
+        elif args.command == "get_all_config":
+            handle_get_all_configs()
         else:
             logger.log("E", f"Unknown command: {args.command}", TAG_CLI)
             return 2
