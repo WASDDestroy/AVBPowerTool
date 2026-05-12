@@ -65,9 +65,9 @@ python3 main.py sign --images init_boot vbmeta # Sign init_boot and vbmeta, LKM 
 
 *High Priority*
 
-- [ ] ~~Set up FEC binaries automatically with boxed fec for armv8 and x86-64 Linux when they are unavailable.~~ *Python FEC is already good enough at this time*
 - [x] Extract unnecessary logics from main.py, such as CLI mode execution
-- [ ] More robust exception handler for CLI mode
+- [x] More robust exception handler for CLI mode
+- [ ] ~~Set up FEC binaries automatically with boxed fec for armv8 and x86-64 Linux when they are unavailable.~~ *Python FEC is already good enough at this time*
 
 *Normal Priority*
 
@@ -77,10 +77,10 @@ python3 main.py sign --images init_boot vbmeta # Sign init_boot and vbmeta, LKM 
 - [x] CLI mode support
 - [x] Allow using arrow keys to navigate options instead of entering choice
 - [x] Check whether current images have satisfied requirements of making vbmeta images
-- [ ] ~~Add localization support~~
 - [x] Transplant FEC to Windows ~~We use Python implements to achieve this goal~~
+- [x] Save config name and other config metadata to config_info.cfg in config folder for management(?)
+- [ ] ~~Add localization support~~
 - [ ] Code quality improvements ~~Never ends, this project is actually my exercise of OOP programming, leading to a lot of unwise choices and tons of refactor have to be made.~~
-- [ ] Save config name and other config metadata to config_info.cfg in config folder for management(?)
 
 *Low Priority (Maybe goals for AVBPowerTool 2.0)*
 
