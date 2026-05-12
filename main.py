@@ -42,8 +42,11 @@ def run_ui():
         main_ui_instance.entry()
 
 def initialize_logger():
-    logger = LogUtils.LogUtils(should_attach_time=True)
-    logger.set_log_level("T")
+    global_config_info = GlobalConfigUtils.GlobalConfigInfo()
+    logger = LogUtils.LogUtils(should_attach_time=int(global_config_info.get_value("log_attach_time")),
+                               flush_threshold=int(global_config_info.get_value("log_flush_threshold")),
+                               log_dir=global_config_info.get_value("log_destination"))
+    logger.set_log_level(global_config_info.get_value("log_level"))
 
 def check_wsl():
     if EnvironmentChecker.EnvironmentChecker.is_wsl()[1] and os.getcwd().startswith("/mnt"):
@@ -118,16 +121,14 @@ def log_system_info():
     # print("Platform: " + os.name)
     logger.log("I", "OS name: " + os.name, TAG)
 
-def load_global_config(path_to_config_file):
-    global_config_utils = GlobalConfigUtils.GlobalConfigUtils()
-    global_config_info = GlobalConfigUtils.GlobalConfigInfo()
-    global_config_info.set_values_by_dict(global_config_utils.parse_key_value_file(path_to_config_file))
-
 def main():
     # Initialization
-    check_wsl()
+    global_config_utils = GlobalConfigUtils.GlobalConfigUtils()
+    global_config_info = GlobalConfigUtils.GlobalConfigInfo()
+    global_config_info.set_values_by_dict(global_config_utils.parse_key_value_file(CONFIG_PATH))
+    if int(global_config_info.get_value("check_wsl")):
+        check_wsl()
     initialize_logger()
-    load_global_config(CONFIG_PATH)
     check_work_directory_correctness()
     check_libraries()
     add_frontend_dir_to_path()

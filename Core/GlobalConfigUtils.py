@@ -2,15 +2,16 @@
 # -*- coding: utf-8 -*-
 import threading
 
-import Core.LogUtils as LogUtils
+from Core.LogUtils import ConsoleLog as cLog
 
 
 class GlobalConfigUtils:
     TAG = "GlobalConfigUtils"
     def __init__(self):
-        self.my_logger = LogUtils.LogUtils()
+        pass
 
-    def parse_key_value_file(self, path_to_file):
+    @staticmethod
+    def parse_key_value_file(path_to_file):
         """
         Parse key-value pairs from a file, returns a dict.
         """
@@ -48,7 +49,7 @@ class GlobalConfigUtils:
                     )
                 value = value_part[1:-1]
                 if key in result:
-                    self.my_logger.log("W", f"Line {line_num}, duplicated key '{key}' ! Overriding old value.", self.TAG)
+                    cLog.warn(f"Line {line_num}, duplicated key '{key}' ! Overriding old value.")
 
                 result[key] = value
 
