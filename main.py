@@ -6,7 +6,7 @@ import time
 
 import Core.CLIHandler as CLIHandler
 import Core.EnvironmentChecker as EnvironmentChecker
-import Core.Frontend.HomePageUI as HomePageUI
+import Frontend.HomePageUI as HomePageUI
 import Core.LogUtils as LogUtils
 import Core.GlobalConfigUtils as GlobalConfigUtils
 from Core.LogUtils import ConsoleLog as cLog
@@ -19,7 +19,9 @@ def print_logo():
     try:
         for i in range(5):
             print("")
-        with open(os.path.join(os.getcwd(), "Core", "Frontend", "text_logo.txt"), "r") as f:
+        global_config_info = GlobalConfigUtils.GlobalConfigInfo()
+        logo_path = global_config_info.get_value("logo_path")
+        with open(logo_path, "r") as f:
             logo_lines = f.readlines()
             for i in logo_lines:
                 print(i, end="")
