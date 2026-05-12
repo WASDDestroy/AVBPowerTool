@@ -72,7 +72,7 @@ class LogUtils:
                                         "log_" + time.strftime("%Y%m%d_%H%M%S", time.localtime()) + ".log")
                 self.logFile = open(file_name, "w+", encoding = "UTF-8")
                 self.isLogToFile = True
-                print(f"Log file created at: {file_name}")
+                # print(f"Log file created at: {file_name}")
             except PermissionError:
                 print(f"Warning: Cannot create log directory at {log_dir}, falling back to console output")
                 self.isLogToFile = False
