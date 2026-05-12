@@ -66,7 +66,7 @@ python3 main.py sign --images init_boot vbmeta # Sign init_boot and vbmeta, LKM 
 *High Priority*
 
 - [ ] Set up FEC binaries automatically with boxed fec for armv8 and x86-64 Linux when they are unavailable.
-- [ ] Extract unnecessary logics from main.py, such as CLI mode execution
+- [x] Extract unnecessary logics from main.py, such as CLI mode execution
 - [ ] More robust exception handler for CLI mode
 
 *Normal Priority*
@@ -87,4 +87,4 @@ python3 main.py sign --images init_boot vbmeta # Sign init_boot and vbmeta, LKM 
 - [ ] An integrated interactive editor to edit image info JSON easier
 - [ ] Compare differences between configs, update config *smartly* to adapt to new versions of ROMs without manual analysis, which would be friendlier to green hands
 - [ ] Tutorial document for interactive mode, current navigation map config is not good enough in clearness, esp. in config management
-- [ ] Use global program config to configure program behavior, such as log level, log destination, should clear screen, etc.
+- [x] Use global program config to configure program behavior, such as log level, log destination, should clear screen, etc.
