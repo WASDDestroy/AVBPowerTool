@@ -11,7 +11,7 @@ import Core.GlobalConfigUtils as GlobalConfigUtils
 from Core.LogUtils import ConsoleLog as cLog
 
 TAG = "Main"
-CONFIG_PATH = os.path.join(os.getcwd(), "GlobalConfig.cfg")
+CONFIG_PATH = ""
 
 def print_logo():
     try:
@@ -77,7 +77,10 @@ def log_system_info():
     logger.log("I", "OS name: " + os.name, TAG)
 
 def main():
+    global CONFIG_PATH
     # Initialization
+    check_work_directory_correctness()
+    CONFIG_PATH = os.path.join(os.getcwd(), "GlobalConfig.cfg")
     global_config_utils = GlobalConfigUtils.GlobalConfigUtils()
     global_config_info = GlobalConfigUtils.GlobalConfigInfo()
     global_config_info.set_values_by_dict(global_config_utils.parse_key_value_file(CONFIG_PATH))
@@ -88,7 +91,6 @@ def main():
     initialize_logger()
 
     my_environment_setup = EnvironmentChecker.EnvironmentSetup()
-    check_work_directory_correctness()
     should_install = bool(global_config_info.get_value("install_missing_libs"))
     should_check = bool(global_config_info.get_value("check_missing_libs"))
     my_environment_setup.check_libraries(should_install, should_check)
