@@ -156,11 +156,15 @@ class EnhancedFileSelectorUI:
                 if len(display_item) > 35 and not allow_long_item:
                     display_item = display_item[:32] + "..."
 
-                prefix = ">" if i == self.current_index else " "
-                if self.multi_select:
-                    checkbox = "[x]" if i in self.selected_indices else "[ ]"
+                if i == self.current_index:
+                    prefix = "→ "
                 else:
-                    checkbox = "(*)" if i in self.selected_indices else "( )"
+                    prefix = "  "
+
+                if self.multi_select:
+                    checkbox = "[✓]" if i in self.selected_indices else "[ ]"
+                else:
+                    checkbox = "[●]" if i in self.selected_indices else "[○]"
 
                 line = f"{prefix}{checkbox} {display_item}"
                 line = line.ljust(80)
