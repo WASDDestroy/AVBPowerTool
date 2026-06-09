@@ -62,7 +62,6 @@ class SignImagesUI(BaseUI.BaseUI):
 
             if len(images_to_sign) == 0:
                 self.my_ui_utils.message_on_cancel(t("ui.no_option_selected"))
-                self.my_ui_utils.press_enter_to_continue()
                 return
 
             # Get vbmeta images
