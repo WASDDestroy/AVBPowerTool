@@ -79,12 +79,12 @@ python3 main.py sign --images init_boot vbmeta # Sign init_boot and vbmeta, LKM 
 - [x] Check whether current images have satisfied requirements of making vbmeta images
 - [x] Transplant FEC to Windows ~~We use Python implements to achieve this goal~~
 - [x] Save config name and other config metadata to config_info.cfg in config folder for management(?)
-- [ ] ~~Add localization support~~
+- [x] Add localization support ~~Yes I did it with Codex~~
 - [ ] Code quality improvements ~~Never ends, this project is actually my exercise of OOP programming, leading to a lot of unwise choices and tons of refactor have to be made.~~
 
 *Low Priority (Maybe goals for AVBPowerTool 2.0)*
 
 - [ ] An integrated interactive editor to edit image info JSON easier
 - [ ] Compare differences between configs, update config *smartly* to adapt to new versions of ROMs without manual analysis, which would be friendlier to green hands
-- [ ] Tutorial document for interactive mode, current navigation map config is not good enough in clearness, esp. in config management
+- [x] Tutorial document for interactive mode, current navigation map config is not good enough in clearness, esp. in config management
 - [x] Use global program config to configure program behavior, such as log level, log destination, should clear screen, etc.
