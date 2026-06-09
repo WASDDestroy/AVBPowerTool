@@ -12,6 +12,7 @@ class SettingsUI(BaseUI.BaseUI):
     BOOLEAN_VALUES = ("1", "0")
     LOG_LEVELS = ("T", "D", "I", "W", "E", "F", "O")
     READ_ONLY_KEYS = ("tool_version",)
+    EXCEPT_KEYS = ("tool_version", "navigation_map_dir", "frontend_dir", "logo_path", "resource_dir")
     PATH_KEYS = (
         "navigation_map_dir",
         "frontend_dir",
@@ -65,9 +66,10 @@ class SettingsUI(BaseUI.BaseUI):
         selectable_keys = list(config_dict.keys())
         selector_items = []
         for key in selectable_keys:
-            value = config_dict[key]
-            readonly = " " + t("settings.read_only_suffix") if key in self.READ_ONLY_KEYS else ""
-            selector_items.append(f"{key} = {value}{readonly}")
+            if key not in self.EXCEPT_KEYS:
+                value = config_dict[key]
+                readonly = " " + t("settings.read_only_suffix") if key in self.READ_ONLY_KEYS else ""
+                selector_items.append(f"{key} = {value}{readonly}")
 
         selector = EnhancedFileSelectorUI(t("settings.select_setting"), selector_items, False, True, True)
         selected = selector.show(allow_long_item=True)
