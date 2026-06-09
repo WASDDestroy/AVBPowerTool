@@ -11,6 +11,22 @@ class SettingsUI(BaseUI.BaseUI):
 
     BOOLEAN_VALUES = ("1", "0")
     LOG_LEVELS = ("T", "D", "I", "W", "E", "F", "O")
+    LIMITED_CHOICE_LABEL_KEYS = {
+        "language": {
+            "en": "settings.option.language.en",
+            "zh": "settings.option.language.zh",
+            "me": "settings.option.language.me",
+        },
+        "log_level": {
+            "T": "settings.option.log_level.T",
+            "D": "settings.option.log_level.D",
+            "I": "settings.option.log_level.I",
+            "W": "settings.option.log_level.W",
+            "E": "settings.option.log_level.E",
+            "F": "settings.option.log_level.F",
+            "O": "settings.option.log_level.O",
+        },
+    }
     READ_ONLY_KEYS = ("tool_version", "navigation_map_dir", "frontend_dir", "logo_path", "resource_dir")
     PATH_KEYS = (
         "navigation_map_dir",
@@ -103,20 +119,32 @@ class SettingsUI(BaseUI.BaseUI):
         if key == "log_level":
             return self.__select_from_options(
                 t("settings.select_log_level"),
-                tuple((level, level) for level in self.LOG_LEVELS),
+                self.__build_limited_choice_options(key, self.LOG_LEVELS),
                 old_value)
 
         if key == "language":
             languages = self.__get_available_languages()
             return self.__select_from_options(
                 t("settings.select_language"),
-                tuple((language, language) for language in languages),
+                self.__build_limited_choice_options(key, languages),
                 old_value)
 
         if key == "log_flush_threshold":
             return self.__input_validated_value(key, old_value, str.isdecimal)
 
         return input(t("settings.enter_value", config_key=key, old=old_value))
+
+    @classmethod
+    def __build_limited_choice_options(cls, key, values):
+        return tuple((value, cls.__get_limited_choice_label(key, value)) for value in values)
+
+    @classmethod
+    def __get_limited_choice_label(cls, key, value):
+        resource_key = cls.LIMITED_CHOICE_LABEL_KEYS.get(key, {}).get(value)
+        if not resource_key:
+            return value
+        label = t(resource_key)
+        return label if label != resource_key else value
 
     @staticmethod
     def __select_from_options(title, options, old_value):

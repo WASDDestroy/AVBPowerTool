@@ -243,6 +243,16 @@ imageList.txt 一行一个分区名称，不要带扩展名。 随后将 PEM 文
     <string name="settings.disabled">禁用</string>
     <string name="settings.select_log_level">选择日志等级</string>
     <string name="settings.select_language">选择语言</string>
+    <string name="settings.option.language.en">English</string>
+    <string name="settings.option.language.zh">简体中文</string>
+    <string name="settings.option.language.me">喵？（不要在严肃用途时启用本项，可能导致严重的误解）</string>
+    <string name="settings.option.log_level.T">跟踪</string>
+    <string name="settings.option.log_level.D">调试</string>
+    <string name="settings.option.log_level.I">信息</string>
+    <string name="settings.option.log_level.W">警告</string>
+    <string name="settings.option.log_level.E">错误</string>
+    <string name="settings.option.log_level.F">严重错误</string>
+    <string name="settings.option.log_level.O">关闭</string>
     <string name="settings.current_suffix">（当前）</string>
     <string name="settings.enter_value">输入 {config_key} 的新值（当前：{old}，留空取消）：</string>
     <string name="settings.invalid_value">值无效。</string>

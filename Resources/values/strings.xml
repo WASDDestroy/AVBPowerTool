@@ -248,6 +248,16 @@ guide. However, directly access to core folders may result in unexpected behavio
     <string name="settings.disabled">Disabled</string>
     <string name="settings.select_log_level">Select log level</string>
     <string name="settings.select_language">Select language</string>
+    <string name="settings.option.language.en">English</string>
+    <string name="settings.option.language.zh">Simplified Chinese</string>
+    <string name="settings.option.language.me">Meow (do not enable this when in production environment)</string>
+    <string name="settings.option.log_level.T">Trace</string>
+    <string name="settings.option.log_level.D">Debug</string>
+    <string name="settings.option.log_level.I">Info</string>
+    <string name="settings.option.log_level.W">Warning</string>
+    <string name="settings.option.log_level.E">Error</string>
+    <string name="settings.option.log_level.F">Fatal</string>
+    <string name="settings.option.log_level.O">Off</string>
     <string name="settings.current_suffix">(current)</string>
     <string name="settings.enter_value">Enter new value for {config_key} (current: {old}, empty to cancel): </string>
     <string name="settings.invalid_value">Invalid value.</string>

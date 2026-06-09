@@ -245,6 +245,16 @@ imageList.txt 一行一个分区名称，不许带扩展名喵~带扩展名电�
     <string name="settings.disabled">禁用喵</string>
     <string name="settings.select_log_level">选择日志等级喵</string>
     <string name="settings.select_language">选择语言喵</string>
+    <string name="settings.option.language.en">English喵</string>
+    <string name="settings.option.language.zh">简体中文喵</string>
+    <string name="settings.option.language.me">喵？</string>
+    <string name="settings.option.log_level.T">跟踪喵</string>
+    <string name="settings.option.log_level.D">调试喵</string>
+    <string name="settings.option.log_level.I">信息喵</string>
+    <string name="settings.option.log_level.W">警告喵</string>
+    <string name="settings.option.log_level.E">错误喵</string>
+    <string name="settings.option.log_level.F">严重错误喵</string>
+    <string name="settings.option.log_level.O">关闭喵</string>
     <string name="settings.current_suffix">（当前）喵</string>
     <string name="settings.enter_value">输入 {config_key} 的新值（当前：{old}，留空取消）喵：</string>
     <string name="settings.invalid_value">值无效喵</string>
