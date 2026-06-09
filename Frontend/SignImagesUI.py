@@ -12,11 +12,11 @@ class SignImagesUI(BaseUI.BaseUI):
 
     def customized_init(self):
         self.customized_function = {
-            "S": t("sign.action.selected_image"),
+            "S": {"id": "action:sign_selected_images", "label": t("sign.action.selected_image")},
         }
 
     def call_backend(self, function_name: str):
-        if function_name == self.customized_function["S"]:
+        if function_name == self.customized_function["S"]["id"]:
             self.handle_sign_selected_images()
 
         self.my_ui_utils.press_enter_to_continue()

@@ -12,7 +12,7 @@ class ReadImageInfoUI(BaseUI.BaseUI):
     def customized_init(self):
         self.TAG = "ReadImageInfoUI"
         self.customized_function = {
-            "S": t("read.action.selected_images"),
+            "S": {"id": "action:read_selected_images", "label": t("read.action.selected_images")},
         }
         # noinspection PyAttributeOutsideInit
         self.my_image_info_utils = ImageInfoUtils.ImageInfoUtils()
@@ -22,7 +22,7 @@ class ReadImageInfoUI(BaseUI.BaseUI):
     def call_backend(self, function_name: str):
         # if function_name == "Read info of all images":
         #     self.__handle_read_all_images_info()
-        if function_name == self.customized_function["S"]:
+        if function_name == self.customized_function["S"]["id"]:
             self.__handle_read_selected_images_info()
         self.my_ui_utils.press_enter_to_continue()
 

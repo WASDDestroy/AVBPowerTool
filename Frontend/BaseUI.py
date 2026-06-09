@@ -11,7 +11,7 @@ class BaseUI:
     def __init__(self, goto_node="") -> None:
         self.TAG = self.__class__.__name__
         self.node_function = {}
-        self.customized_function = {}  # "Press Key" : "Function Name"
+        self.customized_function = {}  # "Press Key" : {"id": "...", "label": "..."}
         self._my_logger = LogUtils.LogUtils()
         self._my_importer = DynamicImportUtils.DynamicImportUtils()
         __global_config_info = GlobalConfigUtils.GlobalConfigInfo()
@@ -38,27 +38,27 @@ class BaseUI:
         self.node_function = {}
         for i in self.customized_function:
             self.node_function[i] = self.customized_function[i]
-        next_nodes_dict = self._my_navigation_engine.get_next_node_names()
+        next_nodes_dict = self._my_navigation_engine.get_next_node_actions()
         for i in next_nodes_dict:
             self.node_function[i] = next_nodes_dict[i]
         if self._my_navigation_engine.currentDic["Previous"] == "END":
-            self.node_function["E"] = "Exit"
+            self.node_function["E"] = {"id": "system:exit", "label": t("ui.exit")}
         else:
-            self.node_function["B"] = "Back to upper level"
+            self.node_function["B"] = {"id": "system:back", "label": t("ui.back")}
 
-    def handle_back_and_exit(self, function_name):
-        if "back" in function_name.lower():
+    def handle_back_and_exit(self, action_id):
+        if action_id == "system:back":
             self._my_logger.log("I", "Back to upper level.", self.TAG)
             self._my_navigation_engine.go_to_upper_level()
             return True
-        if function_name == "Exit":
+        if action_id == "system:exit":
             print(t("ui.exiting"))
             self._my_logger.log("I", "Exit on UI request.", self.TAG)
             exit()
         return False
 
-    def call_backend(self, function_name: str):
-        self.handle_back_and_exit(function_name)
+    def call_backend(self, action_id: str):
+        self.handle_back_and_exit(action_id)
         raise NotImplementedError(
             "Unimplemented method callBackEnd." + self.TAG)
 
@@ -71,20 +71,28 @@ class BaseUI:
 
     def show_ui(self):
         self.my_ui_utils.clear_screen()
-        available_functions = []
-        for i in self.node_function:
-            available_functions.append(self.node_function[i])
-        my_selector = EnhancedFileSelectorUI(self._my_navigation_engine.currentNodeName, available_functions, False,
+        available_entries = []
+        for key in self.node_function:
+            available_entries.append(self.node_function[key])
+        available_labels = [entry["label"] if isinstance(entry, dict) else str(entry) for entry in available_entries]
+        my_selector = EnhancedFileSelectorUI(self._my_navigation_engine.currentNodeName, available_labels, False,
                                              True, False)
-        return my_selector.show(True if self._my_navigation_engine.currentNodeName == "AVBPowerTool Home Page" else False,
-                                True)[0]
+        selected_label = my_selector.show(True if self._my_navigation_engine.currentNodeId == "home" else False,
+                                          True)[0]
+        selected_index = available_labels.index(selected_label)
+        selected_entry = available_entries[selected_index]
+        return selected_entry["id"] if isinstance(selected_entry, dict) else selected_label
 
-    def handle_interaction_logic(self, function_name):
-        self._my_logger.log("T", "Function name: " + function_name, self.TAG)
-        if self.handle_back_and_exit(function_name):
+    def handle_interaction_logic(self, action_id):
+        self._my_logger.log("T", "Action id: " + action_id, self.TAG)
+        if self.handle_back_and_exit(action_id):
             self._my_logger.log("T", "Back to upper level.", self.TAG)
             return True
-        # Check whether function is in next node
+        if action_id.startswith("node:"):
+            target_node_id = action_id.split(":", 1)[1]
+        else:
+            target_node_id = None
+
         if self._my_navigation_engine.currentDic["Next"][0] != "END":
             self._my_logger.log(
                 "T", "Current node has subnodes, traverse them.", self.TAG)
@@ -93,7 +101,7 @@ class BaseUI:
                     "T", "Traversing, current: " + i, self.TAG)
                 self._my_navigation_engine.goto_node(i)
                 self._my_navigation_engine.refresh_node_info()
-                if self._my_navigation_engine.currentDic["Name"] == function_name:
+                if self._my_navigation_engine.currentNodeId == target_node_id:
                     # Found function in one of the next node, dynamically import it and execute entry
                     if self._my_navigation_engine.currentDic["Frontend"].endswith(".py"):
                         module_name = self._my_navigation_engine.currentDic["Frontend"][:-3]
@@ -110,12 +118,12 @@ class BaseUI:
                     self._my_navigation_engine.go_to_upper_level()
             else:
                 # If the loop ends normally, call functions in current node.
-                self.call_backend(function_name)
+                self.call_backend(action_id)
                 return None
         else:
             self._my_logger.log(
-                "T", "Current node does not contain subnodes, directly call function: " + function_name, self.TAG)
-            self.call_backend(function_name)
+                "T", "Current node does not contain subnodes, directly call action: " + action_id, self.TAG)
+            self.call_backend(action_id)
             return None
 
     def entry(self):

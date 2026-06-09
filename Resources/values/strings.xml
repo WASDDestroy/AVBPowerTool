@@ -17,6 +17,9 @@
     <string name="cli.export.help">Export config to zip archive</string>
     <string name="cli.export.config_help">Name of single config to export</string>
     <string name="cli.get_all_config.help">Get names of all configs</string>
+    <string name="cli.check_l10n.help">Check missing strings in the selected language resource</string>
+    <string name="cli.check_l10n.no_missing">No missing string resources for language "{language}".</string>
+    <string name="cli.check_l10n.missing_header">Missing string resources for language "{language}" ({count}):</string>
     <string name="cli.about.help">Show about message</string>
     <string name="cli.about.version">AVBPowerTool Version {version}</string>
     <string name="cli.image_list_missing">Image list not given! Defaulting to all images.</string>
@@ -55,6 +58,8 @@
     <string name="ui.yes">Yes</string>
     <string name="ui.no">No</string>
     <string name="ui.exiting">Exiting.</string>
+    <string name="ui.exit">Exit</string>
+    <string name="ui.back">Back to upper level</string>
     <string name="ui.in_development">Function in development.</string>
     <string name="ui.operation_failed">Operation failed.</string>
     <string name="ui.refer_to_log">Please refer to log file for further information.</string>
@@ -137,6 +142,21 @@
     <string name="display_avb.key.Tree_Size">Tree Size</string>
     <string name="display_avb.key.Version_of_dm_verity">Version of dm-verity</string>
 
+    <string name="node.home.name">AVBPowerTool Home Page</string>
+    <string name="node.home.description">Welcome to AVBPowerTool.</string>
+    <string name="node.read_image_info.name">Read Image Info</string>
+    <string name="node.read_image_info.description">Read AVB configs of all images in working dir.</string>
+    <string name="node.config_manager.name">Config Manager</string>
+    <string name="node.config_manager.description">Manage, import and export config file from this page.</string>
+    <string name="node.sign_images.name">Sign Images</string>
+    <string name="node.sign_images.description">Sign images in working dir.</string>
+    <string name="node.import_config.name">Import Config</string>
+    <string name="node.import_config.description">Import archived configs.</string>
+    <string name="node.export_config.name">Export Config</string>
+    <string name="node.export_config.description">Export config(s).</string>
+    <string name="node.config_library.name">Config Library Manager</string>
+    <string name="node.config_library.description">Manage configs added to AVBPowerTool.</string>
+
     <string name="read.action.selected_images">Read info of selected image(s)</string>
     <string name="read.signing_config_warning">If you are going to create a signing config, this operation is strongly NOT recommended!</string>
     <string name="read.understand_continue">I understand, continue operation</string>
@@ -211,4 +231,5 @@ guide. However, directly access to core folders may result in unexpected behavio
     <string name="export.exported_configs">Config(s) exported:</string>
     <string name="export.failed">Failed to export config!</string>
     <string name="export.enter_archive_name">Enter the name of exported archive, keep it empty to use the name of config: </string>
+    <string name="home.action.view_current_config_info">View Current Config Info</string>
 </resources>

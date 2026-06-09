@@ -1,7 +1,8 @@
 {
-    "Description": "Read AVB configs of all images in working dir.",
+    "DescriptionKey": "node.read_image_info.description",
     "Frontend": "ReadImageInfoUI.py",
-    "Name": "Read Image Info",
+    "Id": "read_image_info",
+    "NameKey": "node.read_image_info.name",
     "Next": [
         "END"
     ],

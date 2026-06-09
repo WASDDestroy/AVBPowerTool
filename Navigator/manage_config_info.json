@@ -1,7 +1,8 @@
 {
-    "Description": "Manage configs added to AVBPowerTool.",
+    "DescriptionKey": "node.config_library.description",
     "Frontend": "ConfigLibManagerUI.py",
-    "Name": "Config Library Manager",
+    "Id": "config_library",
+    "NameKey": "node.config_library.name",
     "Next": [
         "END"
     ],

@@ -10,12 +10,12 @@ class ImportConfigUI(BaseUI.BaseUI):
 
     def customized_init(self):
         self.TAG = "ImportConfigUI"
-        self.customized_function = {"I" : t("import.action.import_configs")}
+        self.customized_function = {"I" : {"id": "action:import_configs", "label": t("import.action.import_configs")}}
         # noinspection PyAttributeOutsideInit
         self.myConfigManager = ConfigManager.ConfigManager()
 
     def call_backend(self, function_name: str):
-        if function_name == self.customized_function["I"]:
+        if function_name == self.customized_function["I"]["id"]:
             self.__handle_import_logic()
 
     def __handle_import_logic(self):

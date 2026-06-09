@@ -12,14 +12,14 @@ class ExportConfigUI(BaseUI.BaseUI):
         self.TAG = "ExportConfigUI"
         # noinspection PyAttributeOutsideInit
         self.customized_function = {
-            "E": t("export.action.export_configs"),
+            "E": {"id": "action:export_configs", "label": t("export.action.export_configs")},
         }
         # noinspection PyAttributeOutsideInit
         self.myConfigManager = self._my_importer.create_instance(self._my_importer.import_module("ConfigManager"),
                                                                 "ConfigManager")
 
     def call_backend(self, function_name: str):
-        if function_name == self.customized_function["E"]:
+        if function_name == self.customized_function["E"]["id"]:
             self.__handle_export_logic()
 
     def __handle_export_logic(self):

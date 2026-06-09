@@ -3,7 +3,7 @@ import os
 
 from Core.ConfigManager import ConfigManager
 from Core.GlobalConfigUtils import GlobalConfigInfo
-from Core.Localization import t
+from Core.Localization import StringResourceChecker, t
 from Core.LogUtils import ConsoleLog as cLog
 from Core.LogUtils import LogUtils
 
@@ -118,6 +118,17 @@ def handle_get_all_configs():
         config_string += config + " "
     print(config_string)
 
+def handle_check_l10n():
+    global_config = GlobalConfigInfo()
+    language = global_config.get_value("language") or "en"
+    missing_strings = StringResourceChecker.get_missing_strings()
+    if not missing_strings:
+        print(t("cli.check_l10n.no_missing", language=language))
+        return
+    print(t("cli.check_l10n.missing_header", language=language, count=len(missing_strings)))
+    for key in sorted(missing_strings.keys()):
+        print(StringResourceChecker.build_xml_string_entry(key, missing_strings[key]))
+
 def setup_argparse():
     parser = argparse.ArgumentParser(prog="AVBPowerTool", description=t("cli.description"))
     subparsers = parser.add_subparsers(dest="command", help=t("cli.available_commands"), required=False)
@@ -151,6 +162,9 @@ def setup_argparse():
     # get_all_configs_command
     subparsers.add_parser("get_all_config", help=t("cli.get_all_config.help"))
 
+    # check_l10n command
+    subparsers.add_parser("check_l10n", help=t("cli.check_l10n.help"))
+
     # about command
     subparsers.add_parser("about", help=t("cli.about.help"))
 
@@ -180,6 +194,8 @@ def parse_tool_args(args):
             handle_about()
         elif args.command == "get_all_config":
             handle_get_all_configs()
+        elif args.command == "check_l10n":
+            handle_check_l10n()
         else:
             logger.log("E", f"Unknown command: {args.command}", TAG_CLI)
             return 2

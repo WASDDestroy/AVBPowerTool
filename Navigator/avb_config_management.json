@@ -1,7 +1,8 @@
 {
-    "Description": "Manage, import and export config file from this page.",
+    "DescriptionKey": "node.config_manager.description",
     "Frontend": "ConfigManagerUI.py",
-    "Name": "Config Manager",
+    "Id": "config_manager",
+    "NameKey": "node.config_manager.name",
     "Next": [
         "import_config.json",
         "export_config.json",

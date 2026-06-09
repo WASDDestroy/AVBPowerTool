@@ -1,7 +1,8 @@
 {
-    "Description": "Import archived configs.",
+    "DescriptionKey": "node.import_config.description",
     "Frontend": "ImportConfigUI.py",
-    "Name": "Import Config",
+    "Id": "import_config",
+    "NameKey": "node.import_config.name",
     "Next": [
         "END"
     ],

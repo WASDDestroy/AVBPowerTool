@@ -1,7 +1,8 @@
 {
-    "Description": "Export config(s).",
+    "DescriptionKey": "node.export_config.description",
     "Frontend": "ExportConfigUI.py",
-    "Name": "Export Config",
+    "Id": "export_config",
+    "NameKey": "node.export_config.name",
     "Next": [
         "END"
     ],

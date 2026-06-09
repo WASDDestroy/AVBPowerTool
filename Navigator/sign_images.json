@@ -1,7 +1,8 @@
 {
-    "Description": "Sign images in working dir.",
+    "DescriptionKey": "node.sign_images.description",
     "Frontend": "SignImagesUI.py",
-    "Name": "Sign Images",
+    "Id": "sign_images",
+    "NameKey": "node.sign_images.name",
     "Next": [
         "END"
     ],

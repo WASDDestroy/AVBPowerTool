@@ -1,7 +1,8 @@
 {
-    "Description": "Welcome to AVBPowerTool.",
+    "DescriptionKey": "node.home.description",
     "Frontend": "HomePageUI.py",
-    "Name": "AVBPowerTool Home Page",
+    "Id": "home",
+    "NameKey": "node.home.name",
     "Next": [
         "read_image_info.json",
         "avb_config_management.json",

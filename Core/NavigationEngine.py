@@ -22,7 +22,10 @@ class NavigationEngine:
             if NavigationEngine._initialized:
                 return
         self.currentNodeFrontEnd = None
+        self.currentNodeId = None
         self.currentNodeSelections = None
+        self.currentNodeActionIds = None
+        self.currentNodeActionNameKeys = None
         self.currentNodeNext = None
         self.currentNodePrev = None
         self.currentNodeDesc = None
@@ -51,11 +54,14 @@ class NavigationEngine:
         self.get_current_node_info()
 
     def get_current_node_info(self):
-        self.currentNodeName = self.currentDic.get("Name", "Unknown")
-        self.currentNodeDesc = self.currentDic.get("Description", "Unknown")
+        self.currentNodeId = self.currentDic.get("Id", os.path.splitext(self.currentFileName)[0])
+        self.currentNodeName = t(self.currentDic.get("NameKey", "")) if self.currentDic.get("NameKey") else self.currentDic.get("Name", "Unknown")
+        self.currentNodeDesc = t(self.currentDic.get("DescriptionKey", "")) if self.currentDic.get("DescriptionKey") else self.currentDic.get("Description", "Unknown")
         self.currentNodePrev = self.currentDic.get("Previous", "Unknown")
         self.currentNodeNext = self.currentDic.get("Next", ["Unknown"])
         self.currentNodeSelections = self.currentDic.get("Selection", ["Unknown"])
+        self.currentNodeActionIds = self.currentDic.get("ActionIds", [])
+        self.currentNodeActionNameKeys = self.currentDic.get("ActionNameKeys", [])
         self.currentNodeFrontEnd = self.currentDic.get("Frontend", "Unknown")
         # self.myLogger.log("T", "Successfully refreshed node info:", self.TAG)
         # self.myLogger.log("T", "Node name: " + self.currentNodeName, self.TAG)
@@ -74,9 +80,35 @@ class NavigationEngine:
             for i in range(len(tmp_next_list)):
                 navigation_file_dir = os.path.join(self.navigatorDir, tmp_next_list[i])
                 with open(navigation_file_dir, "r", encoding="UTF-8") as myJSON:
-                    next_node_name = json.load(myJSON)["Name"]
+                    next_node = json.load(myJSON)
+                    if next_node.get("NameKey"):
+                        next_node_name = t(next_node["NameKey"])
+                    else:
+                        next_node_name = next_node["Name"]
                 result_dict[selection_list[i]] = next_node_name
             return result_dict
+
+    def get_next_node_actions(self) -> dict:
+        if self.currentDic["Next"][0] == "END":
+            return {}
+        selection_list = self.currentDic["Selection"]
+        result_dict = {}
+        tmp_next_list = copy.deepcopy(self.currentDic["Next"])
+        for i in range(len(tmp_next_list)):
+            navigation_file_dir = os.path.join(self.navigatorDir, tmp_next_list[i])
+            with open(navigation_file_dir, "r", encoding="UTF-8") as myJSON:
+                next_node = json.load(myJSON)
+            node_id = next_node.get("Id", os.path.splitext(tmp_next_list[i])[0])
+            if next_node.get("NameKey"):
+                label = t(next_node["NameKey"])
+            else:
+                label = next_node.get("Name", node_id)
+            result_dict[selection_list[i]] = {
+                "id": "node:" + node_id,
+                "node_file": tmp_next_list[i],
+                "label": label,
+            }
+        return result_dict
 
     def goto_node(self, node_identifier) -> None:
         if isinstance(node_identifier, int) and 0 <= node_identifier < len(self.currentDic["Next"]):
@@ -136,8 +168,8 @@ class NavigationEngine:
         result = []
 
         current_result = [
-            self.currentDic["Name"],
-            self.currentDic["Description"],
+            self.currentNodeName,
+            self.currentNodeDesc,
             self.currentDic["Frontend"],
             self.currentFileDir,
             self.currentDic["Next"].copy() if isinstance(self.currentDic["Next"], list) else ["Unknown"],
@@ -166,8 +198,7 @@ class NavigationEngine:
         os.system("cls") if os.name == "nt" else os.system("clear")
         start_file_dir = self.currentFileDir
         start_dic = self.currentDic
-        self.currentNodeName = self.ROOT_NODE
-        self.currentFileDir = os.path.join(self.navigatorDir, self.currentNodeName)
+        self.currentFileDir = os.path.join(self.navigatorDir, self.ROOT_NODE)
         self.currentFileName = os.path.basename(self.currentFileDir)
         self.refresh_node_info()
         traverse_result = self.__traverse_nodes_recursively()
@@ -198,7 +229,7 @@ class NavigationEngine:
 
 
 class NavigationMapGenerator:
-    LEGAL_PROPS = ["Name", "Description", "Previous", "Next", "Frontend", "Selection"]
+    LEGAL_PROPS = ["Id", "NameKey", "DescriptionKey", "Previous", "Next", "Frontend", "Selection"]
 
     def __init__(self) -> None:
         self.currentMapSelection = None
@@ -255,8 +286,8 @@ class NavigationMapGenerator:
             json.dump(self.currentDic, myFile, indent=4, sort_keys=True)
 
     def get_map_props(self):
-        self.currentMapName = self.currentDic.get("Name", "Unknown")
-        self.currentMapDesc = self.currentDic.get("Description", "Unknown")
+        self.currentMapName = t(self.currentDic.get("NameKey", "")) if self.currentDic.get("NameKey") else self.currentDic.get("Name", "Unknown")
+        self.currentMapDesc = t(self.currentDic.get("DescriptionKey", "")) if self.currentDic.get("DescriptionKey") else self.currentDic.get("Description", "Unknown")
         self.currentMapPrev = self.currentDic.get("Previous", "Unknown")
         self.currentMapNext = self.currentDic.get("Next", ["Unknown"])
         self.currentMapFrontEnd = self.currentDic.get("Frontend", "Unknown")

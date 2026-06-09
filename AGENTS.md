@@ -66,6 +66,16 @@ Use `from Core.Localization import t` and call `t("resource.key")`. Do not pass 
 
 The active language is configured in `GlobalConfig.cfg` with `language="en"` or `language="zh"`. Missing translations fall back to `Resources/values/strings.xml`; missing default keys render as the key name, which should be treated as a bug.
 
+Navigator JSON must not use translated or display text for control flow. Each node should define:
+
+- `Id`: stable unique identifier, for example `sign_images`
+- `NameKey`: resource key for the display title
+- `DescriptionKey`: resource key for the display description
+- `Next`: target JSON filenames
+- `Selection`: shortcut keys aligned with `Next`
+
+Frontend custom actions should use stable action IDs such as `action:sign_selected_images` and localized labels from `t("...")`. `BaseUI.show_ui()` returns action IDs, not labels, so backend dispatch should compare against IDs only.
+
 ## Runtime State And Safety
 
 This project manipulates Android image files, key material, config archives, and generated logs. Be careful with:

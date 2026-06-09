@@ -3,6 +3,7 @@
 import os
 import threading
 import xml.etree.ElementTree as ElementTree
+from xml.sax.saxutils import escape
 
 
 class Localization:
@@ -84,6 +85,49 @@ class Localization:
                 continue
             result[name] = "".join(string_node.itertext())
         return result
+
+
+class StringResourceChecker:
+    """
+    Compare default English strings against the selected language resource.
+    """
+
+    DEFAULT_LANGUAGE = "en"
+
+    @staticmethod
+    def get_language_resource_path(resources_dir, language):
+        if language == StringResourceChecker.DEFAULT_LANGUAGE:
+            return os.path.join(resources_dir, "values", "strings.xml")
+        return os.path.join(resources_dir, "values-" + language, "strings.xml")
+
+    @staticmethod
+    def get_missing_strings(resources_dir=None, language=None):
+        if resources_dir is None or language is None:
+            from Core.GlobalConfigUtils import GlobalConfigInfo
+            global_config = GlobalConfigInfo()
+            resources_dir = resources_dir or global_config.get_value("resource_dir") or "./Resources"
+            language = language or global_config.get_value("language") or StringResourceChecker.DEFAULT_LANGUAGE
+
+        default_path = StringResourceChecker.get_language_resource_path(
+            resources_dir, StringResourceChecker.DEFAULT_LANGUAGE)
+        selected_path = StringResourceChecker.get_language_resource_path(resources_dir, language)
+
+        default_strings = Localization._parse_strings_xml(default_path)
+        if os.path.abspath(default_path) == os.path.abspath(selected_path):
+            return {}
+        if not os.path.exists(selected_path):
+            return default_strings
+
+        selected_strings = Localization._parse_strings_xml(selected_path)
+        missing_strings = {}
+        for key, value in default_strings.items():
+            if key not in selected_strings:
+                missing_strings[key] = value
+        return missing_strings
+
+    @staticmethod
+    def build_xml_string_entry(key, value):
+        return f'    <string name="{escape(key)}">{escape(value)}</string>'
 
 
 def t(key, **kwargs):
