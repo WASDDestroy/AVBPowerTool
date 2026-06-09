@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cli.description">镜像签名与配置工具</string>
+    <string name="cli.available_commands">可用命令</string>
+    <string name="cli.sign.help">签名指定镜像</string>
+    <string name="cli.read.help">读取指定镜像的 vbmeta 信息</string>
+    <string name="cli.about.version">AVBPowerTool 版本 {version}</string>
+
+    <string name="ui.press_enter">按 Enter 继续。</string>
+    <string name="ui.confirm_operation">确认操作？</string>
+    <string name="ui.yes">是</string>
+    <string name="ui.no">否</string>
+    <string name="ui.operation_failed">操作失败。</string>
+    <string name="ui.operation_canceled">操作已取消。</string>
+    <string name="ui.no_option_selected">没有选择任何选项，正在取消。</string>
+    <string name="ui.instructions">操作说明：</string>
+    <string name="ui.navigate_items">上/下：移动选项</string>
+    <string name="ui.space_select">空格：选择/取消当前项</string>
+    <string name="ui.select_all">A：全选/取消全选</string>
+    <string name="ui.enter_confirm">Enter：确认选择</string>
+    <string name="ui.esc_cancel">ESC：取消</string>
+    <string name="ui.no_items_available">没有可用项目。</string>
+    <string name="ui.selected_count">已选择：{selected}/{total}</string>
+    <string name="ui.buttons_confirm_cancel">[Enter：确认]        [ESC：取消]</string>
+    <string name="ui.buttons_confirm">[Enter：确认]</string>
+
+    <string name="read.action.selected_images">读取选中镜像的信息</string>
+    <string name="read.selector_title">选择要读取的镜像</string>
+    <string name="read.reading_selected">正在读取选中镜像。</string>
+    <string name="read.selected_success">成功读取选中镜像信息。</string>
+
+    <string name="sign.action.selected_image">签名选中的镜像文件</string>
+    <string name="sign.selector_title">选择要签名的镜像文件</string>
+    <string name="sign.success">成功签名选中镜像！</string>
+
+    <string name="config.action.activate">激活配置</string>
+    <string name="config.action.save_persistent">保存配置到持久存储</string>
+    <string name="config.action.help">帮助</string>
+    <string name="config.selector_activate">选择要激活的配置</string>
+
+    <string name="config_lib.action.manage">管理配置</string>
+    <string name="config_lib.action.rename">重命名</string>
+    <string name="config_lib.action.delete">删除</string>
+    <string name="config_lib.action.activate">激活</string>
+    <string name="config_lib.selector_config">选择配置</string>
+
+    <string name="import.action.import_configs">导入配置</string>
+    <string name="import.selector_title">选择要导入的配置压缩包</string>
+    <string name="import.completed">导入流程完成。</string>
+
+    <string name="export.action.export_configs">导出选中的配置</string>
+    <string name="export.selector_config">选择配置</string>
+    <string name="export.exported_configs">已导出的配置：</string>
+
+    <string name="config_manager.rename_required_prompt">为避免覆盖已有文件，请提供另一个配置名称以继续导入。</string>
+    <string name="config_manager.current_name">当前名称：{name}</string>
+    <string name="config_manager.new_config_name">新的配置名称：</string>
+    <string name="config_manager.illegal_config_name">配置名称不合法，请换一个名称。</string>
+    <string name="config_manager.auto_name">使用自动生成的配置名称完成导入：{name}</string>
+
+    <string name="display_avb.empty">（空）</string>
+    <string name="display_avb.partition_title">【{partition} 分区】</string>
+    <string name="display_avb.config_info_title">指定配置文件的信息：</string>
+    <string name="display_avb.no_config_info">没有读取到配置信息，请检查 ./Core/currentConfigs 目录中是否存在有效的 imageInfo.json。</string>
+    <string name="display_avb.completed">解析完成，按回车键继续。</string>
+    <string name="display_avb.key.Algorithm">算法</string>
+    <string name="display_avb.key.Descriptor_Type">描述符类型</string>
+    <string name="display_avb.key.Hash_Algorithm">哈希算法</string>
+    <string name="display_avb.key.Image_File">镜像文件</string>
+    <string name="display_avb.key.Image_size">镜像大小（字节）</string>
+    <string name="display_avb.key.Partition_Name">分区名称</string>
+    <string name="display_avb.key.Props">属性</string>
+    <string name="display_avb.key.Flags">vbmeta 标志</string>
+    <string name="display_avb.key.Public_key_sha1">公钥（SHA1）</string>
+    <string name="display_avb.key.Public_key_file">对应的公钥文件</string>
+    <string name="display_avb.key.Rollback_Index">回滚索引</string>
+    <string name="display_avb.key.Salt">盐值</string>
+    <string name="display_avb.key.Data_Block_Size">验证数据块大小</string>
+    <string name="display_avb.key.Chain">链式验证分区及其回滚指数下标</string>
+    <string name="display_avb.key.Chain_partition_key">链分区公钥</string>
+    <string name="display_avb.key.Hash">哈希验证分区</string>
+    <string name="display_avb.key.Hashtree">哈希树验证分区</string>
+    <string name="display_avb.key.FEC_num_roots">前向纠错数根</string>
+    <string name="display_avb.key.FEC_offset">前向纠错数据偏移量</string>
+    <string name="display_avb.key.FEC_size">前向纠错数据大小</string>
+    <string name="display_avb.key.Hash_Block_Size">哈希数据块大小</string>
+    <string name="display_avb.key.Root_Digest">根摘要</string>
+    <string name="display_avb.key.Tree_Offset">哈希树偏移量</string>
+    <string name="display_avb.key.Tree_Size">哈希树大小</string>
+    <string name="display_avb.key.Version_of_dm_verity">dm-verity 版本</string>
+</resources>

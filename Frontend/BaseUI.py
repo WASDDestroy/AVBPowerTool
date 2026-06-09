@@ -3,6 +3,7 @@ import Frontend.UIUtils as UIUtils
 import Core.LogUtils as LogUtils
 import Core.NavigationEngine as NavigationEngine
 import Core.GlobalConfigUtils as GlobalConfigUtils
+from Core.Localization import t
 from Frontend.UIUtils import EnhancedFileSelectorUI
 
 class BaseUI:
@@ -51,7 +52,7 @@ class BaseUI:
             self._my_navigation_engine.go_to_upper_level()
             return True
         if function_name == "Exit":
-            print("Exiting.")
+            print(t("ui.exiting"))
             self._my_logger.log("I", "Exit on UI request.", self.TAG)
             exit()
         return False
@@ -62,10 +63,10 @@ class BaseUI:
             "Unimplemented method callBackEnd." + self.TAG)
 
     def _in_development_placeholder(self):
-        print("Function in development.")
+        print(t("ui.in_development"))
         self.my_ui_utils.press_enter_to_continue()
 
-    def confirm_operation(self, prompt="Confirm operation?") -> bool:
+    def confirm_operation(self, prompt=None) -> bool:
         return self.my_ui_utils.confirm_operation(prompt)
 
     def show_ui(self):

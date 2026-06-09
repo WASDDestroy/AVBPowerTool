@@ -2,6 +2,7 @@ import os
 
 import BaseUI
 import Core.ConfigManager as ConfigManager
+from Core.Localization import t
 from Frontend.UIUtils import EnhancedFileSelectorUI as EnhancedFileSelectorUI
 
 
@@ -9,7 +10,7 @@ class ImportConfigUI(BaseUI.BaseUI):
 
     def customized_init(self):
         self.TAG = "ImportConfigUI"
-        self.customized_function = {"I" : "Import config(s)"}
+        self.customized_function = {"I" : t("import.action.import_configs")}
         # noinspection PyAttributeOutsideInit
         self.myConfigManager = ConfigManager.ConfigManager()
 
@@ -22,11 +23,11 @@ class ImportConfigUI(BaseUI.BaseUI):
         for i in os.listdir(os.getcwd()):
             if i.endswith(".zip"):
                 file_can_be_selected.append(i)
-        my_file_selector = EnhancedFileSelectorUI("Select a Config Archive to Import", file_can_be_selected, True)
+        my_file_selector = EnhancedFileSelectorUI(t("import.selector_title"), file_can_be_selected, True)
         import_files = my_file_selector.show()
         self._my_logger.log("I", "Import files: %s" % str(import_files), self.TAG)
         if len(import_files) == 0:
-            self.my_ui_utils.message_on_cancel("No option selected, cancelling.")
+            self.my_ui_utils.message_on_cancel(t("ui.no_option_selected"))
             self.my_ui_utils.press_enter_to_continue()
             return
         for file_name in import_files:
@@ -37,22 +38,22 @@ class ImportConfigUI(BaseUI.BaseUI):
                 try:
                     self.myConfigManager.import_single_config(
                         import_from_file_name=file_name)
-                    print("Successfully imported single config archive %s." % file_name)
+                    print(t("import.single_success", file=file_name))
                 except Exception as e:
                     self._my_logger.log("W", e, self.TAG)
-                    print("Import failed!")
+                    print(t("import.failed"))
                     self.my_ui_utils.press_enter_to_continue()
             elif archive_type == "BATCH":
                 try:
                     self.myConfigManager.batch_import_config(
                         import_from_file_name=file_name)
-                    print("Successfully imported config.")
+                    print(t("import.batch_success"))
                 except Exception as e:
                     self._my_logger.log("W", e, self.TAG)
-                    print("Import failed!")
+                    print(t("import.failed"))
                     self.my_ui_utils.press_enter_to_continue()
             else:
-                print("Invalid archive file. Press Enter to continue.")
+                print(t("import.invalid_archive_press_enter"))
                 self.my_ui_utils.press_enter_to_continue()
-        print("Import process completed.")
+        print(t("import.completed"))
         self.my_ui_utils.press_enter_to_continue()

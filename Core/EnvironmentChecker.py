@@ -6,6 +6,7 @@ import sys
 import threading
 
 from Core.GlobalConfigUtils import GlobalConfigInfo
+from Core.Localization import t
 from Core.LogUtils import ConsoleLog as cLog
 from Core.LogUtils import LogUtils
 
@@ -197,20 +198,20 @@ class EnvironmentSetup:
             missing_libs_string = ""
             for i in missing_libs:
                 missing_libs_string += i + " "
-            print("Missing lib(s):", missing_libs_string)
+            print(t("env.missing_libs", libs=missing_libs_string))
             if should_install:
-                print("Installing dependencies automatically.")
+                print(t("env.installing_dependencies"))
                 try:
                     import subprocess
                     subprocess.run(["pip", "install"] + missing_libs)
                 except ImportError:
-                    print("Failed to import subprocess, exiting.")
+                    print(t("env.subprocess_import_failed"))
                     exit(1)
                 except Exception as e:
-                    print("Unhandled exception:", e)
+                    print(t("env.unhandled_exception", error=str(e)))
                     exit(1)
             else:
-                print("Run pip install " + missing_libs_string)
+                print(t("env.run_pip_install", libs=missing_libs_string))
                 exit(1)
 
     def check_necessary_folders(self):
@@ -220,7 +221,7 @@ class EnvironmentSetup:
             # print("Folder check passed.")
             logger.log("I", "Folder check passed.", self.__TAG)
         except Exception as e:
-            cLog.fatal("Exception happened when checking necessary folders: " + str(e))
+            cLog.fatal(t("env.folder_check_exception", error=str(e)))
             logger.log("F", "Exception happened when checking necessary folders: " + str(e), self.__TAG)
             exit(1)
 
@@ -232,7 +233,7 @@ class EnvironmentSetup:
                 logger.log("I", "Adding frontend dir to system path.", self.__TAG)
                 sys.path.insert(0, os.path.join(os.getcwd(), "Core", "Frontend"))
         except Exception as e:
-            cLog.fatal("Exception happened when processing frontend folder: " + str(e))
+            cLog.fatal(t("env.frontend_dir_exception", error=str(e)))
             logger.log("F", "Exception happened when processing frontend folder: " + str(e), self.__TAG)
             exit(1)
 

@@ -4,6 +4,7 @@ import BaseUI
 from Frontend.UIUtils import EnhancedFileSelectorUI
 import Core.ImageInfoUtils as ImageInfoUtils
 import Core.ConfigParser as ConfigParser
+from Core.Localization import t
 
 
 class ReadImageInfoUI(BaseUI.BaseUI):
@@ -11,7 +12,7 @@ class ReadImageInfoUI(BaseUI.BaseUI):
     def customized_init(self):
         self.TAG = "ReadImageInfoUI"
         self.customized_function = {
-            "S": "Read info of selected image(s)",
+            "S": t("read.action.selected_images"),
         }
         # noinspection PyAttributeOutsideInit
         self.my_image_info_utils = ImageInfoUtils.ImageInfoUtils()
@@ -21,27 +22,27 @@ class ReadImageInfoUI(BaseUI.BaseUI):
     def call_backend(self, function_name: str):
         # if function_name == "Read info of all images":
         #     self.__handle_read_all_images_info()
-        if function_name == "Read info of selected image(s)":
+        if function_name == self.customized_function["S"]:
             self.__handle_read_selected_images_info()
         self.my_ui_utils.press_enter_to_continue()
 
     def __handle_read_selected_images_info(self):
-        if self.my_ui_utils.confirm_operation("If you are going to create a signing config, this operation is strongly NOT recommended!",
-                                              ("I understand, continue operation", "No, cancel operation")):
+        if self.my_ui_utils.confirm_operation(t("read.signing_config_warning"),
+                                              (t("read.understand_continue"), t("read.cancel_operation"))):
             available_images = os.listdir(os.path.join(os.getcwd(), "Images"))
-            my_selector = EnhancedFileSelectorUI("Select Image(s) to Read", available_images, True, True, True)
+            my_selector = EnhancedFileSelectorUI(t("read.selector_title"), available_images, True, True, True)
             images_to_read = my_selector.show()
             if images_to_read:
-                print("Reading selected images.")
+                print(t("read.reading_selected"))
                 self._my_logger.log("I", "Read selected image(s).", self.TAG)
                 for i in range(len(images_to_read)):
                     if images_to_read[i].endswith(".img"):
                         images_to_read[i] = images_to_read[i][:-4]
                 self.my_image_info_utils.read_image_info_batch(images_to_read)
-                print("Successfully read info of selected images.")
+                print(t("read.selected_success"))
             else:
                 self._my_logger.log("I", "No image selected.", self.TAG)
-                print("No image selected! Tip: Use space to select file in multi-select mode and Enter to confirm your choice.")
+                print(t("read.no_image_selected"))
         else:
             self.my_ui_utils.message_on_cancel()
 

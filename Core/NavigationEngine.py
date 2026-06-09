@@ -1,5 +1,6 @@
 import os, json, time, copy, threading
 import Core.LogUtils as LogUtils
+from Core.Localization import t
 
 
 class NavigationEngine:
@@ -178,21 +179,21 @@ class NavigationEngine:
         # Display result
         result_list_length = len(traverse_result)
         print("=" * 80)
-        print("Traverse Result")
+        print(t("nav.traverse_result"))
         print("=" * 80)
         indent = " " * 4
 
         for i in range(result_list_length):
-            print("Page %d/%d, %s" % (i + 1, result_list_length, traverse_result[i][0]))
-            print(indent + "Description: ", traverse_result[i][1])
-            print(indent + "UI File: ", traverse_result[i][2])
-            print(indent + "Navigation Map Directory: ", traverse_result[i][3])
+            print(t("nav.page", current=i + 1, total=result_list_length, name=traverse_result[i][0]))
+            print(indent + t("nav.description", description=traverse_result[i][1]))
+            print(indent + t("nav.ui_file", file=traverse_result[i][2]))
+            print(indent + t("nav.map_directory", directory=traverse_result[i][3]))
             if traverse_result[i][4][0] != "END":
-                print(indent + "Can Navigate To:")
+                print(indent + t("nav.can_navigate_to"))
                 for j in traverse_result[i][4]:
                     print(indent * 2 + j)
             if traverse_result[i][5] != "END":
-                print(indent + "Upper Page: ", traverse_result[i][5])
+                print(indent + t("nav.upper_page", page=traverse_result[i][5]))
             print()
 
 
@@ -224,10 +225,10 @@ class NavigationMapGenerator:
         for i in range(len(tmp_list)):
             print(i + 1, tmp_list[i])
         self.save_file()
-        print("Previous mods have been saved.")
-        my_selection = int(input("Type -1 to create a new map file."))
+        print(t("nav.previous_mods_saved"))
+        my_selection = int(input(t("nav.create_map_prompt")))
         if my_selection == -1:
-            map_name = input("Enter new map name: ")
+            map_name = input(t("nav.new_map_name"))
             self.currentFileName = os.path.join(os.getcwd(), "Core", "../Navigator", map_name)
             with open(self.currentFileName, "w+", encoding="UTF-8") as myFile:
                 json.dump({}, myFile)
@@ -236,7 +237,7 @@ class NavigationMapGenerator:
             try:
                 map_name = tmp_list[my_selection - 1]
             except IndexError:
-                print("Index over range, automatically switch to the last file.")
+                print(t("nav.index_over_range"))
                 time.sleep(1)
                 map_name = tmp_list[-1]
             try:
@@ -268,12 +269,12 @@ class NavigationMapGenerator:
         next_nodes = self.currentMapNext
         fe = self.currentMapFrontEnd
         sel = self.currentMapSelection
-        print("Name: ", name, "\n",
-              "Description: ", desc, "\n",
-              "Previous map file: ", prev, "\n",
-              "Next map file(s):", next_nodes, "\n",
-              "Corresponding selection(s):", sel, "\n",
-              "Frontend File: ", fe)
+        print(t("nav.name", name=name), "\n",
+              t("nav.description", description=desc), "\n",
+              t("nav.previous_map", previous=prev), "\n",
+              t("nav.next_maps", next_nodes=next_nodes), "\n",
+              t("nav.selections", selections=sel), "\n",
+              t("nav.ui_file", file=fe))
 
     def edit_current_map(self, value="", target_prop: str = "", mode="add") -> bool:
         if not target_prop in self.LEGAL_PROPS:
@@ -292,7 +293,7 @@ class NavigationMapGenerator:
             if target_prop == "Next" or "Selection":
                 for i in range(len(self.currentDic[target_prop])):
                     print(i + 1, self.currentDic[target_prop][i])
-                pos = int(input("Enter an index: "))
+                pos = int(input(t("nav.enter_index")))
                 self.currentDic[target_prop].pop(pos - 1)
             else:
                 self.currentDic[target_prop] = ""
@@ -306,10 +307,10 @@ class NavigationMapGenerator:
             return True
 
         while 1:
-            print("Select a key:")
+            print(t("nav.select_key"))
             for i in range(len(self.LEGAL_PROPS)):
                 print(i + 1, self.LEGAL_PROPS[i])
-            print("Enter a number or full prop name, case sensitive. Enter \"XXX\" to exit.")
+            print(t("nav.choose_key_help"))
             tmp_str = input()
             if tmp_str == "XXX":
                 return ""
@@ -318,18 +319,18 @@ class NavigationMapGenerator:
             elif confirm_decimal(tmp_str):
                 return self.LEGAL_PROPS[int(tmp_str) - 1]
             else:
-                print("Illegal option.")
+                print(t("nav.illegal_option"))
 
     def refresh_cli(self):
 
         try:
             os.system("cls") if os.name == "nt" else os.system("clear")
             print("=" * 80)
-            print("Current File: " + self.currentFileName)
+            print(t("nav.current_file", file=self.currentFileName))
             self.get_map_props()
             self.print_map_info()
             print("=" * 80)
-            print("Please save your mods in time!")
+            print(t("nav.save_mods_notice"))
             print("=" * 80)
             print()
             prompt_list = ["[W] Switch a map;",
@@ -342,12 +343,12 @@ class NavigationMapGenerator:
                 print(i)
             print()
             print("=" * 80)
-            my_selection = input("Your choice: ").upper()
+            my_selection = input(t("nav.choice")).upper()
             if my_selection == "W":
                 self.switch_file()
             elif my_selection == "E":
                 self.edit_current_map(target_prop=self.__choose_key(),
-                                      value=input("The value you want to add to the map: "))
+                                      value=input(t("nav.value_to_add")))
             elif my_selection == "S":
                 self.save_file()
             elif my_selection == "R":
@@ -357,18 +358,18 @@ class NavigationMapGenerator:
                 exit()
             elif my_selection == "T":
                 myNavigationEngine.traverse_all_nodes()
-                input("Press Enter to continue.")
+                input(t("ui.press_enter"))
             else:
-                print("Illegal input.")
+                print(t("nav.illegal_option"))
         except KeyboardInterrupt:
-            print("Exit at KeyboardInterrupt.")
+            print(t("nav.exit_keyboard_interrupt"))
             self.save_file()
             exit()
 
 
 if __name__ == "__main__":
     myNavigationEngine = NavigationEngine()
-    if input("1: Edit navigator map; 2: Run single traverse test. Your choice: ") == "1":
+    if input(t("nav.entry_prompt")) == "1":
         myNavigationGen = NavigationMapGenerator()
         while 1:
             myNavigationGen.refresh_cli()

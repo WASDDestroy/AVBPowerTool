@@ -2,6 +2,7 @@ import os
 import time
 
 import BaseUI
+from Core.Localization import t
 from Frontend.UIUtils import EnhancedFileSelectorUI
 
 
@@ -11,7 +12,7 @@ class ExportConfigUI(BaseUI.BaseUI):
         self.TAG = "ExportConfigUI"
         # noinspection PyAttributeOutsideInit
         self.customized_function = {
-            "E": "Export selected config(s)",
+            "E": t("export.action.export_configs"),
         }
         # noinspection PyAttributeOutsideInit
         self.myConfigManager = self._my_importer.create_instance(self._my_importer.import_module("ConfigManager"),
@@ -25,7 +26,7 @@ class ExportConfigUI(BaseUI.BaseUI):
         file_can_be_selected = []
         for i in os.listdir(os.path.join(os.getcwd(), "Configs")):
             file_can_be_selected.append(i)
-        my_file_selector = EnhancedFileSelectorUI("Select a Config", file_can_be_selected, True)
+        my_file_selector = EnhancedFileSelectorUI(t("export.selector_config"), file_can_be_selected, True)
         config_list = my_file_selector.show()
         export_result = False
         if len(config_list) == 0:
@@ -33,7 +34,7 @@ class ExportConfigUI(BaseUI.BaseUI):
             self.my_ui_utils.press_enter_to_continue()
             return
         elif len(config_list) > 1:
-            if self.confirm_operation("Should export these configs as sparse archives?"):
+            if self.confirm_operation(t("export.sparse_archives_confirm")):
                 for i in config_list:
                     export_result = self.__call_export_backend(i, True)
             else:
@@ -42,18 +43,18 @@ class ExportConfigUI(BaseUI.BaseUI):
             config_name = config_list[0]
             export_result = self.__call_export_backend(config_name, True)
         if export_result:
-            print("Successfully exported selected config to root directory as an archive.")
-            print("Config(s) exported:")
+            print(t("export.success"))
+            print(t("export.exported_configs"))
             for config_name in config_list:
                 print(config_name)
         else:
-            print("Failed to export config!")
+            print(t("export.failed"))
 
         self.my_ui_utils.press_enter_to_continue()
 
     def __call_export_backend(self, config_name="", sparse=False, config_list=None):
         try:
-            export_to_file_name = input("Enter the name of exported archive, keep it empty to use the name of config: ")
+            export_to_file_name = input(t("export.enter_archive_name"))
             if export_to_file_name == "":
                 export_to_file_name = config_name
             if not export_to_file_name.endswith(".zip"):

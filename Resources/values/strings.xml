@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cli.description">Image signing and configuration tool</string>
+    <string name="cli.available_commands">Available commands</string>
+    <string name="cli.sign.help">Sign given images</string>
+    <string name="cli.sign.images_help">List of partition names (e.g., boot dtbo vbmeta)</string>
+    <string name="cli.sign.remove_footer_help">Remove footers of selected images before signing.</string>
+    <string name="cli.sign.remove_vbmeta_help">Remove vbmeta images before signing.</string>
+    <string name="cli.read.help">Read vbmeta info of given images</string>
+    <string name="cli.read.images_help">List of partition names</string>
+    <string name="cli.save.help">Save current config to persistent storage</string>
+    <string name="cli.save.name_help">Name to assign to the saved config</string>
+    <string name="cli.activate.help">Set a config as active</string>
+    <string name="cli.activate.name_help">Name of the config to activate</string>
+    <string name="cli.import.help">Import config from zip archive</string>
+    <string name="cli.import.file_help">Path to the zip archive</string>
+    <string name="cli.export.help">Export config to zip archive</string>
+    <string name="cli.export.config_help">Name of single config to export</string>
+    <string name="cli.get_all_config.help">Get names of all configs</string>
+    <string name="cli.about.help">Show about message</string>
+    <string name="cli.about.version">AVBPowerTool Version {version}</string>
+    <string name="cli.image_list_missing">Image list not given! Defaulting to all images.</string>
+    <string name="cli.cherry_pick_failed">Failed to cherry pick from config.</string>
+    <string name="cli.sign_selected_success">Successfully signed selected images!</string>
+    <string name="cli.sign_selected_failed">Failed to sign selected images! Error: {error}</string>
+    <string name="cli.reading_vbmeta_info">Reading vbmeta info from image file.</string>
+    <string name="cli.save_config_success">Successfully saved config to persistent storage.</string>
+    <string name="cli.save_config_failed">Failed to save config to persistent storage. Refer to log for further information.</string>
+    <string name="cli.activate_config_success">Successfully activated config.</string>
+    <string name="cli.activate_config_failed">Failed to activate config. Refer to log for further information.</string>
+    <string name="cli.import_single_success">Successfully imported single config archive {file}.</string>
+    <string name="cli.import_failed">Import failed!</string>
+    <string name="cli.import_batch_success">Successfully imported config.</string>
+    <string name="cli.import_failed_with_log">Import failed! Refer to log file for further information.</string>
+    <string name="cli.invalid_archive_file">Invalid archive file.</string>
+    <string name="cli.export_success">Successfully exported selected config to root directory as an archive.</string>
+    <string name="cli.export_failed">Failed to export config!</string>
+
+    <string name="main.working_directory_exception">Exception happened when handling working directory: {error}</string>
+    <string name="main.wsl_ntfs_warning_1">NEVER RUN THIS PROGRAM IN WSL WITH SCRIPTS STORED IN NTFS WORLD</string>
+    <string name="main.wsl_ntfs_warning_2">MAY RESULT IN PERMISSION DENIAL OF NUMEROUS FILES</string>
+    <string name="main.wsl_ntfs_warning_3">COPY THIS FOLDER TO LINUX WORLD AND TRY AGAIN</string>
+    <string name="main.keyboard_interrupt">Ctrl + C is pressed, exiting.</string>
+
+    <string name="env.missing_libs">Missing lib(s): {libs}</string>
+    <string name="env.installing_dependencies">Installing dependencies automatically.</string>
+    <string name="env.subprocess_import_failed">Failed to import subprocess, exiting.</string>
+    <string name="env.unhandled_exception">Unhandled exception: {error}</string>
+    <string name="env.run_pip_install">Run pip install {libs}</string>
+    <string name="env.folder_check_exception">Exception happened when checking necessary folders: {error}</string>
+    <string name="env.frontend_dir_exception">Exception happened when processing frontend folder: {error}</string>
+
+    <string name="ui.press_enter">Press Enter to continue.</string>
+    <string name="ui.confirm_operation">Confirm operation?</string>
+    <string name="ui.yes">Yes</string>
+    <string name="ui.no">No</string>
+    <string name="ui.exiting">Exiting.</string>
+    <string name="ui.in_development">Function in development.</string>
+    <string name="ui.operation_failed">Operation failed.</string>
+    <string name="ui.refer_to_log">Please refer to log file for further information.</string>
+    <string name="ui.check_log_note">Note: Exit tool, then check log file, otherwise nothing will be shown in latest log.</string>
+    <string name="ui.operation_canceled">Operation canceled.</string>
+    <string name="ui.no_items_to_select">No items to select.</string>
+    <string name="ui.select_files">Select Files</string>
+    <string name="ui.instructions">Instructions:</string>
+    <string name="ui.navigate_items">Up/Down : Navigate items</string>
+    <string name="ui.space_select">Space : Select/Deselect current item</string>
+    <string name="ui.select_all">A     : Select All / Deselect All</string>
+    <string name="ui.enter_confirm">Enter : Confirm selection</string>
+    <string name="ui.esc_cancel">ESC   : Cancel</string>
+    <string name="ui.no_items_available">No items available.</string>
+    <string name="ui.selected_count">Selected: {selected}/{total}</string>
+    <string name="ui.buttons_confirm_cancel">[Enter: Confirm]        [ESC: Cancel]</string>
+    <string name="ui.buttons_confirm">[Enter: Confirm]</string>
+    <string name="ui.no_option_selected">No option selected, cancelling.</string>
+
+    <string name="nav.traverse_result">Traverse Result</string>
+    <string name="nav.page">Page {current}/{total}, {name}</string>
+    <string name="nav.description">Description: {description}</string>
+    <string name="nav.ui_file">UI File: {file}</string>
+    <string name="nav.map_directory">Navigation Map Directory: {directory}</string>
+    <string name="nav.can_navigate_to">Can Navigate To:</string>
+    <string name="nav.upper_page">Upper Page: {page}</string>
+    <string name="nav.previous_mods_saved">Previous mods have been saved.</string>
+    <string name="nav.create_map_prompt">Type -1 to create a new map file.</string>
+    <string name="nav.new_map_name">Enter new map name: </string>
+    <string name="nav.index_over_range">Index over range, automatically switch to the last file.</string>
+    <string name="nav.name">Name: {name}</string>
+    <string name="nav.previous_map">Previous map file: {previous}</string>
+    <string name="nav.next_maps">Next map file(s): {next_nodes}</string>
+    <string name="nav.selections">Corresponding selection(s): {selections}</string>
+    <string name="nav.enter_index">Enter an index: </string>
+    <string name="nav.select_key">Select a key:</string>
+    <string name="nav.choose_key_help">Enter a number or full prop name, case sensitive. Enter "XXX" to exit.</string>
+    <string name="nav.illegal_option">Illegal option.</string>
+    <string name="nav.current_file">Current File: {file}</string>
+    <string name="nav.save_mods_notice">Please save your mods in time!</string>
+    <string name="nav.choice">Your choice: </string>
+    <string name="nav.value_to_add">The value you want to add to the map: </string>
+    <string name="nav.exit_keyboard_interrupt">Exit at KeyboardInterrupt.</string>
+    <string name="nav.entry_prompt">1: Edit navigator map; 2: Run single traverse test. Your choice: </string>
+
+    <string name="config_manager.rename_required_prompt">To avoid overriding existing files, please provide another config name to continue import process.</string>
+    <string name="config_manager.current_name">Current name: {name}</string>
+    <string name="config_manager.new_config_name">New config name: </string>
+    <string name="config_manager.illegal_config_name">Illegal config name, try another name instead.</string>
+    <string name="config_manager.auto_name">Using a autogenerated config name to complete import: {name}</string>
+
+    <string name="display_avb.empty">(empty)</string>
+    <string name="display_avb.partition_title">[{partition} partition]</string>
+    <string name="display_avb.config_info_title">Specified config file information:</string>
+    <string name="display_avb.no_config_info">No config information was read. Check whether ./Core/currentConfigs contains a valid imageInfo.json.</string>
+    <string name="display_avb.completed">Parsing completed, press Enter to continue.</string>
+    <string name="display_avb.key.Algorithm">Algorithm</string>
+    <string name="display_avb.key.Descriptor_Type">Descriptor Type</string>
+    <string name="display_avb.key.Hash_Algorithm">Hash Algorithm</string>
+    <string name="display_avb.key.Image_File">Image File</string>
+    <string name="display_avb.key.Image_size">Image size (bytes)</string>
+    <string name="display_avb.key.Partition_Name">Partition Name</string>
+    <string name="display_avb.key.Props">Props</string>
+    <string name="display_avb.key.Flags">vbmeta Flags</string>
+    <string name="display_avb.key.Public_key_sha1">Public key (sha1)</string>
+    <string name="display_avb.key.Public_key_file">Public key file</string>
+    <string name="display_avb.key.Rollback_Index">Rollback Index</string>
+    <string name="display_avb.key.Salt">Salt</string>
+    <string name="display_avb.key.Data_Block_Size">Data Block Size</string>
+    <string name="display_avb.key.Chain">Chain partitions and rollback index locations</string>
+    <string name="display_avb.key.Chain_partition_key">Chain partition key</string>
+    <string name="display_avb.key.Hash">Hash descriptor partitions</string>
+    <string name="display_avb.key.Hashtree">Hashtree descriptor partitions</string>
+    <string name="display_avb.key.FEC_num_roots">FEC num roots</string>
+    <string name="display_avb.key.FEC_offset">FEC offset</string>
+    <string name="display_avb.key.FEC_size">FEC size</string>
+    <string name="display_avb.key.Hash_Block_Size">Hash Block Size</string>
+    <string name="display_avb.key.Root_Digest">Root Digest</string>
+    <string name="display_avb.key.Tree_Offset">Tree Offset</string>
+    <string name="display_avb.key.Tree_Size">Tree Size</string>
+    <string name="display_avb.key.Version_of_dm_verity">Version of dm-verity</string>
+
+    <string name="read.action.selected_images">Read info of selected image(s)</string>
+    <string name="read.signing_config_warning">If you are going to create a signing config, this operation is strongly NOT recommended!</string>
+    <string name="read.understand_continue">I understand, continue operation</string>
+    <string name="read.cancel_operation">No, cancel operation</string>
+    <string name="read.selector_title">Select Image(s) to Read</string>
+    <string name="read.reading_selected">Reading selected images.</string>
+    <string name="read.selected_success">Successfully read info of selected images.</string>
+    <string name="read.no_image_selected">No image selected! Tip: Use space to select file in multi-select mode and Enter to confirm your choice.</string>
+
+    <string name="sign.action.selected_image">Sign selected image file</string>
+    <string name="sign.warning_before_select">Attention! Some images has their AVB info stored in vbmeta (vbmeta, vbmeta_system, vbmeta_vendor, etc.),
+Make sure you have clear understanding of what will happen after you signed images with this function.
+Continue?</string>
+    <string name="sign.fetch_info_failed_cancel">Failed to fetch information about selected images! Cancelling.</string>
+    <string name="sign.selector_title">Select image file(s) to sign</string>
+    <string name="sign.unable_generate">Unable to generate image &quot;{image}&quot;:</string>
+    <string name="sign.missing_config_info">- Config does not satisfy requirements: missing AVB info of image</string>
+    <string name="sign.missing_workdir_image">- Workdir does not satisfy requirements: missing image file of</string>
+    <string name="sign.wsl_pem_warning_2">MAY RESULT IN PERMISSION DENIAL OF PEM FILES</string>
+    <string name="sign.improper_directory">Improper directory, move complete project directory to Linux world and restart the program.</string>
+    <string name="sign.success">Successfully signed selected images!</string>
+    <string name="sign.failed">Failed to sign selected images! Error: {error}</string>
+    <string name="sign.wait_minutes">It may take up to minutes depending on your hardware config.</string>
+    <string name="sign.do_not_kill">The program is still running normally, DO NOT KILL IT!</string>
+
+    <string name="config.action.activate">Activate a config</string>
+    <string name="config.action.save_persistent">Save config to persistent storage</string>
+    <string name="config.action.help">Help</string>
+    <string name="config.selector_activate">Select a Config to Activate</string>
+    <string name="config.activate_success">Successfully switched active config to {config}</string>
+    <string name="config.active_removed">Old &quot;active&quot; config has been removed.</string>
+    <string name="config.activate_failed">Failed to set active config to {config}</string>
+    <string name="config.enter_new_name">Enter the name of your new config: </string>
+    <string name="config.save_success">Successfully saved &quot;current&quot; config to persistent file, name: {config}.</string>
+    <string name="config.save_failed">Failed to save &quot;current&quot; config to persistent file.</string>
+    <string name="config.help_message">Configs are stored under folder &quot;Configs&quot; with corresponding key files under directory &quot;Key&quot;.
+To create a config, create two folders named with your config under Config and Key folder respectively.
+Then, write a file named imageList.txt under folder in Config directory, one partition name for a line.
+As for Key folder, place your .pem file under it and program will do the rest.
+
+Also, you can open folder ./Core/currentConfigs and ./Core/currentKeySet to do the same thing with interactive
+guide. However, directly access to core folders may result in unexpected behavior.</string>
+
+    <string name="config_lib.action.manage">Manage configs</string>
+    <string name="config_lib.action.rename">Rename</string>
+    <string name="config_lib.action.delete">Delete</string>
+    <string name="config_lib.action.activate">Activate</string>
+    <string name="config_lib.selector_config">Select a config</string>
+    <string name="config_lib.options_for">Options available for {config}</string>
+    <string name="config_lib.rename_prompt">Config Rename</string>
+    <string name="config_lib.rename_success">Successfully renamed {old} to {new}</string>
+    <string name="config_lib.rename_failed">Failed to rename {old} to {new}</string>
+    <string name="config_lib.delete_danger">DANGER: THIS OPERATION CANNOT BE UNDONE!</string>
+    <string name="config_lib.remove_success">Successfully removed {config}</string>
+    <string name="config_lib.remove_failed">Failed to remove {config}</string>
+    <string name="config_lib.activate_confirm">Sure to activate this config ({config})? If so, current config will be override.</string>
+    <string name="config_lib.activate_success">Successfully activated {config}</string>
+    <string name="config_lib.activate_failed">Failed to activate {config}</string>
+
+    <string name="import.action.import_configs">Import config(s)</string>
+    <string name="import.selector_title">Select a Config Archive to Import</string>
+    <string name="import.single_success">Successfully imported single config archive {file}.</string>
+    <string name="import.failed">Import failed!</string>
+    <string name="import.batch_success">Successfully imported config.</string>
+    <string name="import.invalid_archive_press_enter">Invalid archive file. Press Enter to continue.</string>
+    <string name="import.completed">Import process completed.</string>
+
+    <string name="export.action.export_configs">Export selected config(s)</string>
+    <string name="export.selector_config">Select a Config</string>
+    <string name="export.sparse_archives_confirm">Should export these configs as sparse archives?</string>
+    <string name="export.success">Successfully exported selected config to root directory as an archive.</string>
+    <string name="export.exported_configs">Config(s) exported:</string>
+    <string name="export.failed">Failed to export config!</string>
+    <string name="export.enter_archive_name">Enter the name of exported archive, keep it empty to use the name of config: </string>
+</resources>

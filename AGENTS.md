@@ -1,0 +1,123 @@
+# AGENTS.md
+
+Guidance for coding agents working in this repository.
+
+## Project Overview
+
+AVBPowerTool is a Python 3.9+ tool for Android Verified Boot workflows. It wraps AOSP `avbtool.py` with interactive navigation, CLI commands, image-info extraction, signing, and config import/export management.
+
+The entry point is `main.py`. Startup changes the process working directory to the project root, reads `GlobalConfig.cfg`, initializes logging, checks dependencies/folders, then either:
+
+- runs CLI mode through `Core/CLIHandler.py` when a subcommand is supplied, or
+- starts the interactive frontend through `Frontend/HomePageUI.py` and `Core/NavigationEngine.py`.
+
+## Repository Layout
+
+- `main.py`: application entry point and startup sequence.
+- `Core/`: backend logic for CLI dispatch, config parsing/management, image metadata, signing, FEC, environment checks, logging, dynamic imports, and navigation.
+- `Core/avbtool.py`: bundled AOSP AVB tool; treat as vendor code unless the task explicitly targets it.
+- `Frontend/`: terminal UI classes. Most UI classes inherit from `Frontend/BaseUI.py`.
+- `Navigator/`: JSON navigation map files used by `Core/NavigationEngine.py`.
+- `GlobalConfig.cfg`: key/value global runtime configuration.
+- `bin/`: bundled platform tools such as OpenSSL and FEC binaries.
+- `Images/`, `Configs/`, `Keys/`, `Logs/`, `Core/currentConfigs/`, `Core/currentKeySet/`: runtime/user data locations. Avoid committing generated or private contents from these folders.
+- `requirements.txt`: Python runtime dependencies (`numpy`, `reedsolo`).
+
+## Development Commands
+
+Use a virtual environment when installing dependencies.
+
+```shell
+pip install -r requirements.txt
+python main.py about
+python main.py --help
+```
+
+Useful CLI smoke checks:
+
+```shell
+python main.py get_all_config
+python main.py read --images boot vbmeta
+python main.py sign --images boot vbmeta
+```
+
+The `read` and `sign` commands depend on images/configs/keys in the runtime folders, so do not assume they are safe smoke tests in a clean checkout.
+
+There is no formal test suite in the repository. `Core/test.py` is a hardcoded local script that references `F:\testImages`; do not treat it as a portable test.
+
+## Coding Conventions
+
+- Keep changes compatible with Python 3.9+.
+- Follow the existing module style: standard-library imports first, then project imports; classes use PascalCase; many existing methods use snake_case.
+- Preserve the project's explicit imports such as `import Core.SignImages as SignImages` unless refactoring is part of the task.
+- Prefer structured file handling for JSON/config files. Navigator files are UTF-8 JSON.
+- Keep terminal UI behavior consistent with `Frontend/BaseUI.py` and `Frontend/UIUtils.py`.
+- Add concise comments only where they clarify non-obvious control flow or file/runtime side effects.
+
+## Localization
+
+User-facing strings should live in Android-style XML resources:
+
+- default strings: `Resources/values/strings.xml`
+- Chinese strings: `Resources/values-zh/strings.xml`
+- additional languages: `Resources/values-<language>/strings.xml`
+
+Use `from Core.Localization import t` and call `t("resource.key")`. Do not pass source-text defaults to `t()`; `strings.xml` is the source of truth. Format placeholders use Python `str.format`, for example `<string name="example">Hello {name}</string>` with `t("example", name="User")`.
+
+The active language is configured in `GlobalConfig.cfg` with `language="en"` or `language="zh"`. Missing translations fall back to `Resources/values/strings.xml`; missing default keys render as the key name, which should be treated as a bug.
+
+## Runtime State And Safety
+
+This project manipulates Android image files, key material, config archives, and generated logs. Be careful with:
+
+- `Images/*.img`
+- `Keys/*`
+- `Configs/*`
+- `Core/currentConfigs/*`
+- `Core/currentKeySet/*`
+- `Logs/*`
+- root-level `*.zip`
+
+These paths are ignored by `.gitignore` because they are generated, private, or user-provided. Do not delete, overwrite, or normalize them unless the user explicitly asks.
+
+The app may auto-install missing Python libraries depending on `GlobalConfig.cfg` (`install_missing_libs`, `check_missing_libs`). For deterministic agent runs, prefer installing dependencies explicitly with `pip install -r requirements.txt` in the active environment.
+
+## Architecture Notes
+
+- `Core/CLIHandler.py` defines argparse subcommands and dispatches to backend classes.
+- `Core/ConfigManager.py` manages persistent config folders and import/export archives.
+- `Core/ConfigParser.py` parses and writes image-info/config JSON used by signing workflows.
+- `Core/ImageInfoUtils.py` reads AVB metadata from image files.
+- `Core/SignImages.py` signs images based on the active/current config.
+- `Core/NavigationEngine.py` reads `Navigator/*.json` files and controls page transitions.
+- `Frontend/BaseUI.py` provides common interactive behavior and dynamically imports page UIs.
+- `Core/LogUtils.py` provides singleton-style logging used throughout the project.
+
+When adding a new interactive page, update both the relevant `Frontend/*.py` class and the matching `Navigator/*.json` map entries. Keep `Selection` and `Next` arrays aligned by index.
+
+## Verification Guidance
+
+For small backend or CLI changes, run:
+
+```shell
+python main.py about
+python main.py --help
+```
+
+For navigation/frontend changes, at minimum run the app interactively:
+
+```shell
+python main.py
+```
+
+For config import/export, image reading, or signing changes, verify with disposable sample images/configs only. Avoid using private keys or user images unless the user has provided them for that purpose.
+
+## Git Hygiene
+
+Before editing, check the working tree:
+
+```shell
+git status --short
+```
+
+Do not revert unrelated local changes. In particular, runtime folders may contain user-specific keys, configs, images, and logs that should be left alone.

@@ -8,6 +8,7 @@ import Core.EnvironmentChecker as EnvironmentChecker
 import Frontend.HomePageUI as HomePageUI
 import Core.LogUtils as LogUtils
 import Core.GlobalConfigUtils as GlobalConfigUtils
+from Core.Localization import Localization, t
 from Core.LogUtils import ConsoleLog as cLog
 
 TAG = "Main"
@@ -47,8 +48,14 @@ def check_work_directory_correctness():
         os.chdir(current_dir)
         # print("Current work directory: " + os.getcwd())
     except Exception as e:
-        cLog.fatal("Exception happened when handling working directory:" + str(e))
+        cLog.fatal(t("main.working_directory_exception", error=str(e)))
         exit(1)
+
+def initialize_localization():
+    global_config_info = GlobalConfigUtils.GlobalConfigInfo()
+    Localization().initialize(
+        resources_dir=global_config_info.get_value("resource_dir") or "./Resources",
+        language=global_config_info.get_value("language") or "en")
 
 def initialize_logger():
     global_config_info = GlobalConfigUtils.GlobalConfigInfo()
@@ -59,9 +66,9 @@ def initialize_logger():
 
 def check_wsl():
     if EnvironmentChecker.EnvironmentChecker.is_wsl()[1] and os.getcwd().startswith("/mnt"):
-        print("NEVER RUN THIS PROGRAM IN WSL WITH SCRIPTS STORED IN NTFS WORLD")
-        print("MAY RESULT IN PERMISSION DENIAL OF NUMEROUS FILES")
-        print("COPY THIS FOLDER TO LINUX WORLD AND TRY AGAIN")
+        print(t("main.wsl_ntfs_warning_1"))
+        print(t("main.wsl_ntfs_warning_2"))
+        print(t("main.wsl_ntfs_warning_3"))
         exit(1)
 
 
@@ -84,6 +91,7 @@ def main():
     global_config_utils = GlobalConfigUtils.GlobalConfigUtils()
     global_config_info = GlobalConfigUtils.GlobalConfigInfo()
     global_config_info.set_values_by_dict(global_config_utils.parse_key_value_file(CONFIG_PATH))
+    initialize_localization()
 
     if bool(global_config_info.get_value("check_wsl")):
         check_wsl()
@@ -112,4 +120,4 @@ try:
     if __name__ == "__main__":
         main()
 except KeyboardInterrupt:
-    print("\nCtrl + C is pressed, exiting.")
+    print("\n" + t("main.keyboard_interrupt"))

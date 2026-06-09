@@ -5,26 +5,25 @@ import Frontend.UIUtils as UIUtils
 import Core.SignImages as SignImages
 from Core import ConfigParser
 from Core.ImageInfoUtils import ImageInfoUtils
+from Core.Localization import t
 
 
 class SignImagesUI(BaseUI.BaseUI):
 
     def customized_init(self):
         self.customized_function = {
-            "S": "Sign selected image file",
+            "S": t("sign.action.selected_image"),
         }
 
     def call_backend(self, function_name: str):
-        if function_name == "Sign selected image file":
+        if function_name == self.customized_function["S"]:
             self.handle_sign_selected_images()
 
         self.my_ui_utils.press_enter_to_continue()
 
     def handle_sign_selected_images(self):
         self.my_ui_utils.clear_screen()
-        warn_words_before_signing =  ("Attention! Some images has their AVB info stored in vbmeta (vbmeta, vbmeta_system, vbmeta_vendor, etc.),"
-                                      + "\n" + "Make sure you have clear understanding of what will happen after you signed images with this function."
-                                      + "\n" + "Continue?")
+        warn_words_before_signing = t("sign.warning_before_select")
 
         if self.my_ui_utils.confirm_operation(warn_words_before_signing):
 
@@ -34,7 +33,7 @@ class SignImagesUI(BaseUI.BaseUI):
             image_in_json = my_config_parser.get_image_in_json(
                 os.path.join(os.getcwd(), "Core", "currentConfigs", "imageInfo.json"))
             if not image_in_json:
-                self.my_ui_utils.message_on_cancel("Failed to fetch information about selected images! Cancelling.")
+                self.my_ui_utils.message_on_cancel(t("sign.fetch_info_failed_cancel"))
                 return
             set_json = set(image_in_json)
             self._my_logger.log("I", "Image configured in JSON file: " + str(set_json), self.TAG)
@@ -56,13 +55,13 @@ class SignImagesUI(BaseUI.BaseUI):
             self._my_logger.log("I", "Available images: " + str(set_available), self.TAG)
 
             # Initialize selector and show it
-            my_selector = UIUtils.EnhancedFileSelectorUI("Select image file(s) to sign", list(set_available), True,
+            my_selector = UIUtils.EnhancedFileSelectorUI(t("sign.selector_title"), list(set_available), True,
                                                          True, True)
             images_to_sign = my_selector.show(allow_long_item=True)
             self._my_logger.log("I", "Sign selected images: " + str(images_to_sign), self.TAG)
 
             if len(images_to_sign) == 0:
-                self.my_ui_utils.message_on_cancel("No option selected, cancelling.")
+                self.my_ui_utils.message_on_cancel(t("ui.no_option_selected"))
                 self.my_ui_utils.press_enter_to_continue()
                 return
 
@@ -88,16 +87,16 @@ class SignImagesUI(BaseUI.BaseUI):
 
                         # Show failure reasons
 
-                        print("Unable to generate image \"%s\":" % vbmeta_image)
+                        print(t("sign.unable_generate", image=vbmeta_image))
 
                         if not config_check_result[0]:
-                            print("- Config does not satisfy requirements: missing AVB info of image ", end="")
+                            print(t("sign.missing_config_info"), end=" ")
                             for missing_config in config_check_result[1]:
                                 print("\"%s\"" % missing_config, end=" ")
                         print()
 
                         if not workdir_check_result[0]:
-                            print("- Workdir does not satisfy requirements: missing image file of ", end="")
+                            print(t("sign.missing_workdir_image"), end=" ")
                             for missing_image in workdir_check_result[1]:
                                 print("\"%s\"" % missing_image, end=" ")
                         print("\n")
@@ -108,9 +107,9 @@ class SignImagesUI(BaseUI.BaseUI):
                     cherry_pick_result = my_config_parser.cherry_pick_from_config(images_to_sign)
                     if cherry_pick_result:
                         if self.__is_wsl()[1] and "/mnt" in os.getcwd():
-                            print("NEVER RUN THIS PROGRAM IN WSL WITH SCRIPTS STORED IN NTFS WORLD")
-                            print("MAY RESULT IN PERMISSION DENIAL OF PEM FILES")
-                            self.my_ui_utils.message_on_fail("Improper directory, move complete project directory to Linux world and restart the program.")
+                            print(t("main.wsl_ntfs_warning_1"))
+                            print(t("sign.wsl_pem_warning_2"))
+                            self.my_ui_utils.message_on_fail(t("sign.improper_directory"))
                             self.my_ui_utils.press_enter_to_continue()
                             return
                         self.warn_before_signing()
@@ -119,9 +118,9 @@ class SignImagesUI(BaseUI.BaseUI):
                             os.path.join(os.getcwd(), "Core", "currentConfigs", "tempImageInfo.json"),
                             remove_vb=True if "vbmeta" in images_to_sign else False)
                         if batch_sign_result[0]:
-                            print("Successfully signed selected images!")
+                            print(t("sign.success"))
                         else:
-                            print("Failed to sign selected images! Error: ", batch_sign_result[1])
+                            print(t("sign.failed", error=str(batch_sign_result[1])))
                             self.my_ui_utils.message_on_fail()
                     else:
                         self.my_ui_utils.message_on_fail()
@@ -152,6 +151,6 @@ class SignImagesUI(BaseUI.BaseUI):
     @staticmethod
     def warn_before_signing():
         print()
-        print("It may take up to minutes depending on your hardware config.")
-        print("The program is still running normally, DO NOT KILL IT!")
+        print(t("sign.wait_minutes"))
+        print(t("sign.do_not_kill"))
         print()
