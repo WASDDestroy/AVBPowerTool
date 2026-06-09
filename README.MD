@@ -1,9 +1,9 @@
 # AVB Power Tool
 
 > [!tip]
-> Chinese version: [Here](./这是什么.md)
+> Chinese version: [Here](./Docs/GetStarted/这是什么.md)
 >
-> 中文版：[这里](./这是什么.md)
+> 中文版：[这里](./Docs/GetStarted/这是什么.md)
 
 ## Brief
 

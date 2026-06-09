@@ -76,6 +76,25 @@ Navigator JSON must not use translated or display text for control flow. Each no
 
 Frontend custom actions should use stable action IDs such as `action:sign_selected_images` and localized labels from `t("...")`. `BaseUI.show_ui()` returns action IDs, not labels, so backend dispatch should compare against IDs only.
 
+### Adding A New Language
+
+When adding a new localization, use the existing Android-style resource layout:
+
+1. Create `Resources/values-<language>/strings.xml`, for example `Resources/values-ja/strings.xml`.
+2. Copy the XML structure from `Resources/values/strings.xml`.
+3. Translate values only. Do not rename `name="..."` keys.
+4. Preserve placeholders exactly, such as `{version}`, `{config}`, `{old}`, `{new}`, `{error}`, and `{config_key}`.
+5. Set `language="<language>"` in `GlobalConfig.cfg` or through the Settings page.
+6. Run `python main.py check_l10n` or the Settings page translation checker.
+7. Add any missing entries reported by the checker to the selected language file.
+8. Validate XML with:
+
+```shell
+python -c "import xml.etree.ElementTree as ET; ET.parse('Resources/values/strings.xml'); ET.parse('Resources/values-<language>/strings.xml')"
+```
+
+Do not duplicate source text in Python as fallback defaults. If a translated string is missing, the runtime should fall back to `Resources/values/strings.xml`, and `check_l10n` should report that missing key.
+
 ## Runtime State And Safety
 
 This project manipulates Android image files, key material, config archives, and generated logs. Be careful with:
