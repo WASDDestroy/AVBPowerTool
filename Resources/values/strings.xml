@@ -232,4 +232,23 @@ guide. However, directly access to core folders may result in unexpected behavio
     <string name="export.failed">Failed to export config!</string>
     <string name="export.enter_archive_name">Enter the name of exported archive, keep it empty to use the name of config: </string>
     <string name="home.action.view_current_config_info">View Current Config Info</string>
+    <string name="node.settings.name">Settings</string>
+    <string name="node.settings.description">Manage global settings.</string>
+    <string name="settings.action.edit">Edit settings</string>
+    <string name="settings.action.view">View current settings</string>
+    <string name="settings.action.check_l10n">Check missing translations</string>
+    <string name="settings.current_settings">Current GlobalConfig.cfg settings</string>
+    <string name="settings.select_setting">Select a setting to edit</string>
+    <string name="settings.read_only_suffix">(read-only)</string>
+    <string name="settings.read_only_message">{config_key} is read-only.</string>
+    <string name="settings.saved">Saved {config_key}: {old} -> {new}</string>
+    <string name="settings.restart_notice">Restart the program for all existing UI objects to use this change.</string>
+    <string name="settings.select_boolean">Select value for {config_key}</string>
+    <string name="settings.enabled">Enabled</string>
+    <string name="settings.disabled">Disabled</string>
+    <string name="settings.select_log_level">Select log level</string>
+    <string name="settings.select_language">Select language</string>
+    <string name="settings.current_suffix">(current)</string>
+    <string name="settings.enter_value">Enter new value for {config_key} (current: {old}, empty to cancel): </string>
+    <string name="settings.invalid_value">Invalid value.</string>
 </resources>

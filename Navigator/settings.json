@@ -1,0 +1,10 @@
+{
+    "DescriptionKey": "node.settings.description",
+    "Frontend": "SettingsUI.py",
+    "Id": "settings",
+    "NameKey": "node.settings.name",
+    "Next": [
+        "END"
+    ],
+    "Previous": "main_navigation.json"
+}

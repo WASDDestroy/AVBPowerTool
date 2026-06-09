@@ -6,12 +6,14 @@
     "Next": [
         "read_image_info.json",
         "avb_config_management.json",
-        "sign_images.json"
+        "sign_images.json",
+        "settings.json"
     ],
     "Previous": "END",
     "Selection": [
         "R",
         "M",
-        "S"
+        "S",
+        "T"
     ]
 }

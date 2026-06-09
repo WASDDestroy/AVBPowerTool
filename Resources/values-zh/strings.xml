@@ -227,4 +227,23 @@ imageList.txt 一行一个分区名称，不要带扩展名。 随后将 PEM 文
     <string name="ui.no_items_to_select">无待选择的选项。</string>
     <string name="ui.refer_to_log">请参阅日志获取信息。</string>
     <string name="ui.select_files">选择文件</string>
+    <string name="node.settings.name">设置</string>
+    <string name="node.settings.description">管理全局设置。</string>
+    <string name="settings.action.edit">编辑设置</string>
+    <string name="settings.action.view">查看当前设置</string>
+    <string name="settings.action.check_l10n">检查缺失翻译</string>
+    <string name="settings.current_settings">当前 GlobalConfig.cfg 设置</string>
+    <string name="settings.select_setting">选择要编辑的设置</string>
+    <string name="settings.read_only_suffix">（只读）</string>
+    <string name="settings.read_only_message">{config_key} 是只读项。</string>
+    <string name="settings.saved">已保存 {config_key}: {old} -> {new}</string>
+    <string name="settings.restart_notice">请重启程序，以便所有已创建的 UI 对象完整使用此更改。</string>
+    <string name="settings.select_boolean">选择 {config_key} 的值</string>
+    <string name="settings.enabled">启用</string>
+    <string name="settings.disabled">禁用</string>
+    <string name="settings.select_log_level">选择日志等级</string>
+    <string name="settings.select_language">选择语言</string>
+    <string name="settings.current_suffix">（当前）</string>
+    <string name="settings.enter_value">输入 {config_key} 的新值（当前：{old}，留空取消）：</string>
+    <string name="settings.invalid_value">值无效。</string>
 </resources>
