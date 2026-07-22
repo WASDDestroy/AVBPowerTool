@@ -80,7 +80,7 @@ class ImageInfoUtils:
             if "does not look like" in error_content:
                 self.my_logger.log("E", "Non-vbmeta image!", self.TAG)
                 return ""
-            error_content = error_content[error_content.find("error:"):].strip("\n")
+            error_content = error_content.partition("error:")[2].strip("\n")
             self.my_logger.log("E", "Error message: " + error_content, self.TAG)
             return ""
 
@@ -124,44 +124,44 @@ class ImageInfoUtils:
                         # Find partition name
                         for j in range(info_line + 1, info_line + 5): # Each chain partition has a 4-line descriptor
                             if "Name" in image_info_list[j]:
-                                colon_position = image_info_list[j].find(":")
-                                result_dic["Chain"].append(image_info_list[j][colon_position + 1:].strip(" "))
+                                _, value = image_info_list[j].split(":", 1)
+                                result_dic["Chain"].append(value.strip())
                                 break
                         # Find rollback index location
                         for j in range(info_line + 1, info_line + 5): # Each chain partition has a 4-line descriptor
                             if "Rollback Index Location" in image_info_list[j]:
-                                colon_position = image_info_list[j].find(":")
+                                _, value = image_info_list[j].split(":", 1)
                                 # always add rollback index info to the last element (which is appended by the previous "for" loop.)
-                                result_dic["Chain"][-1] += ":" + image_info_list[j][colon_position + 1:].strip(" ") + ":"
+                                result_dic["Chain"][-1] += ":" + value.strip() + ":"
                                 break
                         # Find public key SHA1
                         for j in range(info_line + 1, info_line + 5):
                             self.log_if_debug("T", "Process chain partition key.")
                             if "Public key" in image_info_list[j]:
-                                colon_position = image_info_list[j].find(":")
-                                temp_dic = {"Public key (sha1)" : image_info_list[j][colon_position + 1:].strip(" ")}
+                                _, value = image_info_list[j].split(":", 1)
+                                temp_dic = {"Public key (sha1)" : value.strip()}
                                 result_dic["Chain partition key"].append(self.__auto_detect_key_bin(self.__auto_detect_key_file(temp_dic)["Public key file"]))
                         info_line += 5
                     elif "Hash descriptor" in image_info_list[info_line]:
                         self.log_if_debug("T", "Found hash descriptor.")
                         for j in range(info_line + 1, info_line + 7): # Each partition with a hash desc has a 6-line descriptor
                             if "Name" in image_info_list[j]:
-                                colon_position = image_info_list[j].find(":")
-                                result_dic["Hash"].append(image_info_list[j][colon_position + 1:].strip(" "))
+                                _, value = image_info_list[j].split(":", 1)
+                                result_dic["Hash"].append(value.strip())
                                 break
                         info_line += 7
                     elif "Hashtree descriptor" in image_info_list[info_line]:
                         self.log_if_debug("T", "Found hashtree descriptor.")
                         for j in range(info_line + 1, info_line + 15): # Each partition with a hashtree desc has a 14-line descriptor
                             if "Name" in image_info_list[j]:
-                                colon_position = image_info_list[j].find(":")
-                                result_dic["Hashtree"].append(image_info_list[j][colon_position + 1:].strip(" "))
+                                _, value = image_info_list[j].split(":", 1)
+                                result_dic["Hashtree"].append(value.strip())
                                 break
                         info_line += 15
                     elif "Prop" in image_info_list[info_line]:
                         self.log_if_debug("T", "Prop string detected.")
-                        colon_position = image_info_list[info_line].find(":")
-                        result_dic["Prop" + str(prop_count)] = image_info_list[info_line][colon_position + 1:].strip(" ")
+                        _, value = image_info_list[info_line].split(":", 1)
+                        result_dic["Prop" + str(prop_count)] = value.strip()
                         prop_count += 1
                         info_line += 1
                     else:
@@ -170,33 +170,36 @@ class ImageInfoUtils:
                     if "Descriptors:" in image_info_list[info_line]:
                         encounter_string_desc = True
                     elif "Algorithm" in image_info_list[info_line]:
-                        result_dic["Algorithm"] = image_info_list[info_line][image_info_list[info_line].find(":") + 1:].strip(" ")
+                        _, value = image_info_list[info_line].split(":", 1)
+                        result_dic["Algorithm"] = value.strip()
                     elif "Rollback" in image_info_list[info_line] and "Location" not in image_info_list[info_line]:
-                        result_dic["Rollback Index"] = image_info_list[info_line][image_info_list[info_line].find(":") + 1:].strip(" ")
+                        _, value = image_info_list[info_line].split(":", 1)
+                        result_dic["Rollback Index"] = value.strip()
                     elif "Public key (sha1)" in image_info_list[info_line]:
-                        result_dic["Public key (sha1)"] = image_info_list[info_line][image_info_list[info_line].find(":") + 1:].strip(" ")
+                        _, value = image_info_list[info_line].split(":", 1)
+                        result_dic["Public key (sha1)"] = value.strip()
                     elif "Flags" in image_info_list[info_line]:
-                        result_dic["Flags"] = image_info_list[info_line][image_info_list[info_line].find(":") + 1:].strip(" ")
+                        _, value = image_info_list[info_line].split(":", 1)
+                        result_dic["Flags"] = value.strip()
                     info_line += 1
         else:
             result_dic = {}
             for info_line in image_info_list:
-                colon_position = info_line.find(":")
-                if colon_position != -1:
+                if ":" in info_line:
+                    key, value = info_line.split(":", 1)
+                    key = key.strip()
+                    value = value.strip()
                     self.log_if_debug("T", "Find separator in line: " + info_line)
-                    if "Prop" in info_line[:colon_position].strip(" "):
+                    if "Prop" in key:
                         self.log_if_debug("T", "Prop string detected.")
-                        result_dic[info_line[:colon_position].strip(" ") + str(prop_count)] = info_line[colon_position + 1:].strip(" ")
+                        result_dic[key + str(prop_count)] = value
                         prop_count += 1
                     else:
-                        result_dic[info_line[:colon_position].strip(" ")] = info_line[colon_position + 1:].strip(" ")
+                        result_dic[key] = value
         self.log_if_debug("I", "Successfully parsed image info.")
         self.log_if_debug("I", "Step3, remove unnecessary key-value pairs and add some post process.")
         if is_vbmeta_image:
-            result_dic_copy = copy.deepcopy(result_dic)
-            for item in result_dic_copy:
-                if "Prop" in item:
-                    result_dic.pop(item)
+            result_dic = {k: v for k, v in result_dic.items() if "Prop" not in k}
         else:
             result_dic = self.__generate_config_dict(result_dic)
         result_dic = self.__auto_detect_key_file(result_dic)
@@ -231,9 +234,8 @@ class ImageInfoUtils:
         has_encounter_string = False # Has encountered string "hash(tree) descriptor"
         descriptor_type = "" # Hash or Hashtree
         prop_list = []
-        result_dic_copy = copy.deepcopy(result_dic)
         # Remove key-value pairs with empty/wrong value, process props, and detect descriptor type
-        for excluded_key in result_dic_copy:
+        for excluded_key in list(result_dic.keys()):
             if excluded_key.lower() == "hash descriptor" or excluded_key.lower() == "hashtree descriptor":
                 has_encounter_string = True
                 if "hashtree" in excluded_key.lower():
@@ -247,19 +249,19 @@ class ImageInfoUtils:
                     # They use "Image size" in avbtool 1.3 to indicate actual image size.
                     result_dic.pop(excluded_key)
                 else:
-                    result_dic[excluded_key] = result_dic[excluded_key][:-5]
+                    result_dic[excluded_key] = result_dic[excluded_key].replace(" bytes", "")
             elif excluded_key == "Image size":
-                result_dic[excluded_key] = result_dic[excluded_key][:-6]
+                result_dic[excluded_key] = result_dic[excluded_key].replace(" bytes", "")
             elif "Prop" in excluded_key:
                 prop_list.append(result_dic[excluded_key])
                 result_dic.pop(excluded_key)
         result_dic["Descriptor Type"] = descriptor_type
         # noinspection DuplicatedCode
         prop_dic = {}
-        for excluded_key in prop_list:
-            arrow_pos = excluded_key.find("->")
-            if arrow_pos != -1:
-                prop_dic[excluded_key[: arrow_pos - 1]] = excluded_key[arrow_pos + 4: -1]
+        for prop_str in prop_list:
+            if " -> " in prop_str:
+                k, v = prop_str.split(" -> ", 1)
+                prop_dic[k] = v.strip("'")
         result_dic["Props"] = prop_dic
         return result_dic
     
