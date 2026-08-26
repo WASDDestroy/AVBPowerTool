@@ -1,5 +1,8 @@
 # AVB Power Tool
 
+> [!important]
+> Deprecated for poor design, please switch to [AVBPowerTool2](https://github.com/WASDDestroy/avbpowertool2). Configs created in this version can be converted to new format in TUI "Settings" section or via CLI.
+
 > [!tip]
 > Chinese version: [Here](./Docs/GetStarted/这是什么.md)
 >
